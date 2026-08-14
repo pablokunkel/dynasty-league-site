@@ -10,11 +10,27 @@
   "name": "dynasty-league-site",
   "compatibility_date": "2026-08-01",
 
+  // Live-data proxy for draft night and game days. See worker/index.js.
+  "main": "worker/index.js",
+
   "assets": {
     "directory": "./dist",
     // Serve index.html for any path that isn't a real file, so client-side
     // routes like /draft and /teams resolve instead of 404ing. Real files
     // (including everything under /data) are matched first and unaffected.
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+
+    // The Worker needs to hand non-/api requests back to the asset server.
+    "binding": "ASSETS",
+
+    // Without this, `not_found_handling: single-page-application` would answer
+    // /api/* with index.html and the Worker would never run. Routing every
+    // request through the Worker and delegating explicitly is the version-proof
+    // way to get both behaviours; the extra CPU per asset request is negligible.
+    "run_worker_first": true
+  },
+
+  "observability": {
+    "enabled": true
   }
 }

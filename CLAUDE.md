@@ -30,7 +30,9 @@ after editing `league.config.json` or `content/bylaws.md` — both feed the pipe
 ```
 scripts/fetch-sleeper.mjs   the pipeline. Everything data-shaped lives here.
 scripts/should-refresh.mjs  cadence gate for the refresh workflow
-wrangler.jsonc              Cloudflare Workers config — SPA fallback lives here
+wrangler.jsonc              Cloudflare Workers config — SPA fallback + worker
+worker/index.js             live-data proxy for draft night / game days
+src/lib/live.ts             non-Suspense polling hook for the above
 league.config.json          facts the Sleeper API does not expose
 content/bylaws.md           bylaws export, normalized by the pipeline
 src/lib/data.ts             promise-cached, per-season lazy loading
@@ -152,8 +154,6 @@ line is done; the open items are what's left.
 
 ## Open
 
-- [ ] **Live data during games and draft night** — see the section below. The
-      only remaining architectural piece. Nothing blocks it; it just isn't built.
 - [ ] **Per-player news feed on Teams.** Backlogged at the owner's request. No
       free per-player RSS source exists; the realistic approach is filtering a
       league-wide feed by player name, which is lossy and misses spelling
@@ -263,39 +263,66 @@ is configured `veto_votes_needed: 6`.
 
 # Live data during games and the draft
 
-**Decision: use a Cloudflare Worker as a short-TTL caching proxy. Do not use KV.**
+**Built.** `worker/index.js`, wired in `wrangler.jsonc`. Verified locally with
+`npx wrangler dev` before shipping.
 
-The current GH Actions pipeline lags ~20 minutes (best-effort cron + Workers build),
-which is fine in the offseason and useless on draft night.
+The static build is refreshed by GitHub Actions on a cron and lags ~20 minutes.
+That is fine in the offseason and useless while picks are landing, so a Worker
+fronts the same Sleeper endpoints with a short edge cache.
 
-Considered:
+**KV was considered and rejected.** Its free tier allows 1,000 writes/day; a
+one-minute refresh needs 1,440, so it would cost $5/mo to do what a caching
+proxy does for free. KV earns its place when read volume is high enough that
+origin hits hurt — with 12 users they never do.
 
-1. **Worker as caching proxy — chosen.** A Worker route fetches Sleeper on demand
-   with a 30–60s edge cache. Latency drops to ~1 minute. No write limits, no cron,
-   very little machinery.
-2. **Worker + KV + cron trigger — rejected.** KV's free tier allows **1,000 writes
-   per day**; a 1-minute cadence is 1,440. It would need the $5/mo plan to do what
-   the proxy does for free. KV earns its place when read volume is high enough that
-   origin hits hurt — with 12 users, they never do.
-3. **Tightening the Actions cron — rejected.** Still bounded by GitHub's
-   best-effort scheduler and the Workers build. Can't get below ~10 minutes.
+## How it fits together
 
-### Shape
+```
+wrangler.jsonc
+  main: worker/index.js
+  assets.binding: ASSETS
+  assets.run_worker_first: true
+```
 
-Only genuinely live surfaces go through the Worker; everything else stays static.
+`run_worker_first` matters: without it, `not_found_handling:
+single-page-application` answers `/api/*` with index.html and the Worker never
+runs. Every request therefore enters the Worker, which handles `/api/*` itself
+and delegates everything else to `env.ASSETS.fetch(request)` — which still
+applies the SPA fallback. The extra CPU on asset requests is negligible.
 
-| Surface | Source | Why |
+## Endpoints
+
+Strictly allowlisted in `ROUTES`. Without that this is an open proxy. Ids must
+match `\d{6,25}` and weeks `\d{1,2}`; anything else 404s, non-GET 405s.
+
+| Path | TTL | Used by |
 | --- | --- | --- |
-| Draft picks during the draft | Worker, 30s TTL | `/v1/draft/{id}/picks`, small and fast-changing |
-| Matchup scores Thu–Sun | Worker, 60s TTL | `/v1/league/{id}/matchups/{week}`, ~9KB |
-| Everything else | Static build | Doesn't change intra-day |
+| `/api/draft/{id}/picks` | 15s | Draft board, draft night |
+| `/api/draft/{id}` | 30s | draft status |
+| `/api/league/{id}/matchups/{week}` | 45s | live scores |
+| `/api/league/{id}/transactions/{week}` | 60s | — |
+| `/api/league/{id}/rosters` | 60s | — |
 
-The Worker should return raw-ish Sleeper payloads and let the client join them
-against the already-loaded `players.json`. Keeping the join client-side is what
-keeps the Worker small enough to avoid needing KV at all.
+Edge caching is `cf: { cacheTtl, cacheEverything: true }`. `cacheEverything` is
+required because Sleeper sends no cache headers of its own. A room full of
+people refreshing collapses onto one origin call per TTL.
 
-Load estimate: 12 users polling every 30s for a 4-hour draft is ~5,800 requests,
-against a 100k/day free tier.
+## Client side
 
-The static pipeline stays the fallback — if the Worker is unreachable the page
-should render committed data rather than error.
+`src/lib/live.ts`. Deliberately **not** Suspense-based like the rest of
+`lib/data.ts`: live data is an enhancement over the committed JSON, so if the
+Worker is unreachable the page must keep rendering yesterday's data rather than
+suspend or throw. `useLive` returns null until it has something, keeps the last
+good value on error, and pauses polling while the tab is hidden.
+
+`Draft.tsx` polls picks every 15s whenever the draft is not `complete`, merges
+them over the static board by `round:slot`, and shows a LIVE pill. With the
+Worker down, the board silently renders the committed data.
+
+## Load
+
+12 users polling every 15s for a four-hour draft is ~11.5k requests against a
+100k/day free tier.
+
+---
+

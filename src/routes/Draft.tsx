@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useManifest, usePlayers, useProspects, useSeason } from '../lib/data'
+import { liveDraftPicks, useLive, type LivePick } from '../lib/live'
 import type { DraftPick, Player } from '../lib/types'
 import { height, pts1 } from '../lib/format'
 import {
@@ -272,6 +273,38 @@ export default function Draft() {
   const countdown = useCountdown(cfg.startTime)
   const draft = season.draft
 
+  /*
+   * Draft night: the committed JSON is refreshed by GitHub Actions on a cron and
+   * lags ~20 minutes, which is useless while picks are landing. Poll the Worker
+   * proxy instead and overlay the result on the static board. If the Worker is
+   * unreachable this simply stays null and the page renders the committed data.
+   */
+  const live = useLive<LivePick[]>(
+    draft && draft.status !== 'complete' ? liveDraftPicks(draft.draftId) : null,
+    15_000
+  )
+
+  const livePicks = useMemo(() => {
+    const m = new Map<string, LivePick>()
+    for (const p of live.data ?? []) m.set(`${p.round}:${p.draft_slot}`, p)
+    return m
+  }, [live.data])
+
+  /** Static board with any live picks merged over the top. */
+  const board = useMemo(() => {
+    if (!draft) return []
+    if (livePicks.size === 0) return draft.board
+    return draft.board.map((round) => ({
+      ...round,
+      picks: round.picks.map((p) => {
+        const made = livePicks.get(`${p.round}:${p.slot}`)
+        return made ? { ...p, playerId: made.player_id } : p
+      }),
+    }))
+  }, [draft, livePicks])
+
+  const madeCount = Math.max(draft?.madePickCount ?? 0, livePicks.size)
+
   const teamsByRoster = useMemo(
     () => new Map(season.teams.map((t) => [t.rosterId, t])),
     [season.teams]
@@ -417,11 +450,25 @@ export default function Draft() {
           <SectionTitle
             right={
               <span className="flex items-center gap-3 text-[11px] text-ink-5">
+                {live.updatedAt !== null && (
+                  <span
+                    className="flex items-center gap-1.5 font-semibold text-teal"
+                    title={`Live from Sleeper, refreshed every 15s. Last update ${new Date(
+                      live.updatedAt
+                    ).toLocaleTimeString()}`}
+                  >
+                    <span className="relative flex size-2">
+                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-teal opacity-70" />
+                      <span className="relative inline-flex size-2 rounded-full bg-teal" />
+                    </span>
+                    LIVE
+                  </span>
+                )}
                 <span className="flex items-center gap-1.5">
                   <span className="inline-block size-2 rounded-sm border border-amber/50 bg-amber/20" />
                   traded pick
                 </span>
-                <span>{draft.madePickCount} of {draft.rounds * draft.teamCount} made</span>
+                <span>{madeCount} of {draft.rounds * draft.teamCount} made</span>
               </span>
             }
           >
@@ -435,7 +482,7 @@ export default function Draft() {
                 className="mb-2 grid gap-2"
                 style={{ gridTemplateColumns: `repeat(${draft.teamCount}, minmax(118px, 1fr))` }}
               >
-                {draft.board[0]?.picks.map((p) => {
+                {board[0]?.picks.map((p) => {
                   const original = teamsByRoster.get(p.originalRosterId)
                   return (
                     <div key={p.slot} className="px-0.5">
@@ -459,7 +506,7 @@ export default function Draft() {
                 })}
               </div>
 
-              {draft.board.map((round) => (
+              {board.map((round) => (
                 <div
                   key={round.round}
                   className="mb-2 grid gap-2"
