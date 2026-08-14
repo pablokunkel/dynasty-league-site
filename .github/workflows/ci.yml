@@ -16,5 +16,5 @@ jobs:
           cache: npm
       - run: npm ci
       # Typecheck + production build. Catches a broken page before Cloudflare
-      # Pages tries to deploy it.
+      # tries to deploy it.
       - run: npm run build

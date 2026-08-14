@@ -1,12 +1,12 @@
 {
-  // This project deploys as a Cloudflare Worker with static assets (Workers
-  // Assets), not classic Pages — the build log deploys to
-  // /workers/scripts/dynasty-league-site/versions.
+  // Cloudflare Workers config. Workers and Pages are one platform now — this
+  // deploys as a Worker serving static assets, which is simply how it works;
+  // there is no separate Pages product to choose.
   //
-  // The SPA fallback MUST be declared here rather than in public/_redirects.
-  // Workers Assets rejects the classic `/*  /index.html  200` rule with
-  // "Infinite loop detected in this rule", because it would strip `/index`
-  // and re-match itself. `not_found_handling` is the supported equivalent.
+  // The SPA fallback MUST be declared here. The `/*  /index.html  200` rule in
+  // a public/_redirects file is the old Pages idiom and is now rejected at
+  // deploy time with "Infinite loop detected in this rule", because it would
+  // strip `/index` and re-match itself. `not_found_handling` replaces it.
   "name": "dynasty-league-site",
   "compatibility_date": "2026-08-01",
 

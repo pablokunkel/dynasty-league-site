@@ -1,7 +1,7 @@
 # Dynasty — league site
 
 Static site for Sleeper league `1318724589848653824`, built with Vite + React + TypeScript
-and deployed to Cloudflare Pages. All Sleeper data is fetched at build time into
+and deployed to Cloudflare Workers. All Sleeper data is fetched at build time into
 `public/data`, so the browser never calls the Sleeper API and the site cannot be
 broken by Sleeper being slow or down.
 
@@ -32,9 +32,10 @@ npm run data && npm run dev
 `npm run data` re-fetches everything (~280 requests, ~5s). It caches the 14.6MB
 player dump in `.cache/` for 12 hours; `npm run data:full` forces a re-download.
 
-## Deploying to Cloudflare Pages
+## Deploying to Cloudflare Workers
 
-Connect the repo in the Pages dashboard and use:
+Workers and Pages are one platform now — there is no separate Pages product, so
+disregard older guidance that treats them as alternatives.
 
 | Setting | Value |
 | --- | --- |
@@ -42,15 +43,14 @@ Connect the repo in the Pages dashboard and use:
 | Build output directory | `dist` |
 | Node version | 22 |
 
-This deploys as a **Worker with static assets** (Workers Assets), not classic
-Pages. `wrangler.jsonc` declares the SPA fallback via
-`assets.not_found_handling`, so client-side routes like `/draft` resolve instead
-of 404ing.
+`wrangler.jsonc` declares the SPA fallback via `assets.not_found_handling`, so
+client-side routes like `/draft` resolve instead of 404ing.
 
-Do **not** add a `public/_redirects` with `/*  /index.html  200`. Workers Assets
-rejects it at deploy time with *"Infinite loop detected in this rule"*, because
-the rule would strip `/index` and re-match itself. That is the classic-Pages
-idiom and it fails here.
+Do **not** add a `public/_redirects` containing `/*  /index.html  200`. That is
+the old Pages idiom and is now rejected at deploy time with *"Infinite loop
+detected in this rule"*, because the rule would strip `/index` and re-match
+itself. The asset upload still reports success before this fails — a successful
+upload is not a successful deploy.
 
 ## Things the Sleeper API does not have
 
@@ -91,7 +91,7 @@ not trigger a Cloudflare rebuild. The gate fails open — if the league lookup
 errors, it refreshes anyway.
 
 **Expectation setting for draft night:** GitHub's scheduler is best-effort and can
-lag 5–15 minutes under load. Combined with the 15-minute cron and the Pages build,
+lag 5–15 minutes under load. Combined with the 15-minute cron and the Workers build,
 the draft board here can be ~20 minutes behind. Sleeper's own app remains the live
 source during the draft; this is a companion view, not a replacement. The planned
 fix is a Cloudflare Worker caching proxy — see the live-data section of

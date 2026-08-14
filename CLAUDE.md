@@ -7,7 +7,7 @@ file is the one to read first in a new session.
 
 A static site for Sleeper dynasty league `1318724589848653824` — 12-team
 superflex, running since 2021. Vite + React 19 + TypeScript + Tailwind v4,
-deployed to Cloudflare Pages.
+deployed to Cloudflare Workers.
 
 **All Sleeper data is fetched at build time into `public/data`.** The browser
 never calls the Sleeper API. This is deliberate: the site cannot be broken by
@@ -30,7 +30,7 @@ after editing `league.config.json` or `content/bylaws.md` — both feed the pipe
 ```
 scripts/fetch-sleeper.mjs   the pipeline. Everything data-shaped lives here.
 scripts/should-refresh.mjs  cadence gate for the refresh workflow
-wrangler.jsonc              Workers Assets config — SPA fallback lives here
+wrangler.jsonc              Cloudflare Workers config — SPA fallback lives here
 league.config.json          facts the Sleeper API does not expose
 content/bylaws.md           bylaws export, normalized by the pipeline
 src/lib/data.ts             promise-cached, per-season lazy loading
@@ -94,16 +94,20 @@ than hardcoding, so this stays correct if the league changes.
 
 ## Deployment
 
-Deploys as a **Cloudflare Worker with static assets**, not classic Pages — the
-build runs `wrangler deploy` against
-`/workers/scripts/dynasty-league-site/versions`.
+Deploys to **Cloudflare Workers**. Workers and Pages have been merged — Pages is
+no longer a separate product, so disregard any guidance (including model
+knowledge) that frames this as a choice between the two. The build runs
+`wrangler deploy` against `/workers/scripts/dynasty-league-site/versions`.
 
 **SPA fallback is configured in `wrangler.jsonc` via
 `assets.not_found_handling: "single-page-application"`.** Do not reintroduce
-`public/_redirects` with `/*  /index.html  200`; Workers Assets rejects it with
-*"Infinite loop detected in this rule"* and the deploy fails after uploading.
-That rule is the classic-Pages idiom and does not apply here. This already cost
-one failed deploy.
+`public/_redirects` with `/*  /index.html  200` — that is the old Pages idiom and
+is now rejected at deploy time with *"Infinite loop detected in this rule"*,
+because the rule would strip `/index` and re-match itself.
+
+This already cost one failed deploy. Note that the asset upload reports success
+before the failure, so "Uploaded N files" in the log does not mean the deploy
+worked.
 
 ## Conventions
 
@@ -240,7 +244,7 @@ fix in code.
 
 **Decision: use a Cloudflare Worker as a short-TTL caching proxy. Do not use KV.**
 
-The current GH Actions pipeline lags ~20 minutes (best-effort cron + Pages build),
+The current GH Actions pipeline lags ~20 minutes (best-effort cron + Workers build),
 which is fine in the offseason and useless on draft night.
 
 Considered:
@@ -253,7 +257,7 @@ Considered:
    the proxy does for free. KV earns its place when read volume is high enough that
    origin hits hurt — with 12 users, they never do.
 3. **Tightening the Actions cron — rejected.** Still bounded by GitHub's
-   best-effort scheduler and the Pages build. Can't get below ~10 minutes.
+   best-effort scheduler and the Workers build. Can't get below ~10 minutes.
 
 ### Shape
 
