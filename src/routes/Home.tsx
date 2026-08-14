@@ -23,6 +23,7 @@ import {
   TableWrap,
 } from '../components/ui'
 import { ClockIcon } from '../components/icons'
+import { Standings, Tankathon } from '../components/LeagueTables'
 
 /** Sum of a roster's projected starter points — the pre-season power number. */
 function projectedStrength(
@@ -83,6 +84,17 @@ export default function Home() {
   const news = useNews()
 
   const hasGames = season.teams.some((t) => t.wins + t.losses + t.ties > 0)
+
+  /*
+   * Standings and the tankathon need a season that has actually been played.
+   * `manifest.seasons` is newest-first, so this is the live season once it
+   * starts and the most recently completed one during the offseason. When they
+   * coincide, `useSeason` hits the same cached promise and no extra fetch
+   * happens.
+   */
+  const statsSeasonYear =
+    manifest.seasons.find((s) => s.matchupWeekCount > 0)?.season ?? manifest.currentSeason
+  const statsSeason = useSeason(statsSeasonYear)
   const starterCount = season.rosterPositions.filter((p) => p !== 'BN').length
 
   /** Always projection-ordered — the tiles report projections regardless of hasGames. */
@@ -236,8 +248,21 @@ export default function Home() {
         />
       </div>
 
+      {/* ------------------------------------------- standings + tankathon */}
+      <div className="mb-6 space-y-6">
+        <Standings season={statsSeason} seasonYear={statsSeasonYear} />
+      </div>
+
       <div className="grid gap-6 lg:grid-cols-[1.15fr_1fr]">
-        {/* ------------------------------------------------------ standings */}
+        {/* ------------------------------------------------------ tankathon */}
+        <Tankathon
+          season={statsSeason}
+          seasonYear={statsSeasonYear}
+          manifest={manifest}
+        />
+
+        {/* ---------------------------------------- pre-season projections */}
+        {!hasGames && (
         <section>
           <SectionTitle
             right={
@@ -309,13 +334,12 @@ export default function Home() {
             </tbody>
           </TableWrap>
 
-          {!hasGames && (
-            <p className="mt-2 text-[11px] text-ink-5">
-              Sorted by the sum of each roster's top {starterCount} projected players for{' '}
-              {points.projectionsSeason}. {points.note}
-            </p>
-          )}
+          <p className="mt-2 text-[11px] text-ink-5">
+            Sorted by the sum of each roster's top {starterCount} projected players for{' '}
+            {points.projectionsSeason}. {points.note}
+          </p>
         </section>
+        )}
 
         {/* ---------------------------------------------------------- news */}
         <section>

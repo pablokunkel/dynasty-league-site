@@ -119,8 +119,20 @@ worked.
   is 6KB gzipped.
 - Wide tables scroll inside `TableWrap`, never the page body.
 - Tabular numbers get `className="tnum"`.
-- Colors come from `@theme` tokens in `theme.css`, lifted from Sleeper's own
-  stylesheet. Don't introduce raw hex in components.
+- Colors come from `@theme` tokens in `theme.css`. Don't introduce raw hex in
+  components.
+- **Never name a colour token after a core Tailwind utility.** Tailwind v4
+  generates a `text-<name>` utility for every `@theme` colour, so a token named
+  `base` produced a `text-base` *colour* utility that collided with the built-in
+  `text-base` font-size. Every `text-base` in the app silently painted its text
+  `#18202f` — near-black on a card. The token is now `--color-surface`. Avoid
+  `base`, `xs`, `sm`, `lg`, `xl`.
+- **The palette is contrast-checked, don't regress it.** Sleeper's own muted
+  greys (`#7988a1`, `#677897`) measure 3.37:1 and 2.89:1 on our card surface —
+  under WCAG AA. `ink-4`, `ink-5`, `rose`, `indigo` and the position colours are
+  deliberately lightened from Sleeper's values so every one clears 4.5:1 against
+  `--color-card`, which is the worst case. All nine routes currently audit at
+  **zero** failures; re-run the audit after palette or component changes.
 - The pipeline degrades rather than fails: an unavailable undocumented endpoint
   logs a warning and the page shows `—`.
 
@@ -140,15 +152,12 @@ line is done; the open items are what's left.
 
 ## Open
 
-- [ ] **Per-player news feed on Teams.** No free per-player RSS source exists.
-      The realistic approach is filtering a league-wide feed by player name,
-      which is lossy and will miss anyone whose name is spelled differently in
-      the headline. Confirm that's acceptable before building it.
-- [ ] **Week-level deep links on Schedule.** Clicking a week does not write
-      `?week=` back to the URL, so a week cannot be shared. The param is already
-      honoured on read; only the write side is missing.
-- [ ] **Live data during games and draft night** — see the section below. This is
-      the only remaining architectural piece.
+- [ ] **Live data during games and draft night** — see the section below. The
+      only remaining architectural piece. Nothing blocks it; it just isn't built.
+- [ ] **Per-player news feed on Teams.** Backlogged at the owner's request. No
+      free per-player RSS source exists; the realistic approach is filtering a
+      league-wide feed by player name, which is lossy and misses spelling
+      variants. Confirm that's acceptable before building it.
 
 ## Known discrepancy — needs a league decision, not code
 
@@ -224,6 +233,24 @@ is configured `veto_votes_needed: 6`.
       a re-export does not undo it. The pipeline **warns** when a replacement
       matches nothing, so a reworded sentence surfaces instead of silently
       leaving "me" on the page.
+
+**Standings and Tankathon (on Home, per the owner's preference over a new tab)**
+- [x] `components/LeagueTables.tsx`. Standings carries Place / W / L / T / PF /
+      PA / Diff / Max PF / Accuracy, with ★ on the most efficient manager.
+      Place is grouped by win total, so a four-way tie all read the same number.
+- [x] Tankathon projects next year's round 1 from ascending Max PF — the bylaws
+      rule — and resolves traded picks to whoever actually holds them. Copy
+      switches between "projection" and "final" on season status. Flavour text
+      lives in `league.config.json` under `tankathon`.
+- [x] Both key off the most recent season with games, so they show 2025 now and
+      switch to 2026 automatically once it kicks off.
+- [x] Week-level deep links on Schedule — the week now mirrors into `?week=`.
+
+**Accessibility**
+- [x] Palette contrast pass. 79 failures on Playoffs alone → **0 across all nine
+      routes.** Root causes were Sleeper's muted greys being too dark on our card
+      surface, and the `--color-base` / `text-base` utility collision. See
+      Conventions.
 
 **Pipeline correctness**
 - [x] RSS dates: ESPN stamps every item `EST` year-round, so `Date.parse` read

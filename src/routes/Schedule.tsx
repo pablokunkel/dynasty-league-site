@@ -317,7 +317,20 @@ export default function Schedule() {
     picked && picked.season === seasonParam && availableWeeks.includes(picked.week)
       ? picked.week
       : defaultWeek
-  const setWeek = (w: number) => setPicked({ season: seasonParam, week: w })
+
+  /*
+   * Mirror the pick into ?week= so the address bar always describes what's on
+   * screen and a specific week can be shared. `replace` keeps the back button
+   * meaning "leave this page" rather than stepping back through every week the
+   * user clicked.
+   */
+  const setWeek = (w: number) => {
+    setPicked({ season: seasonParam, week: w })
+    const next = new URLSearchParams(params)
+    next.set('season', seasonParam)
+    next.set('week', String(w))
+    setParams(next, { replace: true })
+  }
 
   const setSeason = (v: string) => {
     const next = new URLSearchParams(params)

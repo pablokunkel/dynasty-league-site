@@ -1012,6 +1012,7 @@ async function main() {
     currentSeason: chain[0].season,
     currentStatus: chain[0].league.status,
     draftConfig: config.draft,
+    tankathon: config.tankathon,
     hiddenUserIds: config.teamOverrides?.hiddenUserIds ?? [],
     /**
      * Positions this league actually rosters, derived from roster_positions —

@@ -49,6 +49,21 @@
     ]
   },
 
+  "tankathon": {
+    "_comment": "Projected next-year draft order. Per the bylaws the order is set by ascending regular-season Max Points For, so this is a live race to the bottom once the season starts. Rename freely — it is pure flavour.",
+    "title": "Tankathon",
+    "subtitle": "Dire for Jeremiah",
+    "_subtitleAlternatives": [
+      "Dire for Jeremiah — rhymes like 'March for Arch' and describes a tanking team",
+      "Tanks for Jeremiah",
+      "Mire for Jeremiah",
+      "Jeremiah Was a Bullfrog",
+      "The Smith Sweepstakes",
+      "Operation Jeremiah"
+    ],
+    "prospect": "Jeremiah Smith"
+  },
+
   "news": {
     "_comment": "Fantasy/NFL news shown on the homepage. Fetched at build time so there is no CORS or client-side feed parsing. Verified reachable 2026-08-14; CBS and FantasyPros feeds are dead, do not add them back.",
     "maxItems": 12,

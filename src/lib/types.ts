@@ -46,6 +46,7 @@ export interface Manifest {
   currentSeason: string
   currentStatus: string
   draftConfig: DraftConfig
+  tankathon: { title: string; subtitle: string; prospect: string }
   hiddenUserIds: string[]
   /**
    * Positions this league actually rosters — QB/RB/WR/TE, no K or DEF.
