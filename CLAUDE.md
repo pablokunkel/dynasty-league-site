@@ -135,108 +135,102 @@ available (the pane doesn't always composite), in which case
 
 # Roadmap
 
-Feedback from the league owner, 2026-08-14, not yet implemented.
+QA feedback from the league owner, 2026-08-14. Everything below the "Shipped"
+line is done; the open items are what's left.
 
-## Global
+## Open
 
-- [ ] **Collapse button for the left nav.** Persist the state.
-- [ ] **Drop K and DEF everywhere** — position filters on Draft, Teams,
-      Transactions, Waiver. Derive from `rosterPositions`, don't hardcode.
-- [ ] **Link team names to `/teams?team={rosterId}` on every page.** Currently only
-      Home does this. Wanted on Schedule, Waiver, Playoffs, Records, Transactions.
-- [ ] **Clickable player names opening a player profile.** Wanted on Draft, Teams,
-      Waiver, Transactions. Contents: headshot
-      (`sleepercdn.com/content/nfl/players/{id}.jpg`, confirmed working), season
-      stats, and per-week projections for the current season.
-      **Cost note:** `projections/nfl/{season}/{week}` is ~2MB/week raw, ~36MB for
-      a season. Must prune to referenced players only and ship as one lazily
-      fetched file (est. ~400KB) loaded when a profile first opens — never on
-      initial page load.
+- [ ] **Per-player news feed on Teams.** No free per-player RSS source exists.
+      The realistic approach is filtering a league-wide feed by player name,
+      which is lossy and will miss anyone whose name is spelled differently in
+      the headline. Confirm that's acceptable before building it.
+- [ ] **Week-level deep links on Schedule.** Clicking a week does not write
+      `?week=` back to the URL, so a week cannot be shared. The param is already
+      honoured on read; only the write side is missing.
+- [ ] **Live data during games and draft night** — see the section below. This is
+      the only remaining architectural piece.
 
-## Home
+## Known discrepancy — needs a league decision, not code
 
-- [ ] **Replace the four tiles**, which don't earn their space, with: top projected
-      team, bottom projected team, top projected player (+ their fantasy team), top
-      projected rookie.
-- [ ] **Replace top free agents / top projected / trending drops** — they read
-      oddly stacked together. Candidate: a fantasy news feed instead.
-      **Verified working RSS sources** (fetch at build time in the pipeline, which
-      sidesteps CORS entirely): ESPN NFL `https://www.espn.com/espn/rss/nfl/news`
-      (12KB), Rotowire NFL `https://www.rotowire.com/rss/news.php?sport=NFL` (3KB),
-      Yahoo NFL `https://sports.yahoo.com/nfl/rss.xml` (342KB). CBS and FantasyPros
-      both fail — don't retry them.
-- [x] Standings replacing projections once the season starts — **already built**,
-      `hasGames` in `Home.tsx` swaps the whole table.
-- [x] Team names link to the Teams tab.
+The bylaws say **7 of 10 uninvolved teams** are needed to veto a trade. Sleeper
+is configured `veto_votes_needed: 6`.
 
-## Draft
+---
 
-- [x] **Mohegan Sun mark next to the location name** — done. The supplied assets
-      were ~300KB JPGs with a baked background, so they were hand-traced into
-      `MoheganSunIcon` in `components/icons.tsx` (~1KB, inherits `currentColor`).
-      The source JPGs are gitignored; adjust the path data if the silhouette
-      needs work.
-- [x] **Run-of-show block removed**, along with the `agenda` key in
-      `league.config.json` and the `DraftConfig` type.
-- [ ] Drop K from the prospect position filter (see Global).
-- [ ] Clickable player names (see Global).
+## Shipped
 
-## Teams
+**Global**
+- [x] Collapsible left nav, persisted to `localStorage`.
+- [x] K and DEF dropped everywhere. Fixed structurally: the pipeline derives
+      `manifest.activePositions` from `roster_positions`, and every filter reads
+      it. `POSITION_ORDER` is ordering-only and is no longer imported by any
+      route. Kickers are also excluded from the prospect board itself, not just
+      its filter chips.
+- [x] Team names link to `/teams?team={rosterId}&season={season}` on every page,
+      via the `TeamLink` primitive.
+- [x] Player profile overlay (`PlayerProfile.tsx`), opened by `PlayerLink` from
+      any page. Driven by a `?player=` search param rather than component state,
+      so it is linkable, survives a refresh, and closes with browser back.
+      Headshot, league-scored season totals, per-game average, and a weekly game
+      log. The 123KB `weekly.json` is fetched only when a profile first opens.
 
-- [ ] **Compact default view.** Current design is one big table per team; the goal
-      is scanning several teams side by side to compare players by position.
-- [ ] Clickable player names (see Global).
-- [ ] Per-player news feed. **No free per-player RSS source exists** — the
-      realistic approach is filtering a league-wide feed by player name, which is
-      lossy. Confirm this is acceptable before building it.
+**Home**
+- [x] Four tiles replaced: top / bottom projected team, top projected player with
+      their fantasy team, top projected rookie.
+- [x] Free-agent / projected / drops sections replaced with a fantasy news feed
+      from Rotowire + ESPN, fetched at build time (which sidesteps CORS).
+- [x] Standings replace projections once games exist — `hasGames` in `Home.tsx`.
 
-## Schedule
+**Draft**
+- [x] Mohegan Sun mark beside the venue, hand-traced to SVG from the supplied
+      JPGs (`MoheganSunIcon`). Source JPGs are gitignored.
+- [x] Run-of-show block removed, with the `agenda` config key and type.
 
-- [ ] **Default to the most recent week with data, not week 1.** Current logic
-      falls back to week 1 whenever the selected season isn't the live NFL season,
-      so browsing 2025 opens on week 1 instead of week 18. This is a real bug.
-- [ ] Team names link to Teams.
-- [ ] **Expandable matchup rows** showing a positional comparison between the two
-      lineups. `starters` + `startersPoints` are already in `matchups/{season}.json`
-      and line up positionally with `rosterPositions`.
+**Teams**
+- [x] Compact card grid is the default for All-teams, so several rosters are
+      comparable at once. `Compact`/`Detailed` toggle retains the old tables.
+      Slot is signalled by a coloured dot plus weight plus ordering.
 
-## Transactions
+**Schedule**
+- [x] Week default fixed. It now prefers `?week=`, then the live NFL week when
+      viewing the live season, then **the last week containing a real matchup**.
+      Note the subtlety: Sleeper emits a week 18 for every season here with 12
+      single-sided entries and no points, so "last week with data" would land on
+      a page of twelve byes. `playedWeeks` filters to weeks with a paired
+      matchup — 2025 correctly opens on week 17.
+- [x] Expandable per-matchup positional comparison, slot by slot, indexing
+      `starters`/`startersPoints` against non-BN `rosterPositions`.
+      `usePlayers()` is called inside the expanded panel behind its own Suspense
+      boundary, so the 222KB player index stays off Schedule's first paint.
 
-- [ ] Drop K/DEF from the position filter (see Global).
+**Transactions / Waiver**
+- [x] Position filters use `activePositions`; team and player linking throughout.
+- [x] FAAB budget tile removed (duplicated the Budgets panel); grid rebalanced.
 
-## Waiver
+**Playoffs**
+- [x] Podium expanded to five: champion, runner-up, third, regular-season
+      winner, last place.
 
-- [ ] **Remove the FAAB budget tile** (redundant with the Budgets panel). Keep the
-      other three.
-- [ ] Team and player linking (see Global).
+**Records**
+- [x] Season filter defaulting to ALL, persisted to `?season=`. When filtered,
+      the all-time table narrows to managers who played that season and says so
+      explicitly, since the numbers shown remain career totals.
+- [x] Grouped by `owner_id`, not team name — was already correct; prior names
+      show as "aka".
 
-## Playoffs
+**Bylaws**
+- [x] First person replaced with "the commissioner" via
+      `bylaws.replacements` in `league.config.json`, applied by the pipeline so
+      a re-export does not undo it. The pipeline **warns** when a replacement
+      matches nothing, so a reworded sentence surfaces instead of silently
+      leaving "me" on the page.
 
-- [ ] **Expand the podium** from champion / runner-up / third to also include
-      regular-season winner and last place.
-- [ ] Team linking (see Global).
-
-## Records
-
-- [ ] **Season filter defaulting to ALL**, filterable to a single season.
-- [ ] Team linking (see Global).
-- [x] Grouped by actual owner, not team name — **already the case**, keyed on
-      `owner_id` with prior names shown as "aka".
-
-## Bylaws
-
-- [ ] **Replace first person with "the commissioner".** The site owner is not the
-      league admin, so "collected by me", "I will collect venmo dues", "Sleeper
-      does not give me much control", "I will auto-veto" all need rewording.
-      **Implement as a `bylaws.replacements` array in `league.config.json` applied
-      by the pipeline**, not by editing `content/bylaws.md` — that file gets
-      overwritten on the next Google Doc export.
-
-## Known discrepancy
-
-The bylaws say **7 of 10 uninvolved teams** are needed to veto a trade. Sleeper is
-configured `veto_votes_needed: 6`. Unresolved — a league decision, not a bug to
-fix in code.
+**Pipeline correctness**
+- [x] RSS dates: ESPN stamps every item `EST` year-round, so `Date.parse` read
+      summer dates an hour into the future and every headline rendered "just
+      now". `parseFeedDate` corrects standard-time abbreviations that fall
+      inside US DST. Same daylight-saving trap as the draft time — worth
+      remembering that this class of bug has now bitten twice.
 
 ---
 

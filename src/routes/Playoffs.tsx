@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useManifest, useRecords, useSeason } from '../lib/data'
-import type { BracketMatch, Team } from '../lib/types'
+import type { BracketMatch, SeasonRecord, Team, TeamSummary } from '../lib/types'
 import { ordinal, pts1, record } from '../lib/format'
 import {
   Avatar,
@@ -10,24 +10,40 @@ import {
   PageHeader,
   SectionTitle,
   Select,
+  TeamLink,
 } from '../components/ui'
 
-const PLACE_STYLE: Record<number, { label: string; color: string }> = {
-  1: { label: 'Champion', color: 'var(--color-teal)' },
-  2: { label: 'Runner-up', color: 'var(--color-blue)' },
-  3: { label: 'Third', color: 'var(--color-amber)' },
-}
+/**
+ * The podium the league owner asked for: the three bracket places plus the
+ * regular-season winner and the bottom of the final standings.
+ */
+const PODIUM: {
+  key: keyof Pick<
+    SeasonRecord,
+    'champion' | 'runnerUp' | 'thirdPlace' | 'regularSeasonBest' | 'lastPlace'
+  >
+  label: string
+  color: string
+}[] = [
+  { key: 'champion', label: 'Champion', color: 'var(--color-teal)' },
+  { key: 'runnerUp', label: 'Runner-up', color: 'var(--color-blue)' },
+  { key: 'thirdPlace', label: 'Third', color: 'var(--color-amber)' },
+  { key: 'regularSeasonBest', label: 'Regular season', color: 'var(--color-indigo)' },
+  { key: 'lastPlace', label: 'Last place', color: 'var(--color-rose)' },
+]
 
 function BracketSide({
   rosterId,
   teams,
   won,
   seedOf,
+  season,
 }: {
   rosterId: number | undefined
   teams: Map<number, Team>
   won: boolean
   seedOf: Map<number, number>
+  season: string
 }) {
   const team = rosterId != null ? teams.get(rosterId) : undefined
   return (
@@ -40,16 +56,16 @@ function BracketSide({
         {rosterId != null ? (seedOf.get(rosterId) ?? '') : ''}
       </span>
       {team ? (
-        <>
-          <Avatar src={team.avatar} name={team.name} size={20} />
-          <span
-            className={`min-w-0 flex-1 truncate text-[11px] ${
-              won ? 'font-bold text-ink' : 'text-ink-4'
-            }`}
-          >
-            {team.name}
-          </span>
-        </>
+        <TeamLink
+          rosterId={team.rosterId}
+          name={team.name}
+          avatar={team.avatar}
+          season={season}
+          size={20}
+          className={`min-w-0 flex-1 text-[11px] ${
+            won ? 'font-bold text-ink' : 'text-ink-4'
+          }`}
+        />
       ) : (
         <span className="flex-1 text-[11px] text-ink-5">TBD</span>
       )}
@@ -62,6 +78,7 @@ function Bracket({
   matches,
   teams,
   seedOf,
+  season,
   title,
   emptyLabel,
   /**
@@ -74,6 +91,7 @@ function Bracket({
   matches: BracketMatch[]
   teams: Map<number, Team>
   seedOf: Map<number, number>
+  season: string
   title: string
   emptyLabel: string
   placeOffset?: number
@@ -110,9 +128,21 @@ function Bracket({
                         {ordinal(m.p + placeOffset)} place game
                       </div>
                     )}
-                    <BracketSide rosterId={m.t1} teams={teams} won={m.w === m.t1} seedOf={seedOf} />
+                    <BracketSide
+                      rosterId={m.t1}
+                      teams={teams}
+                      won={m.w === m.t1}
+                      seedOf={seedOf}
+                      season={season}
+                    />
                     <div className="border-t border-line/60" />
-                    <BracketSide rosterId={m.t2} teams={teams} won={m.w === m.t2} seedOf={seedOf} />
+                    <BracketSide
+                      rosterId={m.t2}
+                      teams={teams}
+                      won={m.w === m.t2}
+                      seedOf={seedOf}
+                      season={season}
+                    />
                   </div>
                 ))}
               </div>
@@ -187,23 +217,27 @@ export default function Playoffs() {
 
       {/* --------------------------------------------------------- podium */}
       {rec && isComplete && (
-        <div className="mb-6 grid gap-3 sm:grid-cols-3">
-          {([1, 2, 3] as const).map((place) => {
-            const entry =
-              place === 1 ? rec.champion : place === 2 ? rec.runnerUp : rec.thirdPlace
-            const style = PLACE_STYLE[place]!
+        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {PODIUM.map(({ key, label, color }) => {
+            const entry: TeamSummary | null = rec[key]
             if (!entry) return null
             return (
-              <Card key={place} className="flex items-center gap-3">
+              <Card key={key} className="flex items-center gap-3">
                 <Avatar src={entry.avatar} name={entry.name} size={44} />
                 <div className="min-w-0">
                   <div
                     className="text-[10px] font-bold uppercase tracking-[0.4px]"
-                    style={{ color: style.color }}
+                    style={{ color }}
                   >
-                    {style.label}
+                    {label}
                   </div>
-                  <div className="truncate font-bold text-ink">{entry.name}</div>
+                  <TeamLink
+                    rosterId={entry.rosterId}
+                    name={entry.name}
+                    season={seasonParam}
+                    showAvatar={false}
+                    className="max-w-full font-bold text-ink"
+                  />
                   <div className="text-[11px] text-ink-5 tnum">
                     {record(entry.wins, entry.losses, entry.ties)} · {pts1(entry.pointsFor)} PF
                   </div>
@@ -219,6 +253,7 @@ export default function Playoffs() {
           matches={season.winnersBracket}
           teams={teams}
           seedOf={seedOf}
+          season={seasonParam}
           title="Championship bracket"
           emptyLabel="No championship bracket for this season"
         />
@@ -226,6 +261,7 @@ export default function Playoffs() {
           matches={season.losersBracket}
           teams={teams}
           seedOf={seedOf}
+          season={seasonParam}
           title="Consolation bracket"
           emptyLabel="No consolation bracket for this season"
           placeOffset={season.settings.playoffTeams ?? 6}
@@ -264,10 +300,14 @@ export default function Playoffs() {
                 >
                   {t.place}
                 </span>
-                <Avatar src={t.avatar} name={t.name} size={26} />
-                <span className="min-w-0 flex-1 truncate text-xs font-medium text-ink-2">
-                  {t.name}
-                </span>
+                <TeamLink
+                  rosterId={t.rosterId}
+                  name={t.name}
+                  avatar={t.avatar}
+                  season={seasonParam}
+                  size={26}
+                  className="min-w-0 flex-1 text-xs font-medium text-ink-2"
+                />
                 <span className="shrink-0 text-[11px] text-ink-5 tnum">
                   {record(t.wins, t.losses, t.ties)}
                 </span>

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useManifest, usePlayers, useProspects, useSeason } from '../lib/data'
 import type { DraftPick, Player } from '../lib/types'
-import { height, POSITION_ORDER, pts1 } from '../lib/format'
+import { height, pts1 } from '../lib/format'
 import {
   Avatar,
   Card,
   EmptyState,
   PageHeader,
+  PlayerLink,
   PositionBadge,
   SearchInput,
   SectionTitle,
@@ -78,7 +79,9 @@ function PickCell({ pick, players }: { pick: DraftPick; players: Record<string, 
         <div className="min-w-0">
           <div className="flex items-center gap-1">
             <PositionBadge pos={player.pos} />
-            <span className="truncate text-[11px] font-semibold text-ink">{player.name}</span>
+            <PlayerLink id={pick.playerId} className="truncate text-[11px] font-semibold text-ink">
+              {player.name}
+            </PlayerLink>
           </div>
         </div>
       ) : (
@@ -102,15 +105,28 @@ function PickCell({ pick, players }: { pick: DraftPick; players: Record<string, 
 
 type SortKey = 'rank' | 'name' | 'pos' | 'age'
 
-function ProspectBoard({ prospects }: { prospects: Player[] }) {
+function ProspectBoard({
+  prospects,
+  activePositions,
+}: {
+  prospects: Player[]
+  activePositions: string[]
+}) {
   const [pos, setPos] = useState<string>('ALL')
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<SortKey>('rank')
   const [dir, setDir] = useState<'asc' | 'desc'>('asc')
 
+  // The league rosters no kickers or defenses, so those prospects are noise —
+  // drop them before anything else counts, filters, or sorts.
+  const eligible = useMemo(
+    () => prospects.filter((p) => p.pos != null && activePositions.includes(p.pos)),
+    [prospects, activePositions]
+  )
+
   const rows = useMemo(() => {
     const q = query.trim().toLowerCase()
-    const filtered = prospects.filter((p) => {
+    const filtered = eligible.filter((p) => {
       if (pos !== 'ALL' && p.pos !== pos) return false
       if (!q) return true
       return (
@@ -137,7 +153,7 @@ function ProspectBoard({ prospects }: { prospects: Player[] }) {
           )
       }
     })
-  }, [prospects, pos, query, sort, dir])
+  }, [eligible, pos, query, sort, dir])
 
   const toggle = (key: SortKey) => {
     if (sort === key) setDir((d) => (d === 'asc' ? 'desc' : 'asc'))
@@ -149,16 +165,16 @@ function ProspectBoard({ prospects }: { prospects: Player[] }) {
 
   const counts = useMemo(() => {
     const m = new Map<string, number>()
-    for (const p of prospects) m.set(p.pos ?? '?', (m.get(p.pos ?? '?') ?? 0) + 1)
+    for (const p of eligible) m.set(p.pos ?? '?', (m.get(p.pos ?? '?') ?? 0) + 1)
     return m
-  }, [prospects])
+  }, [eligible])
 
   return (
     <>
       <SectionTitle
         right={
           <span className="text-[11px] text-ink-5 tnum">
-            {rows.length} of {prospects.length}
+            {rows.length} of {eligible.length}
           </span>
         }
       >
@@ -172,10 +188,9 @@ function ProspectBoard({ prospects }: { prospects: Player[] }) {
           onChange={setPos}
           options={[
             { value: 'ALL', label: 'All' },
-            ...POSITION_ORDER.filter((p) => counts.has(p)).map((p) => ({
-              value: p,
-              label: `${p} ${counts.get(p)}`,
-            })),
+            ...activePositions
+              .filter((p) => counts.has(p))
+              .map((p) => ({ value: p, label: `${p} ${counts.get(p)}` })),
           ]}
         />
         <div className="w-full sm:ml-auto sm:w-64">
@@ -213,7 +228,9 @@ function ProspectBoard({ prospects }: { prospects: Player[] }) {
               <Td align="right" className="text-ink-5 tnum">
                 {p.rank ?? '—'}
               </Td>
-              <Td className="font-medium text-ink-2">{p.name}</Td>
+              <Td className="font-medium text-ink-2">
+                <PlayerLink id={p.id}>{p.name}</PlayerLink>
+              </Td>
               <Td>
                 <PositionBadge pos={p.pos} />
               </Td>
@@ -474,7 +491,7 @@ export default function Draft() {
       )}
 
       {/* --------------------------------------------------------- prospects */}
-      <ProspectBoard prospects={prospects.players} />
+      <ProspectBoard prospects={prospects.players} activePositions={manifest.activePositions} />
       <p className="mt-2 max-w-3xl text-[11px] leading-relaxed text-ink-5">{prospects.note}</p>
     </>
   )

@@ -1,17 +1,18 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useManifest, usePlayers, useSeason, useTransactions } from '../lib/data'
-import type { Player, Transaction } from '../lib/types'
-import { POSITION_ORDER, relativeTime, dateTime, TRANSACTION_LABELS } from '../lib/format'
+import type { Player, Team, Transaction } from '../lib/types'
+import { relativeTime, dateTime, TRANSACTION_LABELS } from '../lib/format'
 import {
-  Avatar,
   Card,
   EmptyState,
   PageHeader,
+  PlayerLink,
   PositionBadge,
   SearchInput,
   Segmented,
   Select,
+  TeamLink,
 } from '../components/ui'
 
 const TYPE_STYLE: Record<string, { dot: string; text: string }> = {
@@ -21,15 +22,40 @@ const TYPE_STYLE: Record<string, { dot: string; text: string }> = {
   commissioner: { dot: 'bg-ink-4', text: 'text-ink-4' },
 }
 
+/** A roster reference rendered as a link to that team's page. */
+function TeamRef({
+  rosterId,
+  teams,
+  season,
+  className = '',
+}: {
+  rosterId: number
+  teams: Map<number, Team>
+  season: string
+  className?: string
+}) {
+  return (
+    <TeamLink
+      rosterId={rosterId}
+      name={teams.get(rosterId)?.name ?? `Roster ${rosterId}`}
+      season={season}
+      showAvatar={false}
+      className={className}
+    />
+  )
+}
+
 function MoveList({
   ids,
   players,
-  teamFor,
+  teams,
+  season,
   kind,
 }: {
   ids: Record<string, number> | null
   players: Record<string, Player>
-  teamFor: (rosterId: number) => string
+  teams: Map<number, Team>
+  season: string
   kind: 'add' | 'drop'
 }) {
   if (!ids || Object.keys(ids).length === 0) return null
@@ -46,12 +72,12 @@ function MoveList({
               {isAdd ? '+' : '−'}
             </span>
             <PositionBadge pos={p?.pos ?? null} />
-            <span className="truncate font-medium text-ink-2">
+            <PlayerLink id={p ? playerId : null} className="truncate font-medium text-ink-2">
               {p?.name ?? `Unknown (${playerId})`}
-            </span>
-            <span className="truncate text-ink-5">
-              {p?.team ? `${p.team} · ` : ''}
-              {teamFor(rosterId)}
+            </PlayerLink>
+            <span className="flex min-w-0 items-center gap-1 text-ink-5">
+              {p?.team && <span className="shrink-0">{p.team} ·</span>}
+              <TeamRef rosterId={rosterId} teams={teams} season={season} className="truncate" />
             </span>
           </div>
         )
@@ -79,7 +105,6 @@ export default function Transactions() {
     () => new Map(season.teams.map((t) => [t.rosterId, t])),
     [season.teams]
   )
-  const teamFor = (rosterId: number) => teamsByRoster.get(rosterId)?.name ?? `Roster ${rosterId}`
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -162,7 +187,7 @@ export default function Transactions() {
           onChange={setPos}
           options={[
             { value: 'ALL', label: 'Any pos' },
-            ...POSITION_ORDER.map((p) => ({ value: p, label: p })),
+            ...manifest.activePositions.map((p) => ({ value: p, label: p })),
           ]}
         />
         <div className="w-full sm:ml-auto sm:w-64">
@@ -208,27 +233,54 @@ export default function Transactions() {
                       {t.rosterIds.map((id) => {
                         const tm = teamsByRoster.get(id)
                         return (
-                          <span key={id} className="flex items-center gap-1.5">
-                            <Avatar src={tm?.avatar ?? null} name={tm?.name ?? '?'} size={20} />
-                            <span className="text-xs font-semibold text-ink-3">
-                              {tm?.name ?? `Roster ${id}`}
-                            </span>
-                          </span>
+                          <TeamLink
+                            key={id}
+                            rosterId={id}
+                            name={tm?.name ?? `Roster ${id}`}
+                            season={seasonParam}
+                            avatar={tm?.avatar ?? null}
+                            size={20}
+                            className="gap-1.5 text-xs font-semibold text-ink-3"
+                          />
                         )
                       })}
                     </div>
 
                     <div className="space-y-1.5">
-                      <MoveList ids={t.adds} players={players} teamFor={teamFor} kind="add" />
-                      <MoveList ids={t.drops} players={players} teamFor={teamFor} kind="drop" />
+                      <MoveList
+                        ids={t.adds}
+                        players={players}
+                        teams={teamsByRoster}
+                        season={seasonParam}
+                        kind="add"
+                      />
+                      <MoveList
+                        ids={t.drops}
+                        players={players}
+                        teams={teamsByRoster}
+                        season={seasonParam}
+                        kind="drop"
+                      />
                       {t.draftPicks.map((p, i) => (
                         <div key={i} className="flex items-center gap-2 text-xs">
                           <span className="w-4 shrink-0 text-center font-bold text-indigo">→</span>
                           <span className="text-ink-2">
                             {p.season} round {p.round} pick
                           </span>
-                          <span className="text-ink-5">
-                            {teamFor(p.previous_owner_id)} → {teamFor(p.owner_id)}
+                          <span className="flex min-w-0 items-center gap-1 text-ink-5">
+                            <TeamRef
+                              rosterId={p.previous_owner_id}
+                              teams={teamsByRoster}
+                              season={seasonParam}
+                              className="truncate"
+                            />
+                            <span className="shrink-0">→</span>
+                            <TeamRef
+                              rosterId={p.owner_id}
+                              teams={teamsByRoster}
+                              season={seasonParam}
+                              className="truncate"
+                            />
                           </span>
                         </div>
                       ))}
@@ -236,8 +288,20 @@ export default function Transactions() {
                         <div key={i} className="flex items-center gap-2 text-xs">
                           <span className="w-4 shrink-0 text-center font-bold text-amber">$</span>
                           <span className="text-ink-2 tnum">${b.amount} FAAB</span>
-                          <span className="text-ink-5">
-                            {teamFor(b.sender)} → {teamFor(b.receiver)}
+                          <span className="flex min-w-0 items-center gap-1 text-ink-5">
+                            <TeamRef
+                              rosterId={b.sender}
+                              teams={teamsByRoster}
+                              season={seasonParam}
+                              className="truncate"
+                            />
+                            <span className="shrink-0">→</span>
+                            <TeamRef
+                              rosterId={b.receiver}
+                              teams={teamsByRoster}
+                              season={seasonParam}
+                              className="truncate"
+                            />
                           </span>
                         </div>
                       ))}

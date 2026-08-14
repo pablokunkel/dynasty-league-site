@@ -8,12 +8,12 @@ import {
   useTransactions,
   useTrending,
 } from '../lib/data'
-import { POSITION_ORDER, pts1, relativeTime } from '../lib/format'
+import { pts1, relativeTime } from '../lib/format'
 import {
-  Avatar,
   Card,
   EmptyState,
   PageHeader,
+  PlayerLink,
   PlayerMeta,
   PositionBadge,
   SearchInput,
@@ -21,6 +21,7 @@ import {
   Segmented,
   Select,
   StatTile,
+  TeamLink,
 } from '../components/ui'
 import { TrendUpIcon } from '../components/icons'
 
@@ -115,8 +116,7 @@ export default function Waiver() {
         }
       />
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatTile label="FAAB budget" value={`$${budget}`} sub="per team, per season" />
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <StatTile
           label="Total spent"
           value={`$${totalSpent}`}
@@ -155,10 +155,14 @@ export default function Waiver() {
                 className={`px-3.5 py-2.5 ${i ? 'border-t border-line/60' : ''}`}
               >
                 <div className="mb-1.5 flex items-center gap-2.5">
-                  <Avatar src={t.avatar} name={t.name} size={24} />
-                  <span className="min-w-0 flex-1 truncate text-xs font-semibold text-ink-2">
-                    {t.name}
-                  </span>
+                  <TeamLink
+                    rosterId={t.rosterId}
+                    name={t.name}
+                    season={seasonParam}
+                    avatar={t.avatar}
+                    size={24}
+                    className="min-w-0 flex-1 gap-2.5 text-xs font-semibold text-ink-2"
+                  />
                   <span className="shrink-0 text-xs font-bold text-ink tnum">${t.remaining}</span>
                 </div>
                 <div className="h-1.5 overflow-hidden rounded-full bg-sunken">
@@ -193,7 +197,7 @@ export default function Waiver() {
               onChange={setPos}
               options={[
                 { value: 'ALL', label: 'All' },
-                ...POSITION_ORDER.map((p) => ({ value: p, label: p })),
+                ...manifest.activePositions.map((p) => ({ value: p, label: p })),
               ]}
             />
             <div className="w-full sm:ml-auto sm:w-52">
@@ -218,7 +222,7 @@ export default function Waiver() {
                   <PositionBadge pos={t.player!.pos} />
                   <div className="min-w-0 flex-1">
                     <div className="truncate text-sm font-medium text-ink-2">
-                      {t.player!.name}
+                      <PlayerLink id={t.id}>{t.player!.name}</PlayerLink>
                       {t.player!.injury && (
                         <span className="ml-2 text-[10px] font-bold text-rose">
                           {t.player!.injury}
@@ -276,11 +280,21 @@ export default function Waiver() {
                     {adds.map(([id, rosterId]) => (
                       <span key={id} className="flex items-center gap-1.5 text-xs">
                         <PositionBadge pos={players[id]?.pos ?? null} />
-                        <span className="font-medium text-ink-2">
+                        <PlayerLink
+                          id={players[id] ? id : null}
+                          className="font-medium text-ink-2"
+                        >
                           {players[id]?.name ?? id}
-                        </span>
-                        <span className="text-ink-5">
-                          → {teamsByRoster.get(rosterId)?.name ?? `Roster ${rosterId}`}
+                        </PlayerLink>
+                        <span className="flex items-center gap-1 text-ink-5">
+                          <span className="shrink-0">→</span>
+                          <TeamLink
+                            rosterId={rosterId}
+                            name={teamsByRoster.get(rosterId)?.name ?? `Roster ${rosterId}`}
+                            season={seasonParam}
+                            showAvatar={false}
+                            className="truncate"
+                          />
                         </span>
                       </span>
                     ))}

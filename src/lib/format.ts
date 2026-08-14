@@ -26,7 +26,9 @@ export const height = (h: string | null) => {
 }
 
 export const relativeTime = (ms: number) => {
-  const diff = Date.now() - ms
+  // Feed timestamps can land slightly in the future — clock skew, or a source
+  // that mislabels its timezone. Clamp rather than rendering "in -3 minutes".
+  const diff = Math.max(0, Date.now() - ms)
   const mins = Math.round(diff / 60000)
   if (mins < 1) return 'just now'
   if (mins < 60) return `${mins}m ago`

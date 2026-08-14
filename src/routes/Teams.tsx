@@ -2,22 +2,25 @@ import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useManifest, usePlayers, usePoints, useSeason } from '../lib/data'
 import type { Player, PointsDoc, Team } from '../lib/types'
-import { POSITION_ORDER, posRank, pts1, record, slotLabel } from '../lib/format'
+import { posRank, pts1, record, slotLabel } from '../lib/format'
 import {
   Avatar,
   Card,
   PageHeader,
+  PlayerLink,
   PlayerMeta,
   PositionBadge,
   SectionTitle,
   Segmented,
   Select,
+  TeamLink,
   Td,
   Th,
   TableWrap,
 } from '../components/ui'
 
 type SortKey = 'pos' | 'name' | 'actual' | 'projected'
+type Density = 'compact' | 'detailed'
 
 interface Row {
   id: string
@@ -52,6 +55,154 @@ const SLOT_STYLE: Record<Row['slot'], string> = {
   BENCH: 'text-ink-5',
   TAXI: 'text-indigo',
   IR: 'text-rose',
+}
+
+/** Slot signal for the compact view, where there is no room for a text column. */
+const SLOT_DOT: Record<Row['slot'], string> = {
+  STARTER: 'bg-teal',
+  BENCH: 'bg-ink-5/40',
+  TAXI: 'bg-indigo',
+  IR: 'bg-rose',
+}
+
+const SLOT_RANK: Record<Row['slot'], number> = { STARTER: 0, BENCH: 1, TAXI: 2, IR: 3 }
+
+const SLOTS = ['STARTER', 'BENCH', 'TAXI', 'IR'] as const
+
+/**
+ * Compact cards group by position so the same blocks appear in the same order on
+ * every card — that vertical consistency is what makes cross-team scanning work.
+ * Within a block, starters float to the top, then by projection.
+ */
+function groupByPosition(rows: Row[]) {
+  const map = new Map<string, Row[]>()
+  for (const r of rows) {
+    const pos = r.player?.pos ?? '—'
+    const list = map.get(pos)
+    if (list) list.push(r)
+    else map.set(pos, [r])
+  }
+  return [...map.entries()]
+    .sort((a, b) => posRank(a[0]) - posRank(b[0]) || a[0].localeCompare(b[0]))
+    .map(([pos, list]) => ({
+      pos,
+      proj: list.reduce((a, r) => a + (r.projected ?? 0), 0),
+      rows: [...list].sort(
+        (a, b) =>
+          SLOT_RANK[a.slot] - SLOT_RANK[b.slot] ||
+          (b.projected ?? -1) - (a.projected ?? -1) ||
+          (a.player?.name ?? '').localeCompare(b.player?.name ?? '')
+      ),
+    }))
+}
+
+function SlotDot({ slot }: { slot: Row['slot'] }) {
+  return (
+    <span
+      title={slot}
+      className={`size-1.5 shrink-0 rounded-full ${SLOT_DOT[slot]}`}
+      aria-hidden="true"
+    />
+  )
+}
+
+function CompactTeamCard({
+  team,
+  rows,
+  season,
+}: {
+  team: Team
+  rows: Row[]
+  season: string
+}) {
+  const groups = useMemo(() => groupByPosition(rows), [rows])
+  const projTotal = rows.reduce((a, r) => a + (r.projected ?? 0), 0)
+
+  return (
+    <Card padded={false} className="overflow-hidden">
+      <div className="flex items-center justify-between gap-2 border-b border-line bg-sunken/40 px-3 py-2">
+        <TeamLink
+          rosterId={team.rosterId}
+          name={team.name}
+          season={season}
+          avatar={team.avatar}
+          size={22}
+          className="min-w-0 text-[13px] font-semibold text-ink-2"
+        />
+        <div className="shrink-0 text-right leading-tight">
+          <div className="text-[13px] font-bold text-ink tnum">{pts1(projTotal)}</div>
+          <div className="text-[10px] text-ink-5 tnum">
+            {record(team.wins, team.losses, team.ties)}
+          </div>
+        </div>
+      </div>
+
+      {groups.length === 0 ? (
+        <div className="px-3 py-5 text-center text-[11px] text-ink-5">
+          No players match this filter.
+        </div>
+      ) : (
+        <div className="divide-y divide-line/50">
+          {groups.map((g) => (
+            <div key={g.pos} className="px-2 py-1.5">
+              <div className="flex items-center justify-between gap-2 px-1 pb-1">
+                <span className="flex items-center gap-1.5">
+                  <PositionBadge pos={g.pos === '—' ? null : g.pos} />
+                  <span className="text-[10px] font-semibold text-ink-5 tnum">
+                    {g.rows.length}
+                  </span>
+                </span>
+                <span className="text-[10px] text-ink-5 tnum">{pts1(g.proj)}</span>
+              </div>
+              <ul>
+                {g.rows.map((r) => (
+                  <li
+                    key={r.id}
+                    className="flex items-center gap-1.5 rounded px-1 py-[3px] hover:bg-card-2/60"
+                  >
+                    <SlotDot slot={r.slot} />
+                    <PlayerLink
+                      id={r.id}
+                      className={`min-w-0 flex-1 truncate text-[12px] ${
+                        r.slot === 'STARTER' ? 'font-semibold text-ink-2' : 'text-ink-4'
+                      }`}
+                    >
+                      {r.player?.name ?? `Unknown (${r.id})`}
+                    </PlayerLink>
+                    {r.player?.injury && (
+                      <span className="shrink-0 text-[9px] font-bold text-rose">
+                        {r.player.injury}
+                      </span>
+                    )}
+                    <span
+                      className={`shrink-0 text-[11px] tnum ${
+                        r.slot === 'STARTER' ? 'font-semibold text-ink-2' : 'text-ink-5'
+                      }`}
+                    >
+                      {r.projected != null ? pts1(r.projected) : '—'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  )
+}
+
+function SlotLegend() {
+  return (
+    <div className="mb-4 flex flex-wrap items-center gap-x-3.5 gap-y-1 text-[10px] font-semibold uppercase tracking-[0.4px] text-ink-5">
+      {SLOTS.map((s) => (
+        <span key={s} className="flex items-center gap-1.5">
+          <SlotDot slot={s} />
+          {s}
+        </span>
+      ))}
+    </div>
+  )
 }
 
 function RosterTable({
@@ -166,7 +317,9 @@ function RosterTable({
                 <PositionBadge pos={r.player?.pos ?? null} />
               </Td>
               <Td className="font-medium text-ink-2">
-                {r.player?.name ?? <span className="text-ink-5">Unknown ({r.id})</span>}
+                <PlayerLink id={r.id}>
+                  {r.player?.name ?? <span className="text-ink-5">Unknown ({r.id})</span>}
+                </PlayerLink>
                 {r.player?.injury && (
                   <span className="ml-2 text-[10px] font-bold text-rose">{r.player.injury}</span>
                 )}
@@ -199,6 +352,7 @@ export default function Teams() {
   const [sort, setSort] = useState<SortKey>('pos')
   const [dir, setDir] = useState<'asc' | 'desc'>('asc')
   const [posFilter, setPosFilter] = useState('ALL')
+  const [density, setDensity] = useState<Density>('compact')
 
   const teamParam = params.get('team')
   const view = teamParam ?? 'ALL'
@@ -227,10 +381,19 @@ export default function Teams() {
     [season.teams, manifest.hiddenUserIds]
   )
 
+  // The league rosters no K and no DEF — offering them would be a bug, so the
+  // filter is derived from the manifest rather than the sort-order constant.
+  const positionOptions = useMemo(
+    () => [...manifest.activePositions].sort((a, b) => posRank(a) - posRank(b)),
+    [manifest.activePositions]
+  )
+
   const selected = teams.find((t) => String(t.rosterId) === view)
 
   const filterRows = (rows: Row[]) =>
     posFilter === 'ALL' ? rows : rows.filter((r) => r.player?.pos === posFilter)
+
+  const compact = !selected && density === 'compact'
 
   return (
     <>
@@ -260,17 +423,31 @@ export default function Teams() {
               onChange={setPosFilter}
               options={[
                 { value: 'ALL', label: 'All' },
-                ...POSITION_ORDER.map((p) => ({ value: p, label: p })),
+                ...positionOptions.map((p) => ({ value: p, label: p })),
               ]}
             />
+            {!selected && (
+              <Segmented<Density>
+                size="sm"
+                value={density}
+                onChange={setDensity}
+                options={[
+                  { value: 'compact', label: 'Compact' },
+                  { value: 'detailed', label: 'Detailed' },
+                ]}
+              />
+            )}
           </>
         }
       />
 
-      <p className="mb-5 max-w-3xl text-[11px] leading-relaxed text-ink-5">
+      <p className="mb-3 max-w-3xl text-[11px] leading-relaxed text-ink-5">
         Starting lineup is {season.rosterPositions.filter((p) => p !== 'BN').map(slotLabel).join(' · ')}.{' '}
         {points.note} Projections are season-long totals, so they do not change week to week.
+        {compact && ' Compact cards show projected points; switch to Detailed for actuals and player bios.'}
       </p>
+
+      {compact && <SlotLegend />}
 
       {selected ? (
         <>
@@ -312,6 +489,17 @@ export default function Teams() {
             grouped
           />
         </>
+      ) : density === 'compact' ? (
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {teams.map((t) => (
+            <CompactTeamCard
+              key={t.rosterId}
+              team={t}
+              rows={filterRows(buildRows(t, players, points))}
+              season={seasonParam}
+            />
+          ))}
+        </div>
       ) : (
         <div className="space-y-6">
           {teams.map((t) => {
@@ -327,8 +515,14 @@ export default function Teams() {
                   }
                 >
                   <span className="flex items-center gap-2">
-                    <Avatar src={t.avatar} name={t.name} size={20} />
-                    <span className="text-ink-2">{t.name}</span>
+                    <TeamLink
+                      rosterId={t.rosterId}
+                      name={t.name}
+                      season={seasonParam}
+                      avatar={t.avatar}
+                      size={20}
+                      className="text-ink-2"
+                    />
                     <span className="font-normal normal-case tracking-normal text-ink-5">
                       {record(t.wins, t.losses, t.ties)}
                     </span>

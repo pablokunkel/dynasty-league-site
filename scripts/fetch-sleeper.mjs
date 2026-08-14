@@ -346,6 +346,40 @@ async function fetchWeeklyPoints(currentSeason, previousSeason, scoring, referen
  * two known feeds with plain <item> structures, and a parse failure degrades to
  * "no news" instead of breaking the build.
  */
+/**
+ * Parse an RSS date, correcting for feeds that label daylight time as standard.
+ *
+ * ESPN stamps every item `EST` year-round. `Date.parse` dutifully reads that as
+ * UTC-5, so in summer every headline lands an hour in the future — later than
+ * our own fetch time, which made them all render as "just now". Rotowire sends
+ * proper numeric offsets and is unaffected.
+ *
+ * Returns null rather than a wrong number when the date is unusable; the UI
+ * already renders null as "undated".
+ */
+const US_STANDARD_ZONES = /\b(EST|CST|MST|PST)\b/
+
+/** ms for the nth Sunday of a month at a given UTC hour. */
+function nthSundayUtc(year, monthIndex, n, utcHour) {
+  const d = new Date(Date.UTC(year, monthIndex, 1))
+  const firstSunday = 1 + ((7 - d.getUTCDay()) % 7)
+  return Date.UTC(year, monthIndex, firstSunday + (n - 1) * 7, utcHour)
+}
+
+/** US DST: 2nd Sunday of March 07:00 UTC through 1st Sunday of November 06:00 UTC. */
+function inUsDst(ms) {
+  const year = new Date(ms).getUTCFullYear()
+  return ms >= nthSundayUtc(year, 2, 2, 7) && ms < nthSundayUtc(year, 10, 1, 6)
+}
+
+function parseFeedDate(raw) {
+  if (!raw) return null
+  const ts = Date.parse(raw)
+  if (!Number.isFinite(ts)) return null
+  if (US_STANDARD_ZONES.test(raw) && inUsDst(ts)) return ts - 3_600_000
+  return ts
+}
+
 async function fetchNews(config) {
   const items = []
 
@@ -379,14 +413,12 @@ async function fetchNews(config) {
         const title = tag(block, 'title')
         const link = tag(block, 'link')
         if (!title || !link) continue
-        const pub = tag(block, 'pubDate')
-        const ts = pub ? Date.parse(pub) : NaN
         items.push({
           source: feed.name,
           title,
           link,
           description: (tag(block, 'description') ?? '').slice(0, 240) || null,
-          published: Number.isFinite(ts) ? ts : null,
+          published: parseFeedDate(tag(block, 'pubDate') ?? tag(block, 'dc:date')),
         })
       }
     } catch (err) {
