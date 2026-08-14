@@ -1,6 +1,81 @@
 import type { ReactNode } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import type { Player } from '../lib/types'
 import { height } from '../lib/format'
+
+/* ------------------------------------------------------------------- links */
+
+/**
+ * Team name linking to that roster on the Teams page. Use this everywhere a
+ * team name is rendered — Schedule, Waiver, Playoffs, Records, Transactions.
+ */
+export function TeamLink({
+  rosterId,
+  name,
+  season,
+  avatar,
+  size = 24,
+  className = '',
+  showAvatar = true,
+}: {
+  rosterId: number | null | undefined
+  name: string
+  season?: string
+  avatar?: string | null
+  size?: number
+  className?: string
+  showAvatar?: boolean
+}) {
+  if (rosterId == null) {
+    return <span className={className}>{name}</span>
+  }
+  const qs = new URLSearchParams({ team: String(rosterId) })
+  if (season) qs.set('season', season)
+
+  return (
+    <Link
+      to={`/teams?${qs}`}
+      className={`inline-flex min-w-0 items-center gap-2 hover:text-teal ${className}`}
+    >
+      {showAvatar && <Avatar src={avatar ?? null} name={name} size={size} />}
+      <span className="truncate">{name}</span>
+    </Link>
+  )
+}
+
+/**
+ * Player name that opens the profile overlay.
+ *
+ * The selected player lives in the `player` search param rather than component
+ * state, so the overlay survives a refresh, is linkable, and closes with the
+ * browser back button.
+ */
+export function PlayerLink({
+  id,
+  children,
+  className = '',
+}: {
+  id: string | null | undefined
+  children: ReactNode
+  className?: string
+}) {
+  const [params] = useSearchParams()
+
+  if (!id) return <span className={className}>{children}</span>
+
+  const next = new URLSearchParams(params)
+  next.set('player', id)
+
+  return (
+    <Link
+      to={`?${next}`}
+      // replace: false so Escape / back pops the overlay rather than the page
+      className={`text-left hover:text-teal hover:underline ${className}`}
+    >
+      {children}
+    </Link>
+  )
+}
 
 /* ------------------------------------------------------------------ avatar */
 

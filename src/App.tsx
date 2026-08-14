@@ -1,8 +1,11 @@
-import { Component, lazy, Suspense, useState, type ReactNode } from 'react'
+import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
 import Nav from './components/Nav'
+import PlayerProfile from './components/PlayerProfile'
 import { useManifest } from './lib/data'
 import { Loading } from './components/ui'
+
+const NAV_COLLAPSED_KEY = 'dynasty:navCollapsed'
 
 // Route-level splitting: each page is its own chunk, so first paint never pays
 // for the eight pages you aren't looking at.
@@ -46,11 +49,24 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | 
 function Shell() {
   const manifest = useManifest()
   const [navOpen, setNavOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(
+    () => localStorage.getItem(NAV_COLLAPSED_KEY) === '1'
+  )
   const { pathname } = useLocation()
+
+  useEffect(() => {
+    localStorage.setItem(NAV_COLLAPSED_KEY, collapsed ? '1' : '0')
+  }, [collapsed])
 
   return (
     <div className="min-h-screen">
-      <Nav manifest={manifest} open={navOpen} onClose={() => setNavOpen(false)} />
+      <Nav
+        manifest={manifest}
+        open={navOpen}
+        onClose={() => setNavOpen(false)}
+        collapsed={collapsed}
+        onToggleCollapsed={() => setCollapsed((c) => !c)}
+      />
 
       {/* Mobile top bar — the nav is permanently visible from lg up. */}
       <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-line bg-abyss/95 px-4 py-3 backdrop-blur lg:hidden">
@@ -66,7 +82,11 @@ function Shell() {
         <span className="font-bold text-ink">{manifest.siteName}</span>
       </div>
 
-      <main className="px-4 py-6 sm:px-6 lg:ml-[236px] lg:px-8 lg:py-8">
+      <main
+        className={`px-4 py-6 transition-[margin] sm:px-6 lg:px-8 lg:py-8 ${
+          collapsed ? 'lg:ml-[64px]' : 'lg:ml-[236px]'
+        }`}
+      >
         <div className="mx-auto max-w-[1400px]">
           <ErrorBoundary key={pathname}>
             <Suspense fallback={<Loading />}>
@@ -86,6 +106,9 @@ function Shell() {
           </ErrorBoundary>
         </div>
       </main>
+
+      {/* Driven by the `player` search param, so any PlayerLink opens it. */}
+      <PlayerProfile />
     </div>
   )
 }

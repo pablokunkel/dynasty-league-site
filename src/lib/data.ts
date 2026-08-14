@@ -3,6 +3,7 @@ import type {
   BylawsDoc,
   Manifest,
   MatchupWeek,
+  NewsDoc,
   PlayerIndex,
   PointsDoc,
   ProspectsDoc,
@@ -10,6 +11,7 @@ import type {
   SeasonDoc,
   Transaction,
   TrendingDoc,
+  WeeklyDoc,
 } from './types'
 
 /**
@@ -42,6 +44,10 @@ export const useProspects = () => use(load<ProspectsDoc>('prospects.json'))
 export const useTrending = () => use(load<TrendingDoc>('trending.json'))
 export const useBylaws = () => use(load<BylawsDoc>('bylaws.json'))
 export const usePoints = () => use(load<PointsDoc>('points.json'))
+export const useNews = () => use(load<NewsDoc>('news.json'))
+
+/** 123KB game log. Only loaded when a player profile is first opened. */
+export const useWeekly = () => use(load<WeeklyDoc>('weekly.json'))
 
 export const useSeason = (season: string) => use(load<SeasonDoc>(`season/${season}.json`))
 export const useMatchups = (season: string) => use(load<MatchupWeek[]>(`matchups/${season}.json`))

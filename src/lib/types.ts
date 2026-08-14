@@ -47,7 +47,35 @@ export interface Manifest {
   currentStatus: string
   draftConfig: DraftConfig
   hiddenUserIds: string[]
+  /**
+   * Positions this league actually rosters — QB/RB/WR/TE, no K or DEF.
+   * Every position filter must read this instead of hardcoding a list.
+   */
+  activePositions: string[]
   seasons: SeasonSummary[]
+}
+
+export interface NewsItem {
+  source: string
+  title: string
+  link: string
+  description: string | null
+  published: number | null
+}
+
+export interface NewsDoc {
+  fetchedAt: string
+  items: NewsItem[]
+}
+
+/** Per-week points keyed by player, then by week number. */
+export interface WeeklyDoc {
+  projectionsSeason: string
+  actualsSeason: string | null
+  players: Record<
+    string,
+    { proj: Record<string, number>; act: Record<string, number> }
+  >
 }
 
 export interface Team {

@@ -26,7 +26,36 @@
   "bylaws": {
     "sourceUrl": "https://docs.google.com/document/d/1fvEstP18A3V0HO7AfX3LJ8hp_VpSADtpNIxyIqu1EFk/edit",
     "markdownPath": "content/bylaws.md",
-    "_comment": "Export the Google Doc via File > Download > Markdown (.md) and save it to content/bylaws.md. The pipeline copies it into public/data at build time."
+    "_comment": "Export the Google Doc via File > Download > Markdown (.md) and save it to content/bylaws.md. The pipeline reads it, applies `replacements`, promotes bold ALL-CAPS labels to headings, and writes public/data/bylaws.json.",
+
+    "_replacementsComment": "The doc is written in the commissioner's first person, but this site is not run by the commissioner. Applied in order as literal string replacements. The pipeline WARNS on any pattern that matches nothing, so a re-export that rewords these will surface rather than silently no-op.",
+    "replacements": [
+      [
+        "To be collected by me before draft",
+        "To be collected by the commissioner before draft"
+      ],
+      [
+        "I will collect venmo dues at the end of the season rather than people sending me for every single transaction.",
+        "The commissioner will collect venmo dues at the end of the season rather than people sending them for every single transaction."
+      ],
+      [
+        "Sleeper does not give me much control over picks",
+        "Sleeper does not give the commissioner much control over picks"
+      ],
+      [
+        "I will auto-veto the trade",
+        "the commissioner will auto-veto the trade"
+      ]
+    ]
+  },
+
+  "news": {
+    "_comment": "Fantasy/NFL news shown on the homepage. Fetched at build time so there is no CORS or client-side feed parsing. Verified reachable 2026-08-14; CBS and FantasyPros feeds are dead, do not add them back.",
+    "maxItems": 12,
+    "feeds": [
+      { "name": "Rotowire", "url": "https://www.rotowire.com/rss/news.php?sport=NFL" },
+      { "name": "ESPN", "url": "https://www.espn.com/espn/rss/nfl/news" }
+    ]
   },
 
   "teamOverrides": {

@@ -262,11 +262,156 @@ function shapeMatchups(raw) {
  * so a doc that reads as sectioned produces zero `#` headings and an empty table
  * of contents. Promote all-caps bold labels to h2 so /bylaws gets a real TOC.
  */
-function normalizeBylaws(md) {
-  return md.replace(
+function normalizeBylaws(md, replacements = []) {
+  // The doc is written in the commissioner's first person. Apply the configured
+  // rewrites first, and warn loudly on any that match nothing — after a re-export
+  // a reworded sentence would otherwise silently leave "me" on the page.
+  let out = md
+  for (const [from, to] of replacements) {
+    if (!out.includes(from)) {
+      console.warn(`  ! bylaws replacement matched nothing: ${JSON.stringify(from.slice(0, 60))}`)
+      continue
+    }
+    out = out.split(from).join(to)
+  }
+
+  return out.replace(
     /^\*\*([A-Z][A-Z0-9 /&'-]{2,}):\*\*[ \t]*(.*)$/gm,
     (_, label, rest) => `## ${label.trim()}${rest.trim() ? `\n\n${rest.trim()}` : ''}`
   )
+}
+
+/**
+ * Per-week actuals and projections, for the player profile game log.
+ *
+ * Each week is a ~2MB payload, so this is the most expensive part of the run
+ * (36 requests, ~70MB downloaded). Everything is pruned to referenced players
+ * before it lands on disk — the output is a few hundred KB and is lazily loaded
+ * by the client only when a profile is first opened.
+ */
+async function fetchWeeklyPoints(currentSeason, previousSeason, scoring, referenced) {
+  const positions = ['QB', 'RB', 'WR', 'TE'].map((p) => `position[]=${p}`).join('&')
+  const weeks = Array.from({ length: MAX_WEEK }, (_, i) => i + 1)
+
+  const grabWeek = async (kind, season, week) => {
+    const base = kind === 'proj' ? 'projections' : 'stats'
+    try {
+      const res = await fetch(
+        `${API}/${base}/nfl/${season}/${week}?season_type=regular&${positions}`
+      )
+      requestCount++
+      if (!res.ok) return null
+      const raw = await res.json()
+      const rows = Array.isArray(raw)
+        ? raw.map((r) => [r.player_id, r.stats ?? r])
+        : Object.entries(raw)
+      const out = []
+      for (const [id, stats] of rows) {
+        if (!referenced.has(id)) continue
+        const p = scoreLine(stats, scoring)
+        if (p == null || p === 0) continue
+        out.push([id, week, p])
+      }
+      return out
+    } catch {
+      return null
+    }
+  }
+
+  // { playerId: { proj: {week: pts}, act: {week: pts} } }
+  const byPlayer = {}
+  const add = (kind, rows) => {
+    for (const [id, week, p] of rows ?? []) {
+      byPlayer[id] ??= { proj: {}, act: {} }
+      byPlayer[id][kind][week] = p
+    }
+  }
+
+  const projRows = await pool(weeks, (w) => grabWeek('proj', currentSeason, w), 6)
+  projRows.forEach((r) => add('proj', r))
+
+  if (previousSeason) {
+    const actRows = await pool(weeks, (w) => grabWeek('act', previousSeason, w), 6)
+    actRows.forEach((r) => add('act', r))
+  }
+
+  return byPlayer
+}
+
+/**
+ * Build-time RSS fetch. Doing this here rather than in the browser sidesteps
+ * CORS entirely — none of these feeds send permissive headers.
+ *
+ * Deliberately a small regex parser rather than an XML dependency: these are
+ * two known feeds with plain <item> structures, and a parse failure degrades to
+ * "no news" instead of breaking the build.
+ */
+async function fetchNews(config) {
+  const items = []
+
+  const decode = (s = '') =>
+    s
+      .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
+      .replace(/<[^>]+>/g, '')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&quot;/g, '"')
+      .replace(/&#0?39;|&apos;/g, "'")
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .trim()
+
+  const tag = (block, name) => {
+    const m = block.match(new RegExp(`<${name}[^>]*>([\\s\\S]*?)</${name}>`, 'i'))
+    return m ? decode(m[1]) : null
+  }
+
+  for (const feed of config.news?.feeds ?? []) {
+    try {
+      const res = await fetch(feed.url, {
+        headers: { 'user-agent': 'dynasty-league-site/1.0 (+build-time RSS fetch)' },
+      })
+      requestCount++
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
+      const xml = await res.text()
+
+      for (const block of xml.match(/<item[\s\S]*?<\/item>/gi) ?? []) {
+        const title = tag(block, 'title')
+        const link = tag(block, 'link')
+        if (!title || !link) continue
+        const pub = tag(block, 'pubDate')
+        const ts = pub ? Date.parse(pub) : NaN
+        items.push({
+          source: feed.name,
+          title,
+          link,
+          description: (tag(block, 'description') ?? '').slice(0, 240) || null,
+          published: Number.isFinite(ts) ? ts : null,
+        })
+      }
+    } catch (err) {
+      console.warn(`  ! news feed "${feed.name}" unavailable (${err.message})`)
+    }
+  }
+
+  // Newest first, undated last, then interleave so one chatty feed can't own
+  // the whole list.
+  items.sort((a, b) => (b.published ?? 0) - (a.published ?? 0))
+  const bySource = new Map()
+  for (const it of items) {
+    if (!bySource.has(it.source)) bySource.set(it.source, [])
+    bySource.get(it.source).push(it)
+  }
+  const queues = [...bySource.values()]
+  const interleaved = []
+  const max = config.news?.maxItems ?? 12
+  while (interleaved.length < max && queues.some((q) => q.length)) {
+    for (const q of queues) {
+      if (!q.length || interleaved.length >= max) continue
+      interleaved.push(q.shift())
+    }
+  }
+  return interleaved
 }
 
 function shapeDraft(draft, picks, tradedPicks, teamsByRoster, priorMaxPoints) {
@@ -778,6 +923,30 @@ async function main() {
     })
   )
 
+  // --- weekly game log -----------------------------------------------------
+  console.log('  fetching weekly game log (36 requests, ~70MB, pruned on write)...')
+  const weekly = await fetchWeeklyPoints(
+    chain[0].season,
+    completed?.season ?? nflState?.previous_season,
+    chain[0].league.scoring_settings ?? {},
+    referenced
+  )
+  written.push(
+    await writeJson('weekly.json', {
+      projectionsSeason: chain[0].season,
+      actualsSeason: completed?.season ?? null,
+      players: weekly,
+    })
+  )
+
+  // --- news ----------------------------------------------------------------
+  console.log('  fetching news feeds...')
+  const news = await fetchNews(config)
+  written.push(
+    await writeJson('news.json', { fetchedAt: new Date().toISOString(), items: news })
+  )
+  console.log(`    ${news.length} items from ${new Set(news.map((n) => n.source)).size} feeds`)
+
   // --- records -------------------------------------------------------------
   written.push(await writeJson('records.json', buildRecords(seasons)))
 
@@ -786,7 +955,10 @@ async function main() {
   let bylaws = null
   if (existsSync(bylawsSrc)) {
     bylaws = {
-      markdown: normalizeBylaws(await readFile(bylawsSrc, 'utf8')),
+      markdown: normalizeBylaws(
+        await readFile(bylawsSrc, 'utf8'),
+        config.bylaws.replacements ?? []
+      ),
       sourceUrl: config.bylaws.sourceUrl,
     }
   } else {
@@ -809,6 +981,25 @@ async function main() {
     currentStatus: chain[0].league.status,
     draftConfig: config.draft,
     hiddenUserIds: config.teamOverrides?.hiddenUserIds ?? [],
+    /**
+     * Positions this league actually rosters, derived from roster_positions —
+     * currently QB/RB/WR/TE, no K and no DEF. Every position filter in the UI
+     * must read this rather than hardcoding a list, so the site stays correct
+     * if the league ever adds them.
+     */
+    activePositions: [
+      ...new Set(
+        (chain[0].league.roster_positions ?? [])
+          .flatMap((slot) =>
+            slot === 'SUPER_FLEX'
+              ? ['QB', 'RB', 'WR', 'TE']
+              : slot === 'FLEX'
+                ? ['RB', 'WR', 'TE']
+                : [slot]
+          )
+          .filter((p) => POS_OF_INTEREST.has(p))
+      ),
+    ].sort((a, b) => ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].indexOf(a) - ['QB', 'RB', 'WR', 'TE', 'K', 'DEF'].indexOf(b)),
     seasons: seasons.map((s) => ({
       season: s.season,
       status: s.status,

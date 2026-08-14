@@ -53,7 +53,11 @@ export const TRANSACTION_LABELS: Record<string, string> = {
   commissioner: 'Commissioner',
 }
 
-/** Position sort order matching Sleeper's own grouping. */
+/**
+ * Canonical position sort order. This is the ORDERING reference only — to
+ * decide which positions a page should *offer*, read `manifest.activePositions`
+ * (this league rosters no K and no DEF).
+ */
 export const POSITION_ORDER = ['QB', 'RB', 'WR', 'TE', 'K', 'DEF']
 
 export const posRank = (pos: string | null) => {
