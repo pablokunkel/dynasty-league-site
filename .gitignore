@@ -11,6 +11,13 @@ dist/
 Sleeper - html sample.html
 Sleeper - html sample_files/
 
+# Reference renders for the Mohegan Sun mark. Already traced into
+# components/icons.tsx as MoheganSunIcon — the JPGs themselves are ~300KB each
+# and are not shipped.
+Gemini_Generated_Image_*.jpg
+2026 Draft Info.txt
+Dynasty Football Bylaws.md
+
 # Pipeline scratch — the unpruned 14.6MB player dump is cached here between
 # runs so local iteration doesn't re-download it.
 .cache/

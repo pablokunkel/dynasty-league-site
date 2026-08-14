@@ -20,12 +20,7 @@
       "region": "CT 06382",
       "mapsQuery": "Mohegan Sun Casino, 1 Mohegan Sun Blvd, Uncasville, CT 06382",
       "notes": ""
-    },
-    "agenda": [
-      { "time": "TBD", "label": "Doors / food" },
-      { "time": "TBD", "label": "Draft board setup" },
-      { "time": "9:00 PM", "label": "First pick on the clock" }
-    ]
+    }
   },
 
   "bylaws": {

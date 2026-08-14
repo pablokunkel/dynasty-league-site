@@ -42,8 +42,15 @@ Connect the repo in the Pages dashboard and use:
 | Build output directory | `dist` |
 | Node version | 22 |
 
-`public/_redirects` already contains the SPA fallback, so client-side routes like
-`/draft` resolve instead of 404ing.
+This deploys as a **Worker with static assets** (Workers Assets), not classic
+Pages. `wrangler.jsonc` declares the SPA fallback via
+`assets.not_found_handling`, so client-side routes like `/draft` resolve instead
+of 404ing.
+
+Do **not** add a `public/_redirects` with `/*  /index.html  200`. Workers Assets
+rejects it at deploy time with *"Infinite loop detected in this rule"*, because
+the rule would strip `/index` and re-match itself. That is the classic-Pages
+idiom and it fails here.
 
 ## Things the Sleeper API does not have
 

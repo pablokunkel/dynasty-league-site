@@ -103,3 +103,46 @@ export const ClockIcon = ({ className }: IconProps) => (
     <path d="M10 5.75V10l2.75 2" />
   </svg>
 )
+
+/**
+ * Mohegan Sun skyline — the draft venue.
+ *
+ * Hand-traced from the reference line-art renders into vector form, rather than
+ * embedding the source JPGs. Those were ~300KB each with a baked-in background
+ * that would not sit cleanly on the card or follow the theme. This inherits
+ * currentColor, stays crisp at any size, and costs about a kilobyte.
+ *
+ * Simplified deliberately: at the ~40px it renders at, the distinctive
+ * silhouette (leaning slab, tall block, twin peaks) is what reads. Fine
+ * foreground detail from the reference would turn to mush.
+ */
+export const MoheganSunIcon = ({ className }: IconProps) => (
+  <svg
+    viewBox="0 0 60 44"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.5}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={className}
+    role="img"
+    aria-label="Mohegan Sun"
+  >
+    {/* leaning slab tower, left */}
+    <path d="M12 13.5 L15.5 36" />
+    <path d="M12 13.5 L26 17.2" />
+    <path d="M17.6 15.9 L17.6 36" />
+    {/* tall centre block */}
+    <path d="M26 7 L34 7 L34 36" />
+    <path d="M26 7 L26 36" />
+    {/* peaked twin towers */}
+    <path d="M34 11.8 L39 6 L42.6 10.6 L42.6 36" />
+    <path d="M39 6 L39 36" />
+    {/* thin tower, right */}
+    <path d="M42.6 11.2 L45.2 11.2 L45.2 36" />
+    {/* ground line and podium */}
+    <path d="M2 36 L58 36" />
+    <path d="M5 39.4 L19 38.6 L19 42.6 L5 42.6 Z" />
+    <path d="M23 39.8 L41 39.8 L41 42.6" />
+  </svg>
+)

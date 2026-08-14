@@ -15,7 +15,7 @@ import {
   Th,
   TableWrap,
 } from '../components/ui'
-import { ClockIcon, PinIcon } from '../components/icons'
+import { ClockIcon, MoheganSunIcon, PinIcon } from '../components/icons'
 
 /* --------------------------------------------------------------- countdown */
 
@@ -342,15 +342,20 @@ export default function Draft() {
             <PinIcon className="size-4 text-teal" />
             <span className="eyebrow">Location</span>
           </div>
-          <div className="mt-3 text-base font-bold text-ink">{cfg.venue.name}</div>
-          {cfg.venue.addressLine && (
-            <div className="mt-0.5 text-sm text-ink-3">{cfg.venue.addressLine}</div>
-          )}
-          {(cfg.venue.city || cfg.venue.region) && (
-            <div className="text-sm text-ink-4">
-              {[cfg.venue.city, cfg.venue.region].filter(Boolean).join(', ')}
+          <div className="mt-3 flex items-start gap-3">
+            <MoheganSunIcon className="mt-0.5 w-12 shrink-0 text-teal" />
+            <div className="min-w-0">
+              <div className="text-base font-bold leading-tight text-ink">{cfg.venue.name}</div>
+              {cfg.venue.addressLine && (
+                <div className="mt-0.5 text-sm text-ink-3">{cfg.venue.addressLine}</div>
+              )}
+              {(cfg.venue.city || cfg.venue.region) && (
+                <div className="text-sm text-ink-4">
+                  {[cfg.venue.city, cfg.venue.region].filter(Boolean).join(', ')}
+                </div>
+              )}
             </div>
-          )}
+          </div>
           {mapsHref && (
             <a
               href={mapsHref}
@@ -362,17 +367,6 @@ export default function Draft() {
             </a>
           )}
 
-          {cfg.agenda.some((a) => a.time !== 'TBD') && (
-            <div className="mt-4 border-t border-line pt-3">
-              <div className="eyebrow mb-2">Run of show</div>
-              {cfg.agenda.map((a) => (
-                <div key={a.label} className="flex justify-between gap-3 py-0.5 text-xs">
-                  <span className="text-ink-3">{a.label}</span>
-                  <span className="text-ink-5 tnum">{a.time}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </Card>
       </div>
 

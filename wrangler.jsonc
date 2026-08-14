@@ -1,0 +1,20 @@
+{
+  // This project deploys as a Cloudflare Worker with static assets (Workers
+  // Assets), not classic Pages — the build log deploys to
+  // /workers/scripts/dynasty-league-site/versions.
+  //
+  // The SPA fallback MUST be declared here rather than in public/_redirects.
+  // Workers Assets rejects the classic `/*  /index.html  200` rule with
+  // "Infinite loop detected in this rule", because it would strip `/index`
+  // and re-match itself. `not_found_handling` is the supported equivalent.
+  "name": "dynasty-league-site",
+  "compatibility_date": "2026-08-01",
+
+  "assets": {
+    "directory": "./dist",
+    // Serve index.html for any path that isn't a real file, so client-side
+    // routes like /draft and /teams resolve instead of 404ing. Real files
+    // (including everything under /data) are matched first and unaffected.
+    "not_found_handling": "single-page-application"
+  }
+}

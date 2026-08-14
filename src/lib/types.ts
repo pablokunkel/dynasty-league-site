@@ -26,7 +26,6 @@ export interface DraftConfig {
   type: string
   typeNote: string
   venue: Venue
-  agenda: { time: string; label: string }[]
 }
 
 export interface SeasonSummary {

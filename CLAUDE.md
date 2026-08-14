@@ -30,6 +30,7 @@ after editing `league.config.json` or `content/bylaws.md` — both feed the pipe
 ```
 scripts/fetch-sleeper.mjs   the pipeline. Everything data-shaped lives here.
 scripts/should-refresh.mjs  cadence gate for the refresh workflow
+wrangler.jsonc              Workers Assets config — SPA fallback lives here
 league.config.json          facts the Sleeper API does not expose
 content/bylaws.md           bylaws export, normalized by the pipeline
 src/lib/data.ts             promise-cached, per-season lazy loading
@@ -90,6 +91,19 @@ time to establish.
 **There are no kickers or defenses in this league.** Any K or DEF appearing in a
 filter or list is a bug. Derive allowed positions from `rosterPositions` rather
 than hardcoding, so this stays correct if the league changes.
+
+## Deployment
+
+Deploys as a **Cloudflare Worker with static assets**, not classic Pages — the
+build runs `wrangler deploy` against
+`/workers/scripts/dynasty-league-site/versions`.
+
+**SPA fallback is configured in `wrangler.jsonc` via
+`assets.not_found_handling: "single-page-application"`.** Do not reintroduce
+`public/_redirects` with `/*  /index.html  200`; Workers Assets rejects it with
+*"Infinite loop detected in this rule"* and the deploy fails after uploading.
+That rule is the classic-Pages idiom and does not apply here. This already cost
+one failed deploy.
 
 ## Conventions
 
@@ -153,10 +167,13 @@ Feedback from the league owner, 2026-08-14, not yet implemented.
 
 ## Draft
 
-- [ ] **Mohegan Sun SVG next to the location name.** The file is not in the repo
-      yet — it was mentioned but never landed. Ask for it.
-- [ ] **Remove the run-of-show block** (and the `agenda` key in
-      `league.config.json`).
+- [x] **Mohegan Sun mark next to the location name** — done. The supplied assets
+      were ~300KB JPGs with a baked background, so they were hand-traced into
+      `MoheganSunIcon` in `components/icons.tsx` (~1KB, inherits `currentColor`).
+      The source JPGs are gitignored; adjust the path data if the silhouette
+      needs work.
+- [x] **Run-of-show block removed**, along with the `agenda` key in
+      `league.config.json` and the `DraftConfig` type.
 - [ ] Drop K from the prospect position filter (see Global).
 - [ ] Clickable player names (see Global).
 
