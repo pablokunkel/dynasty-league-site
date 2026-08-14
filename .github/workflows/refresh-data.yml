@@ -1,0 +1,64 @@
+name: Refresh Sleeper data
+
+on:
+  schedule:
+    # Every 15 minutes. scripts/should-refresh.mjs decides whether each tick
+    # actually does work — see that file for the cadence tiers. GitHub's
+    # scheduler is best-effort and can lag 5-15 minutes under load, so treat
+    # this as "near-live", not real-time.
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Run the pipeline even if the cadence gate says skip'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+# A long draft-day run must never overlap the next tick.
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Decide whether to refresh
+        id: gate
+        run: node scripts/should-refresh.mjs
+
+      - name: Fetch Sleeper data
+        if: steps.gate.outputs.run == 'true' || inputs.force
+        run: npm run data
+
+      - name: Commit if the data actually changed
+        if: steps.gate.outputs.run == 'true' || inputs.force
+        run: |
+          if [ -z "$(git status --porcelain public/data)" ]; then
+            echo "No data changes — skipping commit, so Cloudflare Pages does not rebuild."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/data
+          git commit -m "chore(data): refresh Sleeper data $(date -u +'%Y-%m-%dT%H:%MZ')"
+          # Another tick may have landed while we were fetching.
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "### Sleeper refresh" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Gate: \`${{ steps.gate.outputs.run }}\`" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Reason: ${{ steps.gate.outputs.reason }}" >> "$GITHUB_STEP_SUMMARY"

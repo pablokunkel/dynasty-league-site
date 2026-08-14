@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.DS_Store
+*.local
+.env
+.env.*
+!.env.example
+
+# Raw Sleeper reference material — the saved pre-draft page we pulled the
+# palette from. Large, not needed to build, keep it out of the repo.
+Sleeper - html sample.html
+Sleeper - html sample_files/
+
+# Pipeline scratch — the unpruned 14.6MB player dump is cached here between
+# runs so local iteration doesn't re-download it.
+.cache/

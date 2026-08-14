@@ -1,0 +1,220 @@
+@import 'tailwindcss';
+
+/*
+  Palette extracted from Sleeper's own stylesheet
+  (bundle-59710be06b231126bff10778538c3e7c.css, 1.1MB) in the saved pre-draft
+  page. Counts below are how often each hex appears in that bundle, which is a
+  decent proxy for how load-bearing the color is in their design.
+*/
+@theme {
+  /* Surfaces — darkest to most elevated */
+  --color-abyss: #102131; /* deepest panel, 17 uses */
+  --color-navy: #022047; /* Sleeper brand navy, 124 uses */
+  --color-base: #18202f; /* app background, 162 uses — the primary surface */
+  --color-sunken: #181c28; /* inset wells, 16 uses */
+  --color-raised: #1c212d; /* 27 uses */
+  --color-card: #283245; /* card background, 60 uses */
+  --color-card-2: #2d3649; /* hovered / secondary card, 49 uses */
+  --color-card-3: #2c3749; /* 18 uses */
+
+  /* Lines */
+  --color-line: #3a465b; /* borders and dividers, 88 uses */
+  --color-line-soft: rgb(58 70 91 / 0.5); /* Sleeper uses this exact rgba 37 times */
+
+  /* Text */
+  --color-ink: #eef2f7; /* brightest, headings — 32 uses */
+  --color-ink-2: #d8e2ed; /* primary body, 98 uses */
+  --color-ink-3: #a3bbd3; /* muted body — the single most common color, 259 uses */
+  --color-ink-4: #7988a1; /* secondary / labels, 65 uses */
+  --color-ink-5: #677897; /* faintest, 29 uses */
+
+  /* Accents */
+  --color-teal: #00ceb8; /* Sleeper signature, 195 uses */
+  --color-sky: #00baff; /* 41 uses */
+  --color-blue: #58a7ff; /* 39 uses */
+  --color-indigo: #6e7df5; /* 17 uses */
+  --color-rose: #ff2b6d; /* negative / losses, 49 uses */
+  --color-rose-soft: #ff6086; /* 22 uses */
+  --color-amber: #ffae58; /* warning / trending, 48 uses */
+  --color-green: #68b631; /* positive / wins */
+
+  /*
+    Position colors. Sleeper sets these inline from JS rather than in CSS
+    classes, so these are mapped from the palette above to match the app's
+    rendered appearance rather than lifted verbatim from a stylesheet.
+  */
+  --color-pos-qb: #ff2b6d;
+  --color-pos-rb: #00ceb8;
+  --color-pos-wr: #58a7ff;
+  --color-pos-te: #ffae58;
+  --color-pos-k: #bd66ff;
+  --color-pos-def: #7988a1;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+    sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--color-base);
+    color: var(--color-ink-3);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Sleeper leans on tight, slightly condensed numerals in every table. */
+  .tnum {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .card {
+    background-color: var(--color-card);
+    border: 1px solid var(--color-line);
+    border-radius: 0.75rem;
+  }
+
+  /* Uppercase micro-label, lifted from Sleeper's .position-group-header */
+  .eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--color-ink-4);
+    font-weight: 600;
+  }
+
+  /*
+    Bylaws are rendered from the commissioner's Google Doc export, so the HTML
+    is arbitrary. Style it here rather than pulling in a typography plugin.
+  */
+  .prose-bylaws {
+    padding: 1.75rem 2rem;
+    line-height: 1.7;
+    color: var(--color-ink-3);
+  }
+  .prose-bylaws h1,
+  .prose-bylaws h2,
+  .prose-bylaws h3,
+  .prose-bylaws h4 {
+    color: var(--color-ink);
+    font-weight: 700;
+    line-height: 1.3;
+    /* Offset for the sticky mobile header when jumping to an anchor. */
+    scroll-margin-top: 5rem;
+  }
+  .prose-bylaws h1 {
+    font-size: 1.5rem;
+    margin: 2rem 0 0.75rem;
+  }
+  .prose-bylaws h2 {
+    font-size: 1.2rem;
+    margin: 1.75rem 0 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--color-line);
+  }
+  .prose-bylaws h3 {
+    font-size: 1rem;
+    margin: 1.35rem 0 0.4rem;
+  }
+  .prose-bylaws h4 {
+    font-size: 0.9rem;
+    margin: 1.1rem 0 0.3rem;
+    color: var(--color-ink-2);
+  }
+  .prose-bylaws > :first-child {
+    margin-top: 0;
+  }
+  .prose-bylaws p {
+    margin: 0.75rem 0;
+  }
+  .prose-bylaws ul,
+  .prose-bylaws ol {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+  }
+  .prose-bylaws ul {
+    list-style: disc;
+  }
+  .prose-bylaws ol {
+    list-style: decimal;
+  }
+  .prose-bylaws li {
+    margin: 0.3rem 0;
+  }
+  .prose-bylaws li::marker {
+    color: var(--color-ink-5);
+  }
+  .prose-bylaws strong {
+    color: var(--color-ink-2);
+    font-weight: 600;
+  }
+  .prose-bylaws a {
+    color: var(--color-teal);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .prose-bylaws hr {
+    margin: 1.75rem 0;
+    border: 0;
+    border-top: 1px solid var(--color-line);
+  }
+  .prose-bylaws blockquote {
+    margin: 1rem 0;
+    padding: 0.5rem 1rem;
+    border-left: 3px solid var(--color-teal);
+    background: var(--color-sunken);
+    border-radius: 0 0.5rem 0.5rem 0;
+    color: var(--color-ink-4);
+  }
+  .prose-bylaws code {
+    background: var(--color-sunken);
+    padding: 0.1rem 0.3rem;
+    border-radius: 0.25rem;
+    font-size: 0.85em;
+    font-family: var(--font-mono);
+    color: var(--color-amber);
+  }
+  .prose-bylaws pre {
+    background: var(--color-sunken);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    overflow-x: auto;
+    margin: 1rem 0;
+  }
+  .prose-bylaws pre code {
+    background: none;
+    padding: 0;
+    color: var(--color-ink-3);
+  }
+  /* Wide tables scroll inside the card rather than the page body. */
+  .prose-bylaws table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.875rem;
+  }
+  .prose-bylaws th,
+  .prose-bylaws td {
+    border: 1px solid var(--color-line);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+  .prose-bylaws th {
+    background: var(--color-sunken);
+    color: var(--color-ink-2);
+    font-weight: 600;
+  }
+  .prose-bylaws img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 0.5rem;
+  }
+}

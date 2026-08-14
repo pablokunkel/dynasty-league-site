@@ -1,0 +1,41 @@
+{
+  "_comment": "Hand-authored league facts that the Sleeper API does not expose. Verified 2026-08-14: draft.start_time is null and there is no location field anywhere in the API, so the countdown and venue below MUST be maintained here. Everything else on the site comes from Sleeper.",
+
+  "leagueId": "1318724589848653824",
+  "siteName": "Dynasty",
+  "siteTagline": "12-team superflex dynasty · est. 2021",
+
+  "draft": {
+    "_comment": "From '2026 Draft Info.txt': 2026-08-15 9:00 PM, Mohegan Sun. The source said 'EST' but August 15 is inside daylight saving time, so Eastern is UTC-04:00 (EDT). Encoding -05:00 would make the countdown an hour late on draft night. startTime must always carry an explicit offset so the countdown is right in every timezone.",
+    "confirmed": true,
+    "startTime": "2026-08-15T21:00:00-04:00",
+    "timezoneLabel": "ET",
+    "rounds": 3,
+    "type": "linear",
+    "typeNote": "Linear, not snake — the round 1 order repeats identically in rounds 2 and 3.",
+    "venue": {
+      "name": "Mohegan Sun Casino",
+      "addressLine": "1 Mohegan Sun Blvd",
+      "city": "Uncasville",
+      "region": "CT 06382",
+      "mapsQuery": "Mohegan Sun Casino, 1 Mohegan Sun Blvd, Uncasville, CT 06382",
+      "notes": ""
+    },
+    "agenda": [
+      { "time": "TBD", "label": "Doors / food" },
+      { "time": "TBD", "label": "Draft board setup" },
+      { "time": "9:00 PM", "label": "First pick on the clock" }
+    ]
+  },
+
+  "bylaws": {
+    "sourceUrl": "https://docs.google.com/document/d/1fvEstP18A3V0HO7AfX3LJ8hp_VpSADtpNIxyIqu1EFk/edit",
+    "markdownPath": "content/bylaws.md",
+    "_comment": "Export the Google Doc via File > Download > Markdown (.md) and save it to content/bylaws.md. The pipeline copies it into public/data at build time."
+  },
+
+  "teamOverrides": {
+    "_comment": "Sleeper users with no team_name fall back to their display_name. Add user_id -> label here to override. rkeefe1108 (737728125689044992) has no roster in 2026 and is hidden from Teams by default.",
+    "hiddenUserIds": ["737728125689044992"]
+  }
+}
