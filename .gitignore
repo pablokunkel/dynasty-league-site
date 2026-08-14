@@ -21,3 +21,6 @@ Dynasty Football Bylaws.md
 # Pipeline scratch — the unpruned 14.6MB player dump is cached here between
 # runs so local iteration doesn't re-download it.
 .cache/
+
+# Wrangler local build/dev scratch — never commit.
+.wrangler/
