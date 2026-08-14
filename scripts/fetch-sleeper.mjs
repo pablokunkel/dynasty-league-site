@@ -257,7 +257,19 @@ function shapeMatchups(raw) {
   return weeks
 }
 
-function shapeDraft(draft, picks, tradedPicks, teamsByRoster) {
+/**
+ * Google Docs exports bold paragraphs as `**LABEL:**` rather than real headings,
+ * so a doc that reads as sectioned produces zero `#` headings and an empty table
+ * of contents. Promote all-caps bold labels to h2 so /bylaws gets a real TOC.
+ */
+function normalizeBylaws(md) {
+  return md.replace(
+    /^\*\*([A-Z][A-Z0-9 /&'-]{2,}):\*\*[ \t]*(.*)$/gm,
+    (_, label, rest) => `## ${label.trim()}${rest.trim() ? `\n\n${rest.trim()}` : ''}`
+  )
+}
+
+function shapeDraft(draft, picks, tradedPicks, teamsByRoster, priorMaxPoints) {
   if (!draft) return null
 
   const slotToRoster = draft.slot_to_roster_id ?? {}
@@ -302,6 +314,11 @@ function shapeDraft(draft, picks, tradedPicks, teamsByRoster) {
           wasTraded: currentRoster !== originalRoster,
           playerId: made?.player_id ?? null,
           pickedAt: made?.metadata ? made.picked_by || null : null,
+          // Bylaws set the order by reverse prior-season Max Points For
+          // (Sleeper's `ppts`). Carrying it through lets the board show why
+          // each slot sits where it does. Verified to match exactly for 2026.
+          priorMaxPoints:
+            priorMaxPoints?.get(teamsByRoster.get(originalRoster)?.ownerId) ?? null,
         }
       }),
     })
@@ -607,7 +624,7 @@ async function main() {
   const seasons = []
   const written = []
 
-  for (const raw of chain) {
+  for (const [chainIndex, raw] of chain.entries()) {
     const teams = shapeTeams(raw)
     const teamsByRoster = new Map(teams.map((t) => [t.rosterId, t]))
 
@@ -631,6 +648,18 @@ async function main() {
       }
     }
 
+    // Prior-season potential points, keyed by owner so a roster_id shuffle
+    // between league instances can't misattribute it. `chain` runs newest-first,
+    // so the next entry is the previous season.
+    const prior = chain[chainIndex + 1]
+    const priorMaxPoints = prior
+      ? new Map(
+          shapeTeams(prior)
+            .filter((t) => t.ownerId)
+            .map((t) => [t.ownerId, round2(t.potentialPoints)])
+        )
+      : null
+
     // Draft detail (current season's draft carries the board we care about).
     const primaryDraft = raw.drafts[0]
     let draft = null
@@ -640,7 +669,7 @@ async function main() {
         api(`/v1/draft/${primaryDraft.draft_id}/picks`),
         api(`/v1/draft/${primaryDraft.draft_id}/traded_picks`),
       ])
-      draft = shapeDraft(detail, picks, tradedPicks, teamsByRoster)
+      draft = shapeDraft(detail, picks, tradedPicks, teamsByRoster, priorMaxPoints)
       ;(picks ?? []).forEach((p) => p.player_id && referenced.add(p.player_id))
     }
 
@@ -756,7 +785,10 @@ async function main() {
   const bylawsSrc = join(ROOT, config.bylaws.markdownPath)
   let bylaws = null
   if (existsSync(bylawsSrc)) {
-    bylaws = { markdown: await readFile(bylawsSrc, 'utf8'), sourceUrl: config.bylaws.sourceUrl }
+    bylaws = {
+      markdown: normalizeBylaws(await readFile(bylawsSrc, 'utf8')),
+      sourceUrl: config.bylaws.sourceUrl,
+    }
   } else {
     bylaws = {
       markdown: null,

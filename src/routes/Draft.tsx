@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useManifest, usePlayers, useProspects, useSeason } from '../lib/data'
 import type { DraftPick, Player } from '../lib/types'
-import { height, POSITION_ORDER } from '../lib/format'
+import { height, POSITION_ORDER, pts1 } from '../lib/format'
 import {
   Avatar,
   Card,
@@ -427,11 +427,22 @@ export default function Draft() {
                 {draft.board[0]?.picks.map((p) => {
                   const original = teamsByRoster.get(p.originalRosterId)
                   return (
-                    <div key={p.slot} className="flex items-center gap-1.5 px-0.5">
-                      <Avatar src={original?.avatar ?? null} name={original?.name ?? '?'} size={20} />
-                      <span className="truncate text-[10px] font-semibold text-ink-4">
-                        {original?.name ?? `Slot ${p.slot}`}
-                      </span>
+                    <div key={p.slot} className="px-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <Avatar
+                          src={original?.avatar ?? null}
+                          name={original?.name ?? '?'}
+                          size={20}
+                        />
+                        <span className="truncate text-[10px] font-semibold text-ink-4">
+                          {original?.name ?? `Slot ${p.slot}`}
+                        </span>
+                      </div>
+                      {p.priorMaxPoints != null && (
+                        <div className="mt-0.5 pl-[26px] text-[9px] text-ink-5 tnum">
+                          {pts1(p.priorMaxPoints)} max PF
+                        </div>
+                      )}
                     </div>
                   )
                 })}
@@ -452,6 +463,16 @@ export default function Draft() {
           </div>
           <p className="mt-2 text-[11px] text-ink-5">
             Columns are the original slot owner; each cell shows who actually picks there now.
+            {draft.board[0]?.picks.some((p) => p.priorMaxPoints != null) && (
+              <>
+                {' '}
+                Order is set by ascending prior-season Max Points For, per the{' '}
+                <a href="/bylaws" className="text-teal hover:underline">
+                  bylaws
+                </a>
+                .
+              </>
+            )}
           </p>
         </div>
       ) : (

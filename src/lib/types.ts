@@ -84,6 +84,8 @@ export interface DraftPick {
   currentTeam: string | null
   wasTraded: boolean
   playerId: string | null
+  /** Prior-season Max Points For, which the bylaws use to set the order. */
+  priorMaxPoints: number | null
 }
 
 export interface Draft {

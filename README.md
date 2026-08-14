@@ -49,8 +49,15 @@ Three things on this site cannot come from the API. They live in
 - **Draft start time.** `draft.start_time` is `null` on this league. The countdown
   reads `draft.startTime` from the config.
 - **Draft location.** Sleeper has no venue field anywhere.
-- **Bylaws.** Export the Google Doc via *File → Download → Markdown (.md)*, save it
-  as `content/bylaws.md`, and re-run `npm run data`.
+- **Bylaws.** Currently imported at `content/bylaws.md`. To update, re-export the
+  Google Doc via *File → Download → Markdown (.md)*, overwrite that file, and
+  re-run `npm run data`.
+
+  Google Docs exports bold paragraphs as `**LABEL:**` rather than real markdown
+  headings, which would leave the table of contents empty. The pipeline promotes
+  all-caps bold labels to `##` — see `normalizeBylaws` in
+  `scripts/fetch-sleeper.mjs`. If you switch the doc to real Heading styles, that
+  transform becomes a no-op and can be deleted.
 
 `startTime` must carry an explicit UTC offset. It is currently
 `2026-08-15T21:00:00-04:00` — note that August is daylight saving time, so Eastern
@@ -98,6 +105,22 @@ source during the draft; this is a companion view, not a replacement.
   7th-place game in a 6-team playoff.
 - `rkeefe1108` has no roster in 2026 and is hidden from `/teams` via
   `teamOverrides.hiddenUserIds`.
+
+## Bylaws vs. league settings
+
+Every numeric rule in the bylaws was checked against the live league config.
+All match except one:
+
+| Rule | Bylaws | Sleeper |
+| --- | --- | --- |
+| Votes needed to veto a trade | 7 of the 10 uninvolved teams | `veto_votes_needed: 6` |
+
+Everything else lines up: 3 non-snake rounds, $200 FAAB, 6 playoff teams from week
+15, 9 starters, 4 taxi, 4 IR, and the full scoring table.
+
+The 2026 draft order was also verified against the bylaws rule — ascending 2025
+Max Points For — and matches on all 12 slots. `/draft` shows each slot's prior-season
+Max PF underneath the team name so the ordering is self-evident.
 
 ## Payload sizes
 
