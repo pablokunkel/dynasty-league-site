@@ -5,6 +5,10 @@ and deployed to Cloudflare Pages. All Sleeper data is fetched at build time into
 `public/data`, so the browser never calls the Sleeper API and the site cannot be
 broken by Sleeper being slow or down.
 
+> **Working on this?** Read [`CLAUDE.md`](CLAUDE.md) first. It carries the API
+> gotchas that cost real time to establish, the code conventions, and the current
+> roadmap.
+
 ```
 scripts/fetch-sleeper.mjs   pipeline: Sleeper -> public/data/*.json
 scripts/should-refresh.mjs  cadence gate for the refresh workflow
@@ -82,7 +86,24 @@ errors, it refreshes anyway.
 **Expectation setting for draft night:** GitHub's scheduler is best-effort and can
 lag 5–15 minutes under load. Combined with the 15-minute cron and the Pages build,
 the draft board here can be ~20 minutes behind. Sleeper's own app remains the live
-source during the draft; this is a companion view, not a replacement.
+source during the draft; this is a companion view, not a replacement. The planned
+fix is a Cloudflare Worker caching proxy — see the live-data section of
+[`CLAUDE.md`](CLAUDE.md).
+
+### Actions minutes
+
+The 15-minute cron means ~96 workflow runs/day. Even though the gate skips most of
+them in seconds, **GitHub bills private repos per started minute**, so that is
+~2,900 min/month against a 2,000-minute free allowance.
+
+Pick one:
+
+- **Make the repo public** — Actions minutes are unlimited and unbilled. The
+  tradeoff is that league members' Sleeper display names become public.
+- **Drop the cron to `*/30`** — ~1,440 min/month, inside the free tier.
+- **Ship the Worker and drop the cron to hourly or daily** — the Worker handles
+  live data, so frequent polling stops being necessary at all. This is the
+  intended end state.
 
 ## Notable data behaviour
 
