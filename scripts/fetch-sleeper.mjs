@@ -770,6 +770,53 @@ function slimPlayer(p) {
 }
 
 // ---------------------------------------------------------------------------
+// pre-draft rank snapshot
+// ---------------------------------------------------------------------------
+
+const PREDRAFT_DIR = join(ROOT, 'content', 'predraft-ranks')
+
+/**
+ * Freeze the rookie board before the draft so the recap can grade picks.
+ *
+ * Returns the snapshot for `season` — freshly written while the draft is
+ * `pre_draft`, read back from disk afterwards, or null if there is none (a
+ * season whose draft was already over when this code first ran).
+ */
+async function snapshotPreDraftRanks(season, current, rookies) {
+  const file = join(PREDRAFT_DIR, `${season}.json`)
+  const draftStatus = current.drafts?.[0]?.status ?? null
+
+  if (draftStatus === 'pre_draft') {
+    const ranks = {}
+    for (const r of rookies) if (r.rank != null) ranks[r.id] = r.rank
+    const snapshot = {
+      _comment:
+        'Sleeper search_rank for every rookie, frozen just before the draft. Rewritten by scripts/fetch-sleeper.mjs on every run while the draft is pre_draft and left alone once it starts, so /draft can compare where a player was ranked against where he went.',
+      season,
+      capturedAt: new Date().toISOString(),
+      source: 'sleeper search_rank',
+      ranks,
+    }
+    await mkdir(PREDRAFT_DIR, { recursive: true })
+    await writeFile(file, JSON.stringify(snapshot, null, 2) + '\n')
+    console.log(`  pre-draft ranks: snapshot refreshed (${Object.keys(ranks).length} ranked)`)
+    return snapshot
+  }
+
+  if (existsSync(file)) {
+    const snapshot = JSON.parse(await readFile(file, 'utf8'))
+    console.log(
+      `  pre-draft ranks: using ${season} snapshot from ${snapshot.capturedAt} ` +
+        `(${Object.keys(snapshot.ranks ?? {}).length} ranked)`
+    )
+    return snapshot
+  }
+
+  console.warn(`  ! no pre-draft rank snapshot for ${season} — the draft recap will not grade picks`)
+  return null
+}
+
+// ---------------------------------------------------------------------------
 // main
 // ---------------------------------------------------------------------------
 
@@ -920,6 +967,17 @@ async function main() {
   }
 
   written.push(await writeJson('players.json', players))
+
+  /*
+   * Pre-draft rank snapshot. Sleeper's search_rank keeps moving after the
+   * draft, so to say "taken 1.08, was ranked 12th on the board" the ranks have
+   * to be frozen beforehand. While the current season's draft is still
+   * pre_draft this rewrites content/predraft-ranks/{season}.json on every run;
+   * once the draft starts it is never touched again. The recap on /draft reads
+   * it back through prospects.json.
+   */
+  const preDraft = await snapshotPreDraftRanks(rookieYear, chain[0], rookies)
+
   written.push(
     await writeJson('prospects.json', {
       season: rookieYear,
@@ -927,6 +985,8 @@ async function main() {
       players: rookies.sort(
         (a, b) => (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER)
       ),
+      preDraftRanks: preDraft?.ranks ?? null,
+      preDraftCapturedAt: preDraft?.capturedAt ?? null,
     })
   )
   written.push(
@@ -1042,6 +1102,11 @@ async function main() {
       // The 2026 schedule is not published by Sleeper until the league leaves
       // pre-draft. The Schedules page uses this to pick a sensible default.
       hasSchedule: s.matchupWeekCount > 0,
+      // A schedule is not a result. Standings and the tankathon must key off
+      // this, not hasSchedule — otherwise the moment Sleeper publishes the
+      // new season's matchups (weeks before kickoff) Home shows twelve 0-0
+      // rows and a tankathon of all-zero Max PF.
+      hasGames: s.teams.some((t) => t.wins + t.losses + t.ties > 0 || t.pointsFor > 0),
     })),
   }
   written.push(await writeJson('index.json', manifest))

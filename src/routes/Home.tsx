@@ -87,13 +87,15 @@ export default function Home() {
 
   /*
    * Standings and the tankathon need a season that has actually been played.
-   * `manifest.seasons` is newest-first, so this is the live season once it
-   * starts and the most recently completed one during the offseason. When they
+   * `manifest.seasons` is newest-first, so this is the live season once its
+   * first points land and the most recently completed one until then. It keys
+   * off `hasGames`, not `hasSchedule`: Sleeper publishes the schedule weeks
+   * before kickoff, and on that alone this showed a 0-0 table. When the two
    * coincide, `useSeason` hits the same cached promise and no extra fetch
    * happens.
    */
   const statsSeasonYear =
-    manifest.seasons.find((s) => s.matchupWeekCount > 0)?.season ?? manifest.currentSeason
+    manifest.seasons.find((s) => s.hasGames)?.season ?? manifest.currentSeason
   const statsSeason = useSeason(statsSeasonYear)
   const starterCount = season.rosterPositions.filter((p) => p !== 'BN').length
 

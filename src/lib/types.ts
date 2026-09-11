@@ -35,6 +35,8 @@ export interface SeasonSummary {
   transactionCount: number
   matchupWeekCount: number
   hasSchedule: boolean
+  /** Any team has a decided game or points on the board. */
+  hasGames: boolean
 }
 
 export interface Manifest {
@@ -290,6 +292,12 @@ export interface ProspectsDoc {
   season: string
   note: string
   players: Player[]
+  /**
+   * Sleeper search_rank per player, frozen just before the draft (see
+   * content/predraft-ranks). Null when no snapshot exists for the season.
+   */
+  preDraftRanks: Record<string, number> | null
+  preDraftCapturedAt: string | null
 }
 
 export interface TrendingDoc {
