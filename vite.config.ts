@@ -4,6 +4,19 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  server: {
+    // Dev stand-in for worker/index.js: every /api/* route the Worker
+    // allowlists is the matching Sleeper /v1/* path, so a prefix rewrite lets
+    // the LIVE overlays (draft picks, game-day scores) run against real data
+    // without `wrangler dev`. Production never sees this — the Worker answers.
+    proxy: {
+      '/api': {
+        target: 'https://api.sleeper.app',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\//, '/v1/'),
+      },
+    },
+  },
   build: {
     // Route chunks are created by React.lazy in src/App.tsx. Everything from
     // node_modules goes to one vendor chunk so the framework caches across

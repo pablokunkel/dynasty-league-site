@@ -939,6 +939,25 @@ async function main() {
     })
   }
 
+  // --- scoreboard ----------------------------------------------------------
+  // The current NFL week's matchups on their own, so Home can show a
+  // scoreboard (and overlay live scores on it) without pulling the whole
+  // season's matchup file. Empty whenever the league is not in season.
+  {
+    const current = seasons[0]
+    const week = nflState?.display_week ?? nflState?.week ?? 1
+    const inSeason = current.status === 'in_season'
+    const found = inSeason ? current.matchups.find((m) => m.week === week) : null
+    written.push(
+      await writeJson('scoreboard.json', {
+        season: current.season,
+        week,
+        status: current.status,
+        matchups: found?.matchups ?? [],
+      })
+    )
+  }
+
   // --- players -------------------------------------------------------------
   console.log('  building player index...')
   const dump = await loadPlayerDump()

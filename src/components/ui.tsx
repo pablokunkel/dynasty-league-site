@@ -256,6 +256,40 @@ export function StatTile({
   )
 }
 
+/* -------------------------------------------------------------------- live */
+
+/**
+ * Pulsing LIVE marker for anything fed by the Worker proxy. Renders nothing
+ * until the first live payload lands, so a page with the Worker unreachable
+ * looks exactly like the committed build — no false promise of freshness.
+ */
+export function LivePill({
+  updatedAt,
+  every,
+  className = '',
+}: {
+  updatedAt: number | null
+  /** Human cadence for the tooltip, e.g. "15s". */
+  every: string
+  className?: string
+}) {
+  if (updatedAt == null) return null
+  return (
+    <span
+      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold text-teal ${className}`}
+      title={`Live from Sleeper, refreshed every ${every}. Last update ${new Date(
+        updatedAt
+      ).toLocaleTimeString()}`}
+    >
+      <span className="relative flex size-2">
+        <span className="absolute inline-flex size-full animate-ping rounded-full bg-teal opacity-70" />
+        <span className="relative inline-flex size-2 rounded-full bg-teal" />
+      </span>
+      LIVE
+    </span>
+  )
+}
+
 /* ------------------------------------------------------------------ states */
 
 export function Loading({ label = 'Loading' }: { label?: string }) {

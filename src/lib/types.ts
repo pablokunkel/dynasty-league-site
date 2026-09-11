@@ -230,6 +230,17 @@ export interface MatchupWeek {
   matchups: { sides: MatchupSide[] }[]
 }
 
+/**
+ * The current NFL week's matchups only, so Home can show a scoreboard without
+ * loading the whole season's matchup file. Empty outside the season.
+ */
+export interface ScoreboardDoc {
+  season: string
+  week: number
+  status: string
+  matchups: { sides: MatchupSide[] }[]
+}
+
 export interface TeamSummary {
   rosterId: number
   ownerId: string | null

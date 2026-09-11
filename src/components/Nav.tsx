@@ -24,7 +24,7 @@ type Item = {
 }
 
 const ITEMS: Item[] = [
-  { to: '/', label: 'Home', Icon: HomeIcon, prefetch: (m) => [`season/${m.currentSeason}.json`, 'trending.json'] },
+  { to: '/', label: 'Home', Icon: HomeIcon, prefetch: (m) => [`season/${m.currentSeason}.json`, 'scoreboard.json'] },
   { to: '/draft', label: 'Draft', Icon: DraftIcon, prefetch: (m) => [`season/${m.currentSeason}.json`, 'prospects.json', 'points.json'] },
   { to: '/teams', label: 'Teams', Icon: TeamsIcon, prefetch: (m) => [`season/${m.currentSeason}.json`, 'players.json'] },
   { to: '/schedule', label: 'Schedule', Icon: ScheduleIcon, prefetch: (m) => [`matchups/${m.currentSeason}.json`] },

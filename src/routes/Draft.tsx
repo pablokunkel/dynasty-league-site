@@ -8,6 +8,7 @@ import {
   Avatar,
   Card,
   EmptyState,
+  LivePill,
   PageHeader,
   PlayerLink,
   PositionBadge,
@@ -500,20 +501,7 @@ export default function Draft() {
           <SectionTitle
             right={
               <span className="flex items-center gap-3 text-[11px] text-ink-5">
-                {live.updatedAt !== null && (
-                  <span
-                    className="flex items-center gap-1.5 font-semibold text-teal"
-                    title={`Live from Sleeper, refreshed every 15s. Last update ${new Date(
-                      live.updatedAt
-                    ).toLocaleTimeString()}`}
-                  >
-                    <span className="relative flex size-2">
-                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-teal opacity-70" />
-                      <span className="relative inline-flex size-2 rounded-full bg-teal" />
-                    </span>
-                    LIVE
-                  </span>
-                )}
+                <LivePill updatedAt={live.updatedAt} every="15s" />
                 <span className="flex items-center gap-1.5">
                   <span className="inline-block size-2 rounded-sm border border-amber/50 bg-amber/20" />
                   traded pick

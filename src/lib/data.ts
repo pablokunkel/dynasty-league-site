@@ -8,6 +8,7 @@ import type {
   PointsDoc,
   ProspectsDoc,
   RecordsDoc,
+  ScoreboardDoc,
   SeasonDoc,
   Transaction,
   TrendingDoc,
@@ -45,6 +46,8 @@ export const useTrending = () => use(load<TrendingDoc>('trending.json'))
 export const useBylaws = () => use(load<BylawsDoc>('bylaws.json'))
 export const usePoints = () => use(load<PointsDoc>('points.json'))
 export const useNews = () => use(load<NewsDoc>('news.json'))
+/** Current week's matchups only (~6KB) — the Home scoreboard's static base. */
+export const useScoreboard = () => use(load<ScoreboardDoc>('scoreboard.json'))
 
 /** 123KB game log. Only loaded when a player profile is first opened. */
 export const useWeekly = () => use(load<WeeklyDoc>('weekly.json'))

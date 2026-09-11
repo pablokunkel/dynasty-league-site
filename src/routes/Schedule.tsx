@@ -1,11 +1,20 @@
 import { Suspense, useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useManifest, useMatchups, usePlayers, useSeason } from '../lib/data'
+import {
+  isLiveWeek,
+  liveMatchups,
+  MATCHUP_POLL_MS,
+  mergeLiveMatchups,
+  useLive,
+  type LiveMatchupRow,
+} from '../lib/live'
 import type { MatchupSide, PlayerIndex } from '../lib/types'
 import { pts, slotLabel } from '../lib/format'
 import {
   Card,
   EmptyState,
+  LivePill,
   PageHeader,
   PlayerLink,
   PositionBadge,
@@ -340,7 +349,24 @@ export default function Schedule() {
     setPicked(null)
   }
 
-  const current = matchups.find((m) => m.week === week)
+  /*
+   * Game days: the committed JSON lags the refresh cron by up to 30 minutes,
+   * so while the week on screen is the NFL week in progress, poll the Worker
+   * and overlay its rows. Any other week — a past one, a future one, another
+   * season — passes a null URL and never touches the network. With the Worker
+   * unreachable the committed scores render unchanged.
+   */
+  const live = useLive<LiveMatchupRow[]>(
+    isLiveWeek(manifest, seasonParam, week) ? liveMatchups(manifest.leagueId, week) : null,
+    MATCHUP_POLL_MS
+  )
+
+  const current = useMemo(() => {
+    const found = matchups.find((m) => m.week === week)
+    if (!found) return undefined
+    return { ...found, matchups: mergeLiveMatchups(found.matchups, live.data) }
+  }, [matchups, week, live.data])
+
   const playoffStart = season.settings.playoffWeekStart
 
   const seasonSelect = (
@@ -409,7 +435,14 @@ export default function Schedule() {
         </p>
       )}
 
-      <SectionTitle right={<span className="text-[11px] text-ink-5">{current?.matchups.length ?? 0} matchups</span>}>
+      <SectionTitle
+        right={
+          <span className="flex items-center gap-3 text-[11px] text-ink-5">
+            <LivePill updatedAt={live.updatedAt} every="45s" />
+            <span>{current?.matchups.length ?? 0} matchups</span>
+          </span>
+        }
+      >
         Week {week}
       </SectionTitle>
 
