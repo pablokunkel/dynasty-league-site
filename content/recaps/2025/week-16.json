@@ -1,0 +1,487 @@
+{
+  "season": "2025",
+  "week": 16,
+  "generatedAt": "2026-09-11T03:54:31.773Z",
+  "author": "template",
+  "model": null,
+  "isPlayoffs": true,
+  "headline": "pablokunkeljure runs Idontevenlikeohiost off the field",
+  "summary": "Week 16 is a playoff week, so every game below is elimination football. Notre Dame de Paris posted the week's high score at 180.28; Idontevenlikeohiost brought up the rear with 71.88. The closest game was Notre Dame de Paris over Norwood Peckers by 8.62, while pablokunkeljure won the blowout by 90.14. Player of the week: Puka Nacua, 46.50 for Mocha Joe’s. Bench of the week goes to Good Berger, who left 54.06 sitting — Parker Washington scored 26.50 from the pine.",
+  "games": [
+    {
+      "winner": {
+        "rosterId": 1,
+        "name": "Mocha Joe’s",
+        "points": 166.66,
+        "optimal": 187.26,
+        "benchLeft": 20.6,
+        "topPlayer": {
+          "id": "9493",
+          "name": "Puka Nacua",
+          "pos": "WR",
+          "nfl": "LAR",
+          "points": 46.5
+        },
+        "bestBench": {
+          "id": "12506",
+          "name": "Harold Fannin",
+          "pos": "TE",
+          "nfl": "CLE",
+          "points": 19.5
+        }
+      },
+      "loser": {
+        "rosterId": 5,
+        "name": "Good Berger",
+        "points": 134.28,
+        "optimal": 188.34,
+        "benchLeft": 54.06,
+        "topPlayer": {
+          "id": "9509",
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "points": 29.8
+        },
+        "bestBench": {
+          "id": "9487",
+          "name": "Parker Washington",
+          "pos": "WR",
+          "nfl": "JAX",
+          "points": 26.5
+        }
+      },
+      "margin": 32.38,
+      "tie": false,
+      "blurb": "Mocha Joe’s took care of Good Berger, 166.66 to 134.28. Puka Nacua led the way with 46.50. Good Berger left 54.06 on the bench, Parker Washington's 26.50 the biggest miss — enough to have flipped it."
+    },
+    {
+      "winner": {
+        "rosterId": 2,
+        "name": "ssimonis",
+        "points": 155.34,
+        "optimal": 193.64,
+        "benchLeft": 38.3,
+        "topPlayer": {
+          "id": "4034",
+          "name": "Christian McCaffrey",
+          "pos": "RB",
+          "nfl": "SF",
+          "points": 32.6
+        },
+        "bestBench": {
+          "id": "8151",
+          "name": "Kenneth Walker",
+          "pos": "RB",
+          "nfl": "KC",
+          "points": 25.4
+        }
+      },
+      "loser": {
+        "rosterId": 10,
+        "name": "Maximus Decimus Meridius",
+        "points": 131.54,
+        "optimal": 156,
+        "benchLeft": 24.46,
+        "topPlayer": {
+          "id": "3198",
+          "name": "Derrick Henry",
+          "pos": "RB",
+          "nfl": "BAL",
+          "points": 22.8
+        },
+        "bestBench": {
+          "id": "4943",
+          "name": "Sam Darnold",
+          "pos": "QB",
+          "nfl": "SEA",
+          "points": 21.5
+        }
+      },
+      "margin": 23.8,
+      "tie": false,
+      "blurb": "ssimonis took down Maximus Decimus Meridius, 155.34 to 131.54. Christian McCaffrey led the way with 32.60. Maximus Decimus Meridius left 24.46 on the bench, Sam Darnold's 21.50 the biggest miss — enough to have flipped it."
+    },
+    {
+      "winner": {
+        "rosterId": 3,
+        "name": "Velvet Milkmen",
+        "points": 116.4,
+        "optimal": 135.4,
+        "benchLeft": 19,
+        "topPlayer": {
+          "id": "331",
+          "name": "Philip Rivers",
+          "pos": "QB",
+          "nfl": null,
+          "points": 18.08
+        },
+        "bestBench": {
+          "id": "8210",
+          "name": "Chig Okonkwo",
+          "pos": "TE",
+          "nfl": "WAS",
+          "points": 16.4
+        }
+      },
+      "loser": {
+        "rosterId": 11,
+        "name": "Owen Seven",
+        "points": 74.92,
+        "optimal": 95.92,
+        "benchLeft": 21,
+        "topPlayer": {
+          "id": "96",
+          "name": "Aaron Rodgers",
+          "pos": "QB",
+          "nfl": "PIT",
+          "points": 15.54
+        },
+        "bestBench": {
+          "id": "4993",
+          "name": "Mike Gesicki",
+          "pos": "TE",
+          "nfl": "CIN",
+          "points": 12.5
+        }
+      },
+      "margin": 41.48,
+      "tie": false,
+      "blurb": "Velvet Milkmen ran away from Owen Seven, 116.40 to 74.92. Philip Rivers led the way with 18.08. Owen Seven left 21.00 on the bench, Mike Gesicki's 12.50 the biggest miss."
+    },
+    {
+      "winner": {
+        "rosterId": 9,
+        "name": "pablokunkeljure",
+        "points": 162.02,
+        "optimal": 162.02,
+        "benchLeft": 0,
+        "topPlayer": {
+          "id": "9224",
+          "name": "Chase Brown",
+          "pos": "RB",
+          "nfl": "CIN",
+          "points": 32.9
+        },
+        "bestBench": {
+          "id": "6039",
+          "name": "Ty Johnson",
+          "pos": "RB",
+          "nfl": "BUF",
+          "points": 7.6
+        }
+      },
+      "loser": {
+        "rosterId": 4,
+        "name": "Idontevenlikeohiost",
+        "points": 71.88,
+        "optimal": 83.58,
+        "benchLeft": 11.7,
+        "topPlayer": {
+          "id": "11604",
+          "name": "Brock Bowers",
+          "pos": "TE",
+          "nfl": "LV",
+          "points": 14.3
+        },
+        "bestBench": {
+          "id": "8676",
+          "name": "Rashid Shaheed",
+          "pos": "WR",
+          "nfl": "SEA",
+          "points": 9.1
+        }
+      },
+      "margin": 90.14,
+      "tie": false,
+      "blurb": "pablokunkeljure buried Idontevenlikeohiost, 162.02 to 71.88. Chase Brown led the way with 32.90. Idontevenlikeohiost left 11.70 on the bench, Rashid Shaheed's 9.10 the biggest miss."
+    },
+    {
+      "winner": {
+        "rosterId": 6,
+        "name": "Vandelay Industries",
+        "points": 123.18,
+        "optimal": 147.2,
+        "benchLeft": 24.02,
+        "topPlayer": {
+          "id": "7567",
+          "name": "Kenny Gainwell",
+          "pos": "RB",
+          "nfl": "TB",
+          "points": 23.8
+        },
+        "bestBench": {
+          "id": "7049",
+          "name": "Jauan Jennings",
+          "pos": "WR",
+          "nfl": "MIN",
+          "points": 18.1
+        }
+      },
+      "loser": {
+        "rosterId": 8,
+        "name": "Rensar Razzlin River Rats",
+        "points": 113.62,
+        "optimal": 120.22,
+        "benchLeft": 6.6,
+        "topPlayer": {
+          "id": "8142",
+          "name": "Alec Pierce",
+          "pos": "WR",
+          "nfl": "IND",
+          "points": 24.6
+        },
+        "bestBench": {
+          "id": "1689",
+          "name": "Adam Thielen",
+          "pos": "WR",
+          "nfl": null,
+          "points": 8.9
+        }
+      },
+      "margin": 9.56,
+      "tie": false,
+      "blurb": "Vandelay Industries held off Rensar Razzlin River Rats, 123.18 to 113.62. Kenny Gainwell led the way with 23.80. Alec Pierce's 24.60 was not enough for Rensar Razzlin River Rats."
+    },
+    {
+      "winner": {
+        "rosterId": 12,
+        "name": "Notre Dame de Paris",
+        "points": 180.28,
+        "optimal": 201.92,
+        "benchLeft": 21.64,
+        "topPlayer": {
+          "id": "8144",
+          "name": "Chris Olave",
+          "pos": "WR",
+          "nfl": "NO",
+          "points": 36.8
+        },
+        "bestBench": {
+          "id": "3214",
+          "name": "Hunter Henry",
+          "pos": "TE",
+          "nfl": "NE",
+          "points": 15.5
+        }
+      },
+      "loser": {
+        "rosterId": 7,
+        "name": "Norwood Peckers",
+        "points": 171.66,
+        "optimal": 195.06,
+        "benchLeft": 23.4,
+        "topPlayer": {
+          "id": "7523",
+          "name": "Trevor Lawrence",
+          "pos": "QB",
+          "nfl": "JAX",
+          "points": 31.16
+        },
+        "bestBench": {
+          "id": "8121",
+          "name": "Romeo Doubs",
+          "pos": "WR",
+          "nfl": "NE",
+          "points": 19.4
+        }
+      },
+      "margin": 8.62,
+      "tie": false,
+      "blurb": "Notre Dame de Paris beat Norwood Peckers, 180.28 to 171.66. Chris Olave led the way with 36.80. Norwood Peckers left 23.40 on the bench, Romeo Doubs's 19.40 the biggest miss — enough to have flipped it."
+    }
+  ],
+  "awards": {
+    "highScore": {
+      "rosterId": 12,
+      "name": "Notre Dame de Paris",
+      "points": 180.28
+    },
+    "lowScore": {
+      "rosterId": 4,
+      "name": "Idontevenlikeohiost",
+      "points": 71.88
+    },
+    "closest": {
+      "winner": {
+        "rosterId": 12,
+        "name": "Notre Dame de Paris",
+        "points": 180.28
+      },
+      "loser": {
+        "rosterId": 7,
+        "name": "Norwood Peckers",
+        "points": 171.66
+      },
+      "margin": 8.62
+    },
+    "blowout": {
+      "winner": {
+        "rosterId": 9,
+        "name": "pablokunkeljure",
+        "points": 162.02
+      },
+      "loser": {
+        "rosterId": 4,
+        "name": "Idontevenlikeohiost",
+        "points": 71.88
+      },
+      "margin": 90.14
+    },
+    "benchBlunder": {
+      "rosterId": 5,
+      "name": "Good Berger",
+      "left": 54.06,
+      "player": {
+        "id": "9487",
+        "name": "Parker Washington",
+        "pos": "WR",
+        "nfl": "JAX",
+        "points": 26.5
+      }
+    },
+    "topPlayer": {
+      "id": "9493",
+      "name": "Puka Nacua",
+      "pos": "WR",
+      "nfl": "LAR",
+      "points": 46.5,
+      "rosterId": 1,
+      "team": "Mocha Joe’s"
+    }
+  },
+  "standings": [
+    {
+      "rosterId": 10,
+      "name": "Maximus Decimus Meridius",
+      "wins": 12,
+      "losses": 2,
+      "ties": 0,
+      "pointsFor": 1933.58,
+      "pointsAgainst": 1597.9,
+      "place": 1,
+      "movement": 0
+    },
+    {
+      "rosterId": 5,
+      "name": "Good Berger",
+      "wins": 10,
+      "losses": 4,
+      "ties": 0,
+      "pointsFor": 2036.62,
+      "pointsAgainst": 1747.04,
+      "place": 2,
+      "movement": 0
+    },
+    {
+      "rosterId": 6,
+      "name": "Vandelay Industries",
+      "wins": 9,
+      "losses": 4,
+      "ties": 1,
+      "pointsFor": 1903.8,
+      "pointsAgainst": 1738.1,
+      "place": 3,
+      "movement": 0
+    },
+    {
+      "rosterId": 8,
+      "name": "Rensar Razzlin River Rats",
+      "wins": 8,
+      "losses": 6,
+      "ties": 0,
+      "pointsFor": 1980.38,
+      "pointsAgainst": 1827.06,
+      "place": 4,
+      "movement": 0
+    },
+    {
+      "rosterId": 1,
+      "name": "Mocha Joe’s",
+      "wins": 8,
+      "losses": 6,
+      "ties": 0,
+      "pointsFor": 1941.98,
+      "pointsAgainst": 1706.16,
+      "place": 4,
+      "movement": 0
+    },
+    {
+      "rosterId": 2,
+      "name": "ssimonis",
+      "wins": 7,
+      "losses": 7,
+      "ties": 0,
+      "pointsFor": 1711.92,
+      "pointsAgainst": 1748.68,
+      "place": 5,
+      "movement": 0
+    },
+    {
+      "rosterId": 7,
+      "name": "Norwood Peckers",
+      "wins": 7,
+      "losses": 7,
+      "ties": 0,
+      "pointsFor": 1527.68,
+      "pointsAgainst": 1697.9,
+      "place": 5,
+      "movement": 0
+    },
+    {
+      "rosterId": 11,
+      "name": "Owen Seven",
+      "wins": 6,
+      "losses": 7,
+      "ties": 1,
+      "pointsFor": 1793.86,
+      "pointsAgainst": 1719.04,
+      "place": 6,
+      "movement": -1
+    },
+    {
+      "rosterId": 12,
+      "name": "Notre Dame de Paris",
+      "wins": 6,
+      "losses": 8,
+      "ties": 0,
+      "pointsFor": 1674.02,
+      "pointsAgainst": 1840.1,
+      "place": 6,
+      "movement": -1
+    },
+    {
+      "rosterId": 4,
+      "name": "Idontevenlikeohiost",
+      "wins": 4,
+      "losses": 10,
+      "ties": 0,
+      "pointsFor": 1591.52,
+      "pointsAgainst": 1805.4,
+      "place": 7,
+      "movement": -1
+    },
+    {
+      "rosterId": 9,
+      "name": "pablokunkeljure",
+      "wins": 3,
+      "losses": 11,
+      "ties": 0,
+      "pointsFor": 1484.22,
+      "pointsAgainst": 1762.42,
+      "place": 8,
+      "movement": -1
+    },
+    {
+      "rosterId": 3,
+      "name": "Velvet Milkmen",
+      "wins": 3,
+      "losses": 11,
+      "ties": 0,
+      "pointsFor": 1288.88,
+      "pointsAgainst": 1678.66,
+      "place": 8,
+      "movement": 0
+    }
+  ]
+}

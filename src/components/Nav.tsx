@@ -8,11 +8,11 @@ import {
   DraftIcon,
   HomeIcon,
   PlayoffsIcon,
+  RecapIcon,
   RecordsIcon,
   ScheduleIcon,
   TeamsIcon,
   TransactionsIcon,
-  WaiverIcon,
 } from './icons'
 
 type Item = {
@@ -28,8 +28,8 @@ const ITEMS: Item[] = [
   { to: '/draft', label: 'Draft', Icon: DraftIcon, prefetch: (m) => [`season/${m.currentSeason}.json`, 'prospects.json', 'points.json'] },
   { to: '/teams', label: 'Teams', Icon: TeamsIcon, prefetch: (m) => [`season/${m.currentSeason}.json`, 'players.json'] },
   { to: '/schedule', label: 'Schedule', Icon: ScheduleIcon, prefetch: (m) => [`matchups/${m.currentSeason}.json`] },
-  { to: '/transactions', label: 'Transactions', Icon: TransactionsIcon, prefetch: (m) => [`transactions/${m.currentSeason}.json`, 'players.json'] },
-  { to: '/waiver', label: 'Waiver', Icon: WaiverIcon, prefetch: (m) => [`season/${m.currentSeason}.json`, 'trending.json'] },
+  { to: '/recaps', label: 'Recaps', Icon: RecapIcon, prefetch: (m) => [`recaps/${m.currentSeason}.json`] },
+  { to: '/transactions', label: 'Transactions', Icon: TransactionsIcon, prefetch: (m) => [`transactions/${m.currentSeason}.json`, 'players.json', 'trending.json'] },
   { to: '/playoffs', label: 'Playoffs', Icon: PlayoffsIcon, prefetch: () => ['records.json'] },
   { to: '/records', label: 'Records', Icon: RecordsIcon, prefetch: () => ['records.json'] },
   { to: '/bylaws', label: 'Bylaws', Icon: BylawsIcon, prefetch: () => ['bylaws.json'] },

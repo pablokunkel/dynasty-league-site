@@ -7,7 +7,7 @@ import { height } from '../lib/format'
 
 /**
  * Team name linking to that roster on the Teams page. Use this everywhere a
- * team name is rendered — Schedule, Waiver, Playoffs, Records, Transactions.
+ * team name is rendered — Schedule, Recaps, Playoffs, Records, Transactions.
  */
 export function TeamLink({
   rosterId,

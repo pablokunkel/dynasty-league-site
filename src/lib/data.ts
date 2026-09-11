@@ -7,6 +7,7 @@ import type {
   PlayerIndex,
   PointsDoc,
   ProspectsDoc,
+  Recap,
   RecordsDoc,
   ScoreboardDoc,
   SeasonDoc,
@@ -56,6 +57,7 @@ export const useSeason = (season: string) => use(load<SeasonDoc>(`season/${seaso
 export const useMatchups = (season: string) => use(load<MatchupWeek[]>(`matchups/${season}.json`))
 export const useTransactions = (season: string) =>
   use(load<Transaction[]>(`transactions/${season}.json`))
+export const useRecaps = (season: string) => use(load<Recap[]>(`recaps/${season}.json`))
 
 /** Warm the cache without suspending — used to prefetch on nav hover. */
 export function prefetch(path: string) {

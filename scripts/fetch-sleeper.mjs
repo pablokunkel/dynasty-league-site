@@ -19,6 +19,7 @@ import { mkdir, writeFile, readFile, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { bundleRecaps } from './lib/recap-stats.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(ROOT, 'public', 'data')
@@ -929,6 +930,12 @@ async function main() {
     written.push(await writeJson(`matchups/${raw.season}.json`, matchups))
     written.push(await writeJson(`transactions/${raw.season}.json`, transactions))
 
+    // Weekly recaps are authored by scripts/write-recaps.mjs into
+    // content/recaps; this just bundles whatever exists so /recaps has one
+    // file per season to load. Always written, empty when there are none.
+    const recaps = await bundleRecaps(ROOT, raw.season)
+    written.push(await writeJson(`recaps/${raw.season}.json`, recaps))
+
     seasons.push({
       season: raw.season,
       status: raw.league.status,
@@ -936,6 +943,7 @@ async function main() {
       matchups,
       transactionCount: transactions.length,
       matchupWeekCount: matchups.length,
+      recapCount: recaps.length,
     })
   }
 
@@ -1126,6 +1134,7 @@ async function main() {
       // new season's matchups (weeks before kickoff) Home shows twelve 0-0
       // rows and a tankathon of all-zero Max PF.
       hasGames: s.teams.some((t) => t.wins + t.losses + t.ties > 0 || t.pointsFor > 0),
+      recapCount: s.recapCount,
     })),
   }
   written.push(await writeJson('index.json', manifest))

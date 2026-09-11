@@ -12,8 +12,10 @@ broken by Sleeper being slow or down.
 ```
 scripts/fetch-sleeper.mjs   pipeline: Sleeper -> public/data/*.json
 scripts/should-refresh.mjs  cadence gate for the refresh workflow
+scripts/write-recaps.mjs    weekly recap writer, runs Tuesdays from Actions
 league.config.json          facts the Sleeper API does not expose (see below)
 content/bylaws.md           bylaws export, rendered on /bylaws
+content/recaps/             one JSON per recapped week, editable by hand
 src/routes/                 one file per page
 src/lib/data.ts             per-season lazy loading + promise cache
 src/theme.css               palette lifted from Sleeper's own stylesheet
@@ -74,6 +76,29 @@ Three things on this site cannot come from the API. They live in
 `2026-08-15T21:00:00-04:00` — note that August is daylight saving time, so Eastern
 is `-04:00`, not the `-05:00` that "EST" literally means. Getting this wrong makes
 the countdown an hour off.
+
+## Weekly recaps
+
+`/recaps` shows a written recap of every completed week: headline, summary, a
+blurb per game, awards (high score, closest game, bench of the week…) and the
+standings afterwards. `.github/workflows/recaps.yml` writes them Tuesday and
+Wednesday mornings, after Monday night's scores are final, and commits the
+result to `content/recaps/{season}/week-NN.json`. Those files are permanent:
+edit one by hand and it stays edited, because the writer never overwrites an
+existing week.
+
+The words come from Claude when the repository has an `ANTHROPIC_API_KEY`
+secret (Settings → Secrets and variables → Actions). The personality is the
+`recaps.voice` string in `league.config.json`. Without the secret, a template
+writer produces plain sentences from the same numbers, so nothing breaks — it
+just reads drier. To rewrite template weeks after adding the key, run the
+workflow by hand with **force** ticked.
+
+```bash
+npm run recaps -- --season 2025 --dry-run
+```
+
+previews what the writer would say without writing anything.
 
 ## Data refresh
 

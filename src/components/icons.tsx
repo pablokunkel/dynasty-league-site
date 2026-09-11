@@ -47,10 +47,12 @@ export const TransactionsIcon = ({ className }: IconProps) => (
   </svg>
 )
 
-export const WaiverIcon = ({ className }: IconProps) => (
+/** Newspaper — the weekly recaps. */
+export const RecapIcon = ({ className }: IconProps) => (
   <svg {...base} className={className}>
-    <path d="M10 2.75 3 6v4.5c0 3.6 2.9 5.9 7 6.75 4.1-.85 7-3.15 7-6.75V6z" />
-    <path d="M7.75 10 9.5 11.75l3-3.5" />
+    <path d="M4.5 3.5h11a1 1 0 0 1 1 1V15a1.5 1.5 0 0 1-1.5 1.5H4A1.5 1.5 0 0 1 2.5 15V5.5h2z" />
+    <path d="M4.5 3.5V15" />
+    <path d="M7 6.5h6.5M7 9.5h3M12 9.5h1.5M7 12.5h6.5" />
   </svg>
 )
 

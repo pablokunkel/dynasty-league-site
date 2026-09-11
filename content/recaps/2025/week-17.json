@@ -1,0 +1,393 @@
+{
+  "season": "2025",
+  "week": 17,
+  "generatedAt": "2026-09-11T03:54:31.778Z",
+  "author": "template",
+  "model": null,
+  "isPlayoffs": true,
+  "headline": "Mocha Joe’s runs ssimonis off the field",
+  "summary": "Week 17 is a playoff week, so every game below is elimination football. Mocha Joe’s posted the week's high score at 169.80; Idontevenlikeohiost brought up the rear with 72.10. The closest game was Velvet Milkmen over pablokunkeljure by 8.66, while Mocha Joe’s won the blowout by 70.16. Player of the week: Derrick Henry, 45.60 for Maximus Decimus Meridius. Bench of the week goes to Maximus Decimus Meridius, who left 38.62 sitting — Jalen McMillan scored 18.40 from the pine.",
+  "games": [
+    {
+      "winner": {
+        "rosterId": 1,
+        "name": "Mocha Joe’s",
+        "points": 169.8,
+        "optimal": 177.8,
+        "benchLeft": 8,
+        "topPlayer": {
+          "id": "8183",
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "nfl": "SF",
+          "points": 37.92
+        },
+        "bestBench": {
+          "id": "8698",
+          "name": "Jake Tonges",
+          "pos": "TE",
+          "nfl": "SF",
+          "points": 19
+        }
+      },
+      "loser": {
+        "rosterId": 2,
+        "name": "ssimonis",
+        "points": 99.64,
+        "optimal": 116.62,
+        "benchLeft": 16.98,
+        "topPlayer": {
+          "id": "4034",
+          "name": "Christian McCaffrey",
+          "pos": "RB",
+          "nfl": "SF",
+          "points": 28.1
+        },
+        "bestBench": {
+          "id": "9756",
+          "name": "Jordan Addison",
+          "pos": "WR",
+          "nfl": "MIN",
+          "points": 12.5
+        }
+      },
+      "margin": 70.16,
+      "tie": false,
+      "blurb": "Mocha Joe’s rolled over ssimonis, 169.80 to 99.64. Brock Purdy led the way with 37.92. ssimonis left 16.98 on the bench, Jordan Addison's 12.50 the biggest miss."
+    },
+    {
+      "winner": {
+        "rosterId": 3,
+        "name": "Velvet Milkmen",
+        "points": 137.22,
+        "optimal": 152.94,
+        "benchLeft": 15.72,
+        "topPlayer": {
+          "id": "12519",
+          "name": "Luther Burden",
+          "pos": "WR",
+          "nfl": "CHI",
+          "points": 27.8
+        },
+        "bestBench": {
+          "id": "8210",
+          "name": "Chig Okonkwo",
+          "pos": "TE",
+          "nfl": "WAS",
+          "points": 14.5
+        }
+      },
+      "loser": {
+        "rosterId": 9,
+        "name": "pablokunkeljure",
+        "points": 128.56,
+        "optimal": 147.26,
+        "benchLeft": 18.7,
+        "topPlayer": {
+          "id": "9224",
+          "name": "Chase Brown",
+          "pos": "RB",
+          "nfl": "CIN",
+          "points": 29.1
+        },
+        "bestBench": {
+          "id": "12536",
+          "name": "Jaylin Noel",
+          "pos": "WR",
+          "nfl": "HOU",
+          "points": 14.6
+        }
+      },
+      "margin": 8.66,
+      "tie": false,
+      "blurb": "Velvet Milkmen beat pablokunkeljure, 137.22 to 128.56. Luther Burden led the way with 27.80. pablokunkeljure left 18.70 on the bench, Jaylin Noel's 14.60 the biggest miss — enough to have flipped it."
+    },
+    {
+      "winner": {
+        "rosterId": 11,
+        "name": "Owen Seven",
+        "points": 114.36,
+        "optimal": 117.46,
+        "benchLeft": 3.1,
+        "topPlayer": {
+          "id": "8126",
+          "name": "Wan'Dale Robinson",
+          "pos": "WR",
+          "nfl": "TEN",
+          "points": 22.3
+        },
+        "bestBench": {
+          "id": "4993",
+          "name": "Mike Gesicki",
+          "pos": "TE",
+          "nfl": "CIN",
+          "points": 6.7
+        }
+      },
+      "loser": {
+        "rosterId": 4,
+        "name": "Idontevenlikeohiost",
+        "points": 72.1,
+        "optimal": 91.32,
+        "benchLeft": 19.22,
+        "topPlayer": {
+          "id": "4892",
+          "name": "Baker Mayfield",
+          "pos": "QB",
+          "nfl": "TB",
+          "points": 19.44
+        },
+        "bestBench": {
+          "id": "12500",
+          "name": "Quinn Ewers",
+          "pos": "QB",
+          "nfl": "JAX",
+          "points": 15.78
+        }
+      },
+      "margin": 42.26,
+      "tie": false,
+      "blurb": "Owen Seven buried Idontevenlikeohiost, 114.36 to 72.10. Wan'Dale Robinson led the way with 22.30. Idontevenlikeohiost left 19.22 on the bench, Quinn Ewers's 15.78 the biggest miss."
+    },
+    {
+      "winner": {
+        "rosterId": 5,
+        "name": "Good Berger",
+        "points": 167.18,
+        "optimal": 185.52,
+        "benchLeft": 18.34,
+        "topPlayer": {
+          "id": "9509",
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "points": 39.9
+        },
+        "bestBench": {
+          "id": "8161",
+          "name": "Malik Willis",
+          "pos": "QB",
+          "nfl": "MIA",
+          "points": 31.52
+        }
+      },
+      "loser": {
+        "rosterId": 10,
+        "name": "Maximus Decimus Meridius",
+        "points": 107.58,
+        "optimal": 146.2,
+        "benchLeft": 38.62,
+        "topPlayer": {
+          "id": "3198",
+          "name": "Derrick Henry",
+          "pos": "RB",
+          "nfl": "BAL",
+          "points": 45.6
+        },
+        "bestBench": {
+          "id": "11618",
+          "name": "Jalen McMillan",
+          "pos": "WR",
+          "nfl": "TB",
+          "points": 18.4
+        }
+      },
+      "margin": 59.6,
+      "tie": false,
+      "blurb": "Good Berger rolled over Maximus Decimus Meridius, 167.18 to 107.58. Bijan Robinson led the way with 39.90. Maximus Decimus Meridius left 38.62 on the bench, Jalen McMillan's 18.40 the biggest miss."
+    }
+  ],
+  "awards": {
+    "highScore": {
+      "rosterId": 1,
+      "name": "Mocha Joe’s",
+      "points": 169.8
+    },
+    "lowScore": {
+      "rosterId": 4,
+      "name": "Idontevenlikeohiost",
+      "points": 72.1
+    },
+    "closest": {
+      "winner": {
+        "rosterId": 3,
+        "name": "Velvet Milkmen",
+        "points": 137.22
+      },
+      "loser": {
+        "rosterId": 9,
+        "name": "pablokunkeljure",
+        "points": 128.56
+      },
+      "margin": 8.66
+    },
+    "blowout": {
+      "winner": {
+        "rosterId": 1,
+        "name": "Mocha Joe’s",
+        "points": 169.8
+      },
+      "loser": {
+        "rosterId": 2,
+        "name": "ssimonis",
+        "points": 99.64
+      },
+      "margin": 70.16
+    },
+    "benchBlunder": {
+      "rosterId": 10,
+      "name": "Maximus Decimus Meridius",
+      "left": 38.62,
+      "player": {
+        "id": "11618",
+        "name": "Jalen McMillan",
+        "pos": "WR",
+        "nfl": "TB",
+        "points": 18.4
+      }
+    },
+    "topPlayer": {
+      "id": "3198",
+      "name": "Derrick Henry",
+      "pos": "RB",
+      "nfl": "BAL",
+      "points": 45.6,
+      "rosterId": 10,
+      "team": "Maximus Decimus Meridius"
+    }
+  },
+  "standings": [
+    {
+      "rosterId": 10,
+      "name": "Maximus Decimus Meridius",
+      "wins": 12,
+      "losses": 2,
+      "ties": 0,
+      "pointsFor": 1933.58,
+      "pointsAgainst": 1597.9,
+      "place": 1,
+      "movement": 0
+    },
+    {
+      "rosterId": 5,
+      "name": "Good Berger",
+      "wins": 10,
+      "losses": 4,
+      "ties": 0,
+      "pointsFor": 2036.62,
+      "pointsAgainst": 1747.04,
+      "place": 2,
+      "movement": 0
+    },
+    {
+      "rosterId": 6,
+      "name": "Vandelay Industries",
+      "wins": 9,
+      "losses": 4,
+      "ties": 1,
+      "pointsFor": 1903.8,
+      "pointsAgainst": 1738.1,
+      "place": 3,
+      "movement": 0
+    },
+    {
+      "rosterId": 8,
+      "name": "Rensar Razzlin River Rats",
+      "wins": 8,
+      "losses": 6,
+      "ties": 0,
+      "pointsFor": 1980.38,
+      "pointsAgainst": 1827.06,
+      "place": 4,
+      "movement": 0
+    },
+    {
+      "rosterId": 1,
+      "name": "Mocha Joe’s",
+      "wins": 8,
+      "losses": 6,
+      "ties": 0,
+      "pointsFor": 1941.98,
+      "pointsAgainst": 1706.16,
+      "place": 4,
+      "movement": 0
+    },
+    {
+      "rosterId": 2,
+      "name": "ssimonis",
+      "wins": 7,
+      "losses": 7,
+      "ties": 0,
+      "pointsFor": 1711.92,
+      "pointsAgainst": 1748.68,
+      "place": 5,
+      "movement": 0
+    },
+    {
+      "rosterId": 7,
+      "name": "Norwood Peckers",
+      "wins": 7,
+      "losses": 7,
+      "ties": 0,
+      "pointsFor": 1527.68,
+      "pointsAgainst": 1697.9,
+      "place": 5,
+      "movement": 0
+    },
+    {
+      "rosterId": 11,
+      "name": "Owen Seven",
+      "wins": 6,
+      "losses": 7,
+      "ties": 1,
+      "pointsFor": 1793.86,
+      "pointsAgainst": 1719.04,
+      "place": 6,
+      "movement": -1
+    },
+    {
+      "rosterId": 12,
+      "name": "Notre Dame de Paris",
+      "wins": 6,
+      "losses": 8,
+      "ties": 0,
+      "pointsFor": 1674.02,
+      "pointsAgainst": 1840.1,
+      "place": 6,
+      "movement": -1
+    },
+    {
+      "rosterId": 4,
+      "name": "Idontevenlikeohiost",
+      "wins": 4,
+      "losses": 10,
+      "ties": 0,
+      "pointsFor": 1591.52,
+      "pointsAgainst": 1805.4,
+      "place": 7,
+      "movement": -1
+    },
+    {
+      "rosterId": 9,
+      "name": "pablokunkeljure",
+      "wins": 3,
+      "losses": 11,
+      "ties": 0,
+      "pointsFor": 1484.22,
+      "pointsAgainst": 1762.42,
+      "place": 8,
+      "movement": -1
+    },
+    {
+      "rosterId": 3,
+      "name": "Velvet Milkmen",
+      "wins": 3,
+      "losses": 11,
+      "ties": 0,
+      "pointsFor": 1288.88,
+      "pointsAgainst": 1678.66,
+      "place": 8,
+      "movement": 0
+    }
+  ]
+}

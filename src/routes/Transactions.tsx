@@ -1,19 +1,31 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { useManifest, usePlayers, useSeason, useTransactions } from '../lib/data'
+import {
+  useManifest,
+  usePlayers,
+  usePoints,
+  useSeason,
+  useTransactions,
+  useTrending,
+} from '../lib/data'
 import type { Player, Team, Transaction } from '../lib/types'
-import { relativeTime, dateTime, TRANSACTION_LABELS } from '../lib/format'
+import { pts1, relativeTime, dateTime, TRANSACTION_LABELS } from '../lib/format'
 import {
   Card,
   EmptyState,
   PageHeader,
   PlayerLink,
+  PlayerMeta,
   PositionBadge,
   SearchInput,
+  SectionTitle,
   Segmented,
   Select,
   TeamLink,
 } from '../components/ui'
+import { TrendUpIcon } from '../components/icons'
+
+const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 const TYPE_STYLE: Record<string, { dot: string; text: string }> = {
   trade: { dot: 'bg-indigo', text: 'text-indigo' },
@@ -94,6 +106,8 @@ export default function Transactions() {
   const season = useSeason(seasonParam)
   const transactions = useTransactions(seasonParam)
   const players = usePlayers()
+  const points = usePoints()
+  const trending = useTrending()
 
   const [type, setType] = useState('ALL')
   const [team, setTeam] = useState('ALL')
@@ -133,6 +147,44 @@ export default function Transactions() {
     return m
   }, [transactions])
 
+  /*
+   * FAAB is real money in this league, so the budget tracker lives here, next
+   * to the claims that spend it. Sorted by what's left — the wire is a bidding
+   * war and the question is who can still afford to bid.
+   */
+  const budget = season.settings.waiverBudget ?? 0
+  const isFaab = season.settings.waiverType === 2
+  const budgets = useMemo(
+    () =>
+      season.teams
+        .map((t) => ({
+          ...t,
+          remaining: budget - t.waiverBudgetUsed,
+          pctUsed: budget > 0 ? t.waiverBudgetUsed / budget : 0,
+        }))
+        .sort((a, b) => b.remaining - a.remaining || a.name.localeCompare(b.name)),
+    [season.teams, budget]
+  )
+
+  /** Sleeper's trending adds that are still free in this league — the wire. */
+  const rostered = useMemo(
+    () => new Set(season.teams.flatMap((t) => t.players)),
+    [season.teams]
+  )
+  const wire = useMemo(
+    () =>
+      trending.adds
+        .map((t) => ({ ...t, player: players[t.id] }))
+        .filter(
+          (t): t is typeof t & { player: Player } =>
+            Boolean(t.player) &&
+            !rostered.has(t.id) &&
+            manifest.activePositions.includes(t.player?.pos ?? '')
+        )
+        .slice(0, 12),
+    [trending.adds, players, rostered, manifest.activePositions]
+  )
+
   const setSeason = (v: string) => {
     const next = new URLSearchParams(params)
     next.set('season', v)
@@ -145,7 +197,18 @@ export default function Transactions() {
     <>
       <PageHeader
         title="Transactions"
-        subtitle={`${seasonParam} · ${transactions.length} total, newest first`}
+        subtitle={
+          <>
+            {seasonParam} · {transactions.length} total, newest first
+            {isFaab && (
+              <>
+                {' '}
+                · FAAB ${budget} per team, clears{' '}
+                {DAYS[(season.settings.waiverDayOfWeek ?? 2) % 7]}
+              </>
+            )}
+          </>
+        }
         right={
           <Select
             label="Season"
@@ -159,6 +222,44 @@ export default function Transactions() {
         }
       />
 
+      {/* ---------------------------------------------------- FAAB budgets */}
+      {isFaab && (
+        <div className="mb-6">
+          <SectionTitle right={<span className="text-[11px] text-ink-5">remaining, of ${budget}</span>}>
+            FAAB budgets
+          </SectionTitle>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+            {budgets.map((t) => (
+              <div key={t.rosterId} className="card p-2.5">
+                <div className="flex items-center gap-2">
+                  <TeamLink
+                    rosterId={t.rosterId}
+                    name={t.name}
+                    season={seasonParam}
+                    avatar={t.avatar}
+                    size={22}
+                    className="min-w-0 flex-1 text-[11px] font-semibold text-ink-2"
+                  />
+                  <span className="shrink-0 text-xs font-bold text-ink tnum">${t.remaining}</span>
+                </div>
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-sunken">
+                  <div
+                    className="h-full rounded-full bg-teal"
+                    style={{ width: `${Math.max(0, (1 - t.pctUsed) * 100)}%` }}
+                  />
+                </div>
+                <div className="mt-1 text-[10px] text-ink-5 tnum">
+                  ${t.waiverBudgetUsed} spent
+                  {t.waiverPosition ? ` · waiver #${t.waiverPosition}` : ''}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+      <div>
       <div className="mb-4 flex flex-wrap items-center gap-2">
         <Segmented
           size="sm"
@@ -322,6 +423,59 @@ export default function Transactions() {
           )}
         </>
       )}
+      </div>
+
+      {/* ------------------------------------------------------- the wire */}
+      <aside>
+        <SectionTitle right={<span className="text-[11px] text-ink-5">unrostered here</span>}>
+          Trending adds
+        </SectionTitle>
+        {wire.length === 0 ? (
+          <EmptyState
+            title="Nothing on the wire"
+            detail="Everyone Sleeper is trending on in the last 24 hours is already rostered in this league."
+          />
+        ) : (
+          <Card padded={false}>
+            {wire.map((t, i) => (
+              <div
+                key={t.id}
+                className={`flex items-center gap-2.5 px-3 py-2 ${i ? 'border-t border-line/60' : ''}`}
+              >
+                <PositionBadge pos={t.player.pos} />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-xs font-medium text-ink-2">
+                    <PlayerLink id={t.id}>{t.player.name}</PlayerLink>
+                    {t.player.injury && (
+                      <span className="ml-1.5 text-[10px] font-bold text-rose">{t.player.injury}</span>
+                    )}
+                  </div>
+                  <div className="truncate text-[10px]">
+                    <span className="text-ink-4">{t.player.team ?? 'FA'}</span>
+                    <span className="mx-1 text-ink-5">·</span>
+                    <PlayerMeta player={t.player} />
+                  </div>
+                </div>
+                {points.projections[t.id] && (
+                  <span className="shrink-0 text-right text-[10px] text-ink-4 tnum">
+                    {pts1(points.projections[t.id]!.pts)}
+                    <span className="block text-[9px] text-ink-5">proj</span>
+                  </span>
+                )}
+                <span className="flex shrink-0 items-center gap-1 text-[10px] font-bold text-teal tnum">
+                  <TrendUpIcon className="size-3" />
+                  {t.count.toLocaleString()}
+                </span>
+              </div>
+            ))}
+          </Card>
+        )}
+        <p className="mt-2 text-[10px] leading-relaxed text-ink-5">
+          Sleeper adds across all leagues in the last 24 hours, filtered to players nobody here
+          rosters. Sleeper exposes no per-league free-agent list; this is the closest thing.
+        </p>
+      </aside>
+      </div>
     </>
   )
 }
