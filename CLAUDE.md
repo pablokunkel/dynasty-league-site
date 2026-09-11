@@ -194,6 +194,13 @@ is configured `veto_votes_needed: 6`.
 - [x] Mohegan Sun mark beside the venue, hand-traced to SVG from the supplied
       JPGs (`MoheganSunIcon`). Source JPGs are gitignored.
 - [x] Run-of-show block removed, with the `agenda` config key and type.
+- [x] Countdown + venue (`DraftLogistics`) render only while the draft is not
+      `complete`. It used to be unconditional and counted *up* after the start
+      time. Every draft-time surface is now self-retiring: the Home banner is
+      gated on `pre_draft`, the nav day-pill hides once the time passes, and this
+      hides on draft completion. **Next season:** update `draft.startTime` and
+      `venue` in `league.config.json`; the new league starts `pre_draft`, so all
+      three come back without code changes.
 
 **Teams**
 - [x] Compact card grid is the default for All-teams, so several rosters are

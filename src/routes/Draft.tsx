@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useManifest, usePlayers, useProspects, useSeason } from '../lib/data'
 import { liveDraftPicks, useLive, type LivePick } from '../lib/live'
-import type { DraftPick, Player } from '../lib/types'
+import type { DraftConfig, DraftPick, Player } from '../lib/types'
 import { height, pts1 } from '../lib/format'
 import {
   Avatar,
@@ -261,6 +261,99 @@ function ProspectBoard({
   )
 }
 
+/* --------------------------------------------------------------- logistics */
+
+/**
+ * Countdown + venue, shown only while the draft is still ahead.
+ *
+ * It used to render unconditionally, so after the start time it simply counted
+ * UP — by September it read "Draft started · 26 days". Once Sleeper reports the
+ * draft `complete`, the page drops this block and becomes a record of the board.
+ *
+ * Kept as its own component so the 1s countdown interval only runs while it is
+ * on screen. Hosted in the page, every tick re-rendered the whole board and the
+ * 300-row prospect table.
+ *
+ * Next season: update `draft.startTime` and `venue` in league.config.json. The
+ * new league instance starts `pre_draft`, so this reappears on its own.
+ */
+function DraftLogistics({ cfg }: { cfg: DraftConfig }) {
+  const countdown = useCountdown(cfg.startTime)
+
+  const mapsHref = cfg.venue.mapsQuery
+    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cfg.venue.mapsQuery)}`
+    : null
+
+  return (
+    <div className="mb-6 grid gap-4 lg:grid-cols-3">
+      <Card className="lg:col-span-2">
+        <div className="flex items-center gap-2">
+          <ClockIcon className="size-4 text-teal" />
+          <span className="eyebrow">
+            {countdown?.past ? 'Draft started' : 'Time until first pick'}
+          </span>
+        </div>
+
+        {countdown ? (
+          <>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <CountdownUnit value={countdown.days} label="days" />
+              <CountdownUnit value={countdown.hours} label="hrs" />
+              <CountdownUnit value={countdown.minutes} label="min" />
+              <CountdownUnit value={countdown.seconds} label="sec" />
+            </div>
+            <div className="mt-3 text-xs text-ink-4">
+              {new Date(cfg.startTime).toLocaleString(undefined, {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit',
+              })}{' '}
+              <span className="text-ink-5">
+                ({cfg.timezoneLabel}) · shown in your local time
+              </span>
+            </div>
+          </>
+        ) : (
+          <div className="mt-3 text-sm text-rose">Invalid startTime in league.config.json.</div>
+        )}
+      </Card>
+
+      <Card>
+        <div className="flex items-center gap-2">
+          <PinIcon className="size-4 text-teal" />
+          <span className="eyebrow">Location</span>
+        </div>
+        <div className="mt-3 flex items-start gap-3">
+          <MoheganSunIcon className="mt-0.5 w-12 shrink-0 text-teal" />
+          <div className="min-w-0">
+            <div className="text-base font-bold leading-tight text-ink">{cfg.venue.name}</div>
+            {cfg.venue.addressLine && (
+              <div className="mt-0.5 text-sm text-ink-3">{cfg.venue.addressLine}</div>
+            )}
+            {(cfg.venue.city || cfg.venue.region) && (
+              <div className="text-sm text-ink-4">
+                {[cfg.venue.city, cfg.venue.region].filter(Boolean).join(', ')}
+              </div>
+            )}
+          </div>
+        </div>
+        {mapsHref && (
+          <a
+            href={mapsHref}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-3 inline-block rounded-lg border border-line bg-card-2 px-3 py-1.5 text-xs font-semibold text-ink-2 hover:border-teal hover:text-teal"
+          >
+            Open in Maps
+          </a>
+        )}
+      </Card>
+    </div>
+  )
+}
+
 /* -------------------------------------------------------------------- page */
 
 export default function Draft() {
@@ -270,8 +363,8 @@ export default function Draft() {
   const players = usePlayers()
 
   const cfg = manifest.draftConfig
-  const countdown = useCountdown(cfg.startTime)
   const draft = season.draft
+  const draftDone = draft?.status === 'complete'
 
   /*
    * Draft night: the committed JSON is refreshed by GitHub Actions on a cron and
@@ -322,10 +415,6 @@ export default function Draft() {
       .sort((a, b) => b.count - a.count || a.team!.name.localeCompare(b.team!.name))
   }, [draft, teamsByRoster])
 
-  const mapsHref = cfg.venue.mapsQuery
-    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(cfg.venue.mapsQuery)}`
-    : null
-
   return (
     <>
       <PageHeader
@@ -350,75 +439,7 @@ export default function Draft() {
       )}
 
       {/* ------------------------------------------------ countdown + venue */}
-      <div className="mb-6 grid gap-4 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-          <div className="flex items-center gap-2">
-            <ClockIcon className="size-4 text-teal" />
-            <span className="eyebrow">
-              {countdown?.past ? 'Draft started' : 'Time until first pick'}
-            </span>
-          </div>
-
-          {countdown ? (
-            <>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <CountdownUnit value={countdown.days} label="days" />
-                <CountdownUnit value={countdown.hours} label="hrs" />
-                <CountdownUnit value={countdown.minutes} label="min" />
-                <CountdownUnit value={countdown.seconds} label="sec" />
-              </div>
-              <div className="mt-3 text-xs text-ink-4">
-                {new Date(cfg.startTime).toLocaleString(undefined, {
-                  weekday: 'long',
-                  month: 'long',
-                  day: 'numeric',
-                  hour: 'numeric',
-                  minute: '2-digit',
-                })}{' '}
-                <span className="text-ink-5">
-                  ({cfg.timezoneLabel}) · shown in your local time
-                </span>
-              </div>
-            </>
-          ) : (
-            <div className="mt-3 text-sm text-rose">
-              Invalid startTime in league.config.json.
-            </div>
-          )}
-        </Card>
-
-        <Card>
-          <div className="flex items-center gap-2">
-            <PinIcon className="size-4 text-teal" />
-            <span className="eyebrow">Location</span>
-          </div>
-          <div className="mt-3 flex items-start gap-3">
-            <MoheganSunIcon className="mt-0.5 w-12 shrink-0 text-teal" />
-            <div className="min-w-0">
-              <div className="text-base font-bold leading-tight text-ink">{cfg.venue.name}</div>
-              {cfg.venue.addressLine && (
-                <div className="mt-0.5 text-sm text-ink-3">{cfg.venue.addressLine}</div>
-              )}
-              {(cfg.venue.city || cfg.venue.region) && (
-                <div className="text-sm text-ink-4">
-                  {[cfg.venue.city, cfg.venue.region].filter(Boolean).join(', ')}
-                </div>
-              )}
-            </div>
-          </div>
-          {mapsHref && (
-            <a
-              href={mapsHref}
-              target="_blank"
-              rel="noreferrer"
-              className="mt-3 inline-block rounded-lg border border-line bg-card-2 px-3 py-1.5 text-xs font-semibold text-ink-2 hover:border-teal hover:text-teal"
-            >
-              Open in Maps
-            </a>
-          )}
-
-        </Card>
-      </div>
+      {!draftDone && <DraftLogistics cfg={cfg} />}
 
       {/* ----------------------------------------------------- draft capital */}
       {capital.length > 0 && (
