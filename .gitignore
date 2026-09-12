@@ -24,3 +24,6 @@ Dynasty Football Bylaws.md
 
 # Wrangler local build/dev scratch — never commit.
 .wrangler/
+
+# TypeScript incremental build state — a build artifact, and it conflicts on every merge.
+tsconfig.tsbuildinfo
