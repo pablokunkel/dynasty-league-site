@@ -92,8 +92,22 @@ function GameCard({
   week: number
 }) {
   const { winner, loser, tie } = game
+  const isTitle = game.label === 'Championship'
+  const isLast = game.label === 'Last place game'
   return (
-    <Card padded={false} className="overflow-hidden">
+    <Card
+      padded={false}
+      className={`overflow-hidden ${isTitle ? 'border-amber/50' : isLast ? 'border-rose/40' : ''}`}
+    >
+      {game.label && (
+        <div
+          className={`px-4 pt-3 text-[10px] font-bold uppercase tracking-[0.4px] ${
+            isTitle ? 'text-amber' : isLast ? 'text-rose' : 'text-ink-5'
+          }`}
+        >
+          {game.label}
+        </div>
+      )}
       <div className="space-y-2 px-4 pt-3.5">
         <ScoreRow side={winner} team={teams.get(winner.rosterId)} season={season} won={!tie} />
         <ScoreRow side={loser} team={teams.get(loser.rosterId)} season={season} won={false} />

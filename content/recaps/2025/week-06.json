@@ -1,7 +1,7 @@
 {
   "season": "2025",
   "week": 6,
-  "generatedAt": "2026-09-11T03:54:31.714Z",
+  "generatedAt": "2026-09-12T21:20:02.149Z",
   "author": "template",
   "model": null,
   "isPlayoffs": false,
@@ -53,6 +53,7 @@
       },
       "margin": 27.44,
       "tie": false,
+      "label": null,
       "blurb": "Mocha Joe’s handled Velvet Milkmen, 112.42 to 84.98. D'Andre Swift led the way with 25.50. Velvet Milkmen left 24.40 on the bench, Zonovan Knight's 12.40 the biggest miss."
     },
     {
@@ -100,6 +101,7 @@
       },
       "margin": 18,
       "tie": false,
+      "label": null,
       "blurb": "ssimonis took care of pablokunkeljure, 106.10 to 88.10. Josh Jacobs led the way with 32.00."
     },
     {
@@ -147,6 +149,7 @@
       },
       "margin": 22.76,
       "tie": false,
+      "label": null,
       "blurb": "Rensar Razzlin River Rats took down Idontevenlikeohiost, 141.30 to 118.54. Patrick Mahomes led the way with 31.48. Rico Dowdle's 33.90 was not enough for Idontevenlikeohiost."
     },
     {
@@ -194,6 +197,7 @@
       },
       "margin": 23.34,
       "tie": false,
+      "label": null,
       "blurb": "Vandelay Industries handled Good Berger, 182.94 to 159.60. Drake London led the way with 31.80. Good Berger left 18.86 on the bench, Joe Flacco's 18.76 the biggest miss."
     },
     {
@@ -241,6 +245,7 @@
       },
       "margin": 8.82,
       "tie": false,
+      "label": null,
       "blurb": "Norwood Peckers got past Owen Seven, 113.96 to 105.14. Drake Maye led the way with 27.24. Owen Seven left 36.68 on the bench, Daniel Jones's 23.48 the biggest miss — enough to have flipped it."
     },
     {
@@ -288,6 +293,7 @@
       },
       "margin": 19.8,
       "tie": false,
+      "label": null,
       "blurb": "Maximus Decimus Meridius took down Notre Dame de Paris, 136.64 to 116.84. Dallas Goedert led the way with 26.00. Notre Dame de Paris left 25.42 on the bench, Zach Ertz's 16.30 the biggest miss — enough to have flipped it."
     }
   ],

@@ -1,7 +1,7 @@
 {
   "season": "2025",
   "week": 16,
-  "generatedAt": "2026-09-11T03:54:31.773Z",
+  "generatedAt": "2026-09-12T21:20:02.204Z",
   "author": "template",
   "model": null,
   "isPlayoffs": true,
@@ -53,7 +53,8 @@
       },
       "margin": 32.38,
       "tie": false,
-      "blurb": "Mocha Joe’s took care of Good Berger, 166.66 to 134.28. Puka Nacua led the way with 46.50. Good Berger left 54.06 on the bench, Parker Washington's 26.50 the biggest miss — enough to have flipped it."
+      "label": "Semifinal",
+      "blurb": "Mocha Joe’s took care of Good Berger in the semifinal, 166.66 to 134.28. Puka Nacua led the way with 46.50. Good Berger left 54.06 on the bench, Parker Washington's 26.50 the biggest miss — enough to have flipped it."
     },
     {
       "winner": {
@@ -100,101 +101,8 @@
       },
       "margin": 23.8,
       "tie": false,
-      "blurb": "ssimonis took down Maximus Decimus Meridius, 155.34 to 131.54. Christian McCaffrey led the way with 32.60. Maximus Decimus Meridius left 24.46 on the bench, Sam Darnold's 21.50 the biggest miss — enough to have flipped it."
-    },
-    {
-      "winner": {
-        "rosterId": 3,
-        "name": "Velvet Milkmen",
-        "points": 116.4,
-        "optimal": 135.4,
-        "benchLeft": 19,
-        "topPlayer": {
-          "id": "331",
-          "name": "Philip Rivers",
-          "pos": "QB",
-          "nfl": null,
-          "points": 18.08
-        },
-        "bestBench": {
-          "id": "8210",
-          "name": "Chig Okonkwo",
-          "pos": "TE",
-          "nfl": "WAS",
-          "points": 16.4
-        }
-      },
-      "loser": {
-        "rosterId": 11,
-        "name": "Owen Seven",
-        "points": 74.92,
-        "optimal": 95.92,
-        "benchLeft": 21,
-        "topPlayer": {
-          "id": "96",
-          "name": "Aaron Rodgers",
-          "pos": "QB",
-          "nfl": "PIT",
-          "points": 15.54
-        },
-        "bestBench": {
-          "id": "4993",
-          "name": "Mike Gesicki",
-          "pos": "TE",
-          "nfl": "CIN",
-          "points": 12.5
-        }
-      },
-      "margin": 41.48,
-      "tie": false,
-      "blurb": "Velvet Milkmen ran away from Owen Seven, 116.40 to 74.92. Philip Rivers led the way with 18.08. Owen Seven left 21.00 on the bench, Mike Gesicki's 12.50 the biggest miss."
-    },
-    {
-      "winner": {
-        "rosterId": 9,
-        "name": "pablokunkeljure",
-        "points": 162.02,
-        "optimal": 162.02,
-        "benchLeft": 0,
-        "topPlayer": {
-          "id": "9224",
-          "name": "Chase Brown",
-          "pos": "RB",
-          "nfl": "CIN",
-          "points": 32.9
-        },
-        "bestBench": {
-          "id": "6039",
-          "name": "Ty Johnson",
-          "pos": "RB",
-          "nfl": "BUF",
-          "points": 7.6
-        }
-      },
-      "loser": {
-        "rosterId": 4,
-        "name": "Idontevenlikeohiost",
-        "points": 71.88,
-        "optimal": 83.58,
-        "benchLeft": 11.7,
-        "topPlayer": {
-          "id": "11604",
-          "name": "Brock Bowers",
-          "pos": "TE",
-          "nfl": "LV",
-          "points": 14.3
-        },
-        "bestBench": {
-          "id": "8676",
-          "name": "Rashid Shaheed",
-          "pos": "WR",
-          "nfl": "SEA",
-          "points": 9.1
-        }
-      },
-      "margin": 90.14,
-      "tie": false,
-      "blurb": "pablokunkeljure buried Idontevenlikeohiost, 162.02 to 71.88. Chase Brown led the way with 32.90. Idontevenlikeohiost left 11.70 on the bench, Rashid Shaheed's 9.10 the biggest miss."
+      "label": "Semifinal",
+      "blurb": "ssimonis took down Maximus Decimus Meridius in the semifinal, 155.34 to 131.54. Christian McCaffrey led the way with 32.60. Maximus Decimus Meridius left 24.46 on the bench, Sam Darnold's 21.50 the biggest miss — enough to have flipped it."
     },
     {
       "winner": {
@@ -241,7 +149,8 @@
       },
       "margin": 9.56,
       "tie": false,
-      "blurb": "Vandelay Industries held off Rensar Razzlin River Rats, 123.18 to 113.62. Kenny Gainwell led the way with 23.80. Alec Pierce's 24.60 was not enough for Rensar Razzlin River Rats."
+      "label": "5th place game",
+      "blurb": "Vandelay Industries beat Rensar Razzlin River Rats in the 5th place game, 123.18 to 113.62. Kenny Gainwell led the way with 23.80. Alec Pierce's 24.60 was not enough for Rensar Razzlin River Rats."
     },
     {
       "winner": {
@@ -288,7 +197,104 @@
       },
       "margin": 8.62,
       "tie": false,
-      "blurb": "Notre Dame de Paris beat Norwood Peckers, 180.28 to 171.66. Chris Olave led the way with 36.80. Norwood Peckers left 23.40 on the bench, Romeo Doubs's 19.40 the biggest miss — enough to have flipped it."
+      "label": "7th place game",
+      "blurb": "Notre Dame de Paris got past Norwood Peckers in the 7th place game, 180.28 to 171.66. Chris Olave led the way with 36.80. Norwood Peckers left 23.40 on the bench, Romeo Doubs's 19.40 the biggest miss — enough to have flipped it."
+    },
+    {
+      "winner": {
+        "rosterId": 3,
+        "name": "Velvet Milkmen",
+        "points": 116.4,
+        "optimal": 135.4,
+        "benchLeft": 19,
+        "topPlayer": {
+          "id": "331",
+          "name": "Philip Rivers",
+          "pos": "QB",
+          "nfl": null,
+          "points": 18.08
+        },
+        "bestBench": {
+          "id": "8210",
+          "name": "Chig Okonkwo",
+          "pos": "TE",
+          "nfl": "WAS",
+          "points": 16.4
+        }
+      },
+      "loser": {
+        "rosterId": 11,
+        "name": "Owen Seven",
+        "points": 74.92,
+        "optimal": 95.92,
+        "benchLeft": 21,
+        "topPlayer": {
+          "id": "96",
+          "name": "Aaron Rodgers",
+          "pos": "QB",
+          "nfl": "PIT",
+          "points": 15.54
+        },
+        "bestBench": {
+          "id": "4993",
+          "name": "Mike Gesicki",
+          "pos": "TE",
+          "nfl": "CIN",
+          "points": 12.5
+        }
+      },
+      "margin": 41.48,
+      "tie": false,
+      "label": "Consolation round 2",
+      "blurb": "Velvet Milkmen rolled over Owen Seven in the consolation round 2, 116.40 to 74.92. Philip Rivers led the way with 18.08. Owen Seven left 21.00 on the bench, Mike Gesicki's 12.50 the biggest miss."
+    },
+    {
+      "winner": {
+        "rosterId": 9,
+        "name": "pablokunkeljure",
+        "points": 162.02,
+        "optimal": 162.02,
+        "benchLeft": 0,
+        "topPlayer": {
+          "id": "9224",
+          "name": "Chase Brown",
+          "pos": "RB",
+          "nfl": "CIN",
+          "points": 32.9
+        },
+        "bestBench": {
+          "id": "6039",
+          "name": "Ty Johnson",
+          "pos": "RB",
+          "nfl": "BUF",
+          "points": 7.6
+        }
+      },
+      "loser": {
+        "rosterId": 4,
+        "name": "Idontevenlikeohiost",
+        "points": 71.88,
+        "optimal": 83.58,
+        "benchLeft": 11.7,
+        "topPlayer": {
+          "id": "11604",
+          "name": "Brock Bowers",
+          "pos": "TE",
+          "nfl": "LV",
+          "points": 14.3
+        },
+        "bestBench": {
+          "id": "8676",
+          "name": "Rashid Shaheed",
+          "pos": "WR",
+          "nfl": "SEA",
+          "points": 9.1
+        }
+      },
+      "margin": 90.14,
+      "tie": false,
+      "label": "Consolation round 2",
+      "blurb": "pablokunkeljure ran away from Idontevenlikeohiost in the consolation round 2, 162.02 to 71.88. Chase Brown led the way with 32.90. Idontevenlikeohiost left 11.70 on the bench, Rashid Shaheed's 9.10 the biggest miss."
     }
   ],
   "awards": {
@@ -437,7 +443,7 @@
       "pointsFor": 1793.86,
       "pointsAgainst": 1719.04,
       "place": 6,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 12,
@@ -448,7 +454,7 @@
       "pointsFor": 1674.02,
       "pointsAgainst": 1840.1,
       "place": 6,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 4,
@@ -459,7 +465,7 @@
       "pointsFor": 1591.52,
       "pointsAgainst": 1805.4,
       "place": 7,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 9,
@@ -470,7 +476,7 @@
       "pointsFor": 1484.22,
       "pointsAgainst": 1762.42,
       "place": 8,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 3,

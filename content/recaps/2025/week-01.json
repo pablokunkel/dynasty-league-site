@@ -1,7 +1,7 @@
 {
   "season": "2025",
   "week": 1,
-  "generatedAt": "2026-09-11T03:54:31.676Z",
+  "generatedAt": "2026-09-12T21:20:02.108Z",
   "author": "template",
   "model": null,
   "isPlayoffs": false,
@@ -53,6 +53,7 @@
       },
       "margin": 27.5,
       "tie": false,
+      "label": null,
       "blurb": "Rensar Razzlin River Rats took care of Mocha Joe’s, 140.68 to 113.18. Josh Allen led the way with 38.76. Mocha Joe’s left 21.04 on the bench, J.K. Dobbins's 14.80 the biggest miss."
     },
     {
@@ -100,6 +101,7 @@
       },
       "margin": 20.18,
       "tie": false,
+      "label": null,
       "blurb": "Owen Seven took down ssimonis, 132.04 to 111.86. Justin Fields led the way with 29.52. ssimonis left 20.60 on the bench, Jayden Reed's 13.50 the biggest miss — enough to have flipped it."
     },
     {
@@ -147,6 +149,7 @@
       },
       "margin": 13.8,
       "tie": false,
+      "label": null,
       "blurb": "Idontevenlikeohiost beat Velvet Milkmen, 128.70 to 114.90. Baker Mayfield led the way with 22.58. Velvet Milkmen left 19.22 on the bench, Marquise Brown's 19.90 the biggest miss — enough to have flipped it."
     },
     {
@@ -194,6 +197,7 @@
       },
       "margin": 10.72,
       "tie": false,
+      "label": null,
       "blurb": "Good Berger got past Notre Dame de Paris, 109.64 to 98.92. Bijan Robinson led the way with 24.40. Notre Dame de Paris left 25.82 on the bench, Juwan Johnson's 15.60 the biggest miss — enough to have flipped it."
     },
     {
@@ -241,6 +245,7 @@
       },
       "margin": 11.56,
       "tie": false,
+      "label": null,
       "blurb": "Maximus Decimus Meridius held off Vandelay Industries, 129.38 to 117.82. Jalen Hurts led the way with 24.28. Vandelay Industries left 12.50 on the bench, DK Metcalf's 12.30 the biggest miss — enough to have flipped it."
     },
     {
@@ -288,6 +293,7 @@
       },
       "margin": 47.6,
       "tie": false,
+      "label": null,
       "blurb": "pablokunkeljure ran away from Norwood Peckers, 148.60 to 101.00. Derrick Henry led the way with 29.20."
     }
   ],

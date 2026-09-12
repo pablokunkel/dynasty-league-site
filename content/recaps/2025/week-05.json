@@ -1,7 +1,7 @@
 {
   "season": "2025",
   "week": 5,
-  "generatedAt": "2026-09-11T03:54:31.710Z",
+  "generatedAt": "2026-09-12T21:20:02.143Z",
   "author": "template",
   "model": null,
   "isPlayoffs": false,
@@ -53,6 +53,7 @@
       },
       "margin": 64.66,
       "tie": false,
+      "label": null,
       "blurb": "Mocha Joe’s rolled over Vandelay Industries, 179.72 to 115.06. Emeka Egbuka led the way with 31.30. Ja'Marr Chase's 29.00 was not enough for Vandelay Industries."
     },
     {
@@ -100,6 +101,7 @@
       },
       "margin": 2.66,
       "tie": false,
+      "label": null,
       "blurb": "ssimonis edged Good Berger, 131.80 to 129.14. Matthew Stafford led the way with 25.56. Good Berger left 21.90 on the bench, Jake Browning's 22.14 the biggest miss — enough to have flipped it."
     },
     {
@@ -147,6 +149,7 @@
       },
       "margin": 15.66,
       "tie": false,
+      "label": null,
       "blurb": "Norwood Peckers took care of Velvet Milkmen, 121.16 to 105.50. Kyren Williams led the way with 31.10. Rachaad White's 23.10 was not enough for Velvet Milkmen."
     },
     {
@@ -194,6 +197,7 @@
       },
       "margin": 38.48,
       "tie": false,
+      "label": null,
       "blurb": "Idontevenlikeohiost took down pablokunkeljure, 174.72 to 136.24. Rico Dowdle led the way with 32.40. pablokunkeljure left 15.20 on the bench, AJ Barner's 24.30 the biggest miss."
     },
     {
@@ -241,6 +245,7 @@
       },
       "margin": 23.58,
       "tie": false,
+      "label": null,
       "blurb": "Maximus Decimus Meridius handled Rensar Razzlin River Rats, 161.92 to 138.34. Christian McCaffrey led the way with 27.90. Rensar Razzlin River Rats left 13.70 on the bench, Tez Johnson's 9.90 the biggest miss."
     },
     {
@@ -288,6 +293,7 @@
       },
       "margin": 83.86,
       "tie": false,
+      "label": null,
       "blurb": "Owen Seven buried Notre Dame de Paris, 171.96 to 88.10. Jonathan Taylor led the way with 31.60. Notre Dame de Paris left 64.38 on the bench, Jacory Croskey-Merritt's 27.00 the biggest miss."
     }
   ],

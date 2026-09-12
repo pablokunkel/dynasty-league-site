@@ -1,12 +1,12 @@
 {
   "season": "2025",
   "week": 17,
-  "generatedAt": "2026-09-11T03:54:31.778Z",
-  "author": "template",
-  "model": null,
+  "generatedAt": "2026-09-12T21:20:02.207Z",
+  "author": "claude",
+  "model": "chat",
   "isPlayoffs": true,
-  "headline": "Mocha Joe’s runs ssimonis off the field",
-  "summary": "Week 17 is a playoff week, so every game below is elimination football. Mocha Joe’s posted the week's high score at 169.80; Idontevenlikeohiost brought up the rear with 72.10. The closest game was Velvet Milkmen over pablokunkeljure by 8.66, while Mocha Joe’s won the blowout by 70.16. Player of the week: Derrick Henry, 45.60 for Maximus Decimus Meridius. Bench of the week goes to Maximus Decimus Meridius, who left 38.62 sitting — Jalen McMillan scored 18.40 from the pine.",
+  "headline": "Mocha Joe's takes the 2025 title from the fifth seed",
+  "summary": "Maximus Decimus Meridius went 12-2 and owned the regular season, and the trophy went to a team that finished 8-6. Mocha Joe's saved its best for last, hanging 169.80 on ssimonis in the championship, the highest score of the week, while ssimonis managed 99.64 with 16.98 sitting on the bench. The regular-season champ's consolation prize was a 3rd place game it lost by 59.60 to Good Berger, on a day Derrick Henry scored 45.60 for it and Jalen McMillan added 18.40 from the bench. Down in the toilet bowl, Owen Seven outscored Idontevenlikeohiost 114.36 to 72.10, which in that bracket is the way out: Idontevenlikeohiost finishes 2025 in last place. Velvet Milkmen beat pablokunkeljure by 8.66 in the week's closest game, the only one decided by fewer than 40.",
   "games": [
     {
       "winner": {
@@ -53,101 +53,8 @@
       },
       "margin": 70.16,
       "tie": false,
-      "blurb": "Mocha Joe’s rolled over ssimonis, 169.80 to 99.64. Brock Purdy led the way with 37.92. ssimonis left 16.98 on the bench, Jordan Addison's 12.50 the biggest miss."
-    },
-    {
-      "winner": {
-        "rosterId": 3,
-        "name": "Velvet Milkmen",
-        "points": 137.22,
-        "optimal": 152.94,
-        "benchLeft": 15.72,
-        "topPlayer": {
-          "id": "12519",
-          "name": "Luther Burden",
-          "pos": "WR",
-          "nfl": "CHI",
-          "points": 27.8
-        },
-        "bestBench": {
-          "id": "8210",
-          "name": "Chig Okonkwo",
-          "pos": "TE",
-          "nfl": "WAS",
-          "points": 14.5
-        }
-      },
-      "loser": {
-        "rosterId": 9,
-        "name": "pablokunkeljure",
-        "points": 128.56,
-        "optimal": 147.26,
-        "benchLeft": 18.7,
-        "topPlayer": {
-          "id": "9224",
-          "name": "Chase Brown",
-          "pos": "RB",
-          "nfl": "CIN",
-          "points": 29.1
-        },
-        "bestBench": {
-          "id": "12536",
-          "name": "Jaylin Noel",
-          "pos": "WR",
-          "nfl": "HOU",
-          "points": 14.6
-        }
-      },
-      "margin": 8.66,
-      "tie": false,
-      "blurb": "Velvet Milkmen beat pablokunkeljure, 137.22 to 128.56. Luther Burden led the way with 27.80. pablokunkeljure left 18.70 on the bench, Jaylin Noel's 14.60 the biggest miss — enough to have flipped it."
-    },
-    {
-      "winner": {
-        "rosterId": 11,
-        "name": "Owen Seven",
-        "points": 114.36,
-        "optimal": 117.46,
-        "benchLeft": 3.1,
-        "topPlayer": {
-          "id": "8126",
-          "name": "Wan'Dale Robinson",
-          "pos": "WR",
-          "nfl": "TEN",
-          "points": 22.3
-        },
-        "bestBench": {
-          "id": "4993",
-          "name": "Mike Gesicki",
-          "pos": "TE",
-          "nfl": "CIN",
-          "points": 6.7
-        }
-      },
-      "loser": {
-        "rosterId": 4,
-        "name": "Idontevenlikeohiost",
-        "points": 72.1,
-        "optimal": 91.32,
-        "benchLeft": 19.22,
-        "topPlayer": {
-          "id": "4892",
-          "name": "Baker Mayfield",
-          "pos": "QB",
-          "nfl": "TB",
-          "points": 19.44
-        },
-        "bestBench": {
-          "id": "12500",
-          "name": "Quinn Ewers",
-          "pos": "QB",
-          "nfl": "JAX",
-          "points": 15.78
-        }
-      },
-      "margin": 42.26,
-      "tie": false,
-      "blurb": "Owen Seven buried Idontevenlikeohiost, 114.36 to 72.10. Wan'Dale Robinson led the way with 22.30. Idontevenlikeohiost left 19.22 on the bench, Quinn Ewers's 15.78 the biggest miss."
+      "label": "Championship",
+      "blurb": "Mocha Joe's won the 2025 championship going away, 169.80 to 99.64, with Brock Purdy's 37.92 leading the way and only 8.00 left on the bench. ssimonis got 28.10 from Christian McCaffrey and not much else, and Jordan Addison's 12.50 on the bench would not have closed a 70-point gap anyway."
     },
     {
       "winner": {
@@ -194,7 +101,104 @@
       },
       "margin": 59.6,
       "tie": false,
-      "blurb": "Good Berger rolled over Maximus Decimus Meridius, 167.18 to 107.58. Bijan Robinson led the way with 39.90. Maximus Decimus Meridius left 38.62 on the bench, Jalen McMillan's 18.40 the biggest miss."
+      "label": "3rd place game",
+      "blurb": "Good Berger took third with 167.18, riding Bijan Robinson's 39.90 and winning comfortably enough that Malik Willis's 31.52 on the bench never mattered. Maximus Decimus Meridius, the 12-2 regular-season champion, ends up fourth after a 107.58 that wasted Derrick Henry's 45.60, the best single performance of the week, and left 38.62 on the bench."
+    },
+    {
+      "winner": {
+        "rosterId": 3,
+        "name": "Velvet Milkmen",
+        "points": 137.22,
+        "optimal": 152.94,
+        "benchLeft": 15.72,
+        "topPlayer": {
+          "id": "12519",
+          "name": "Luther Burden",
+          "pos": "WR",
+          "nfl": "CHI",
+          "points": 27.8
+        },
+        "bestBench": {
+          "id": "8210",
+          "name": "Chig Okonkwo",
+          "pos": "TE",
+          "nfl": "WAS",
+          "points": 14.5
+        }
+      },
+      "loser": {
+        "rosterId": 9,
+        "name": "pablokunkeljure",
+        "points": 128.56,
+        "optimal": 147.26,
+        "benchLeft": 18.7,
+        "topPlayer": {
+          "id": "9224",
+          "name": "Chase Brown",
+          "pos": "RB",
+          "nfl": "CIN",
+          "points": 29.1
+        },
+        "bestBench": {
+          "id": "12536",
+          "name": "Jaylin Noel",
+          "pos": "WR",
+          "nfl": "HOU",
+          "points": 14.6
+        }
+      },
+      "margin": 8.66,
+      "tie": false,
+      "label": "9th place game",
+      "blurb": "Velvet Milkmen edged pablokunkeljure 137.22 to 128.56 for ninth, with Luther Burden's 27.80 the difference in the tightest game of the week. Chase Brown's 29.10 kept pablokunkeljure close, but Jaylin Noel's 14.60 on the bench was more than the 8.66 margin, so tenth place was a lineup decision away from ninth."
+    },
+    {
+      "winner": {
+        "rosterId": 11,
+        "name": "Owen Seven",
+        "points": 114.36,
+        "optimal": 117.46,
+        "benchLeft": 3.1,
+        "topPlayer": {
+          "id": "8126",
+          "name": "Wan'Dale Robinson",
+          "pos": "WR",
+          "nfl": "TEN",
+          "points": 22.3
+        },
+        "bestBench": {
+          "id": "4993",
+          "name": "Mike Gesicki",
+          "pos": "TE",
+          "nfl": "CIN",
+          "points": 6.7
+        }
+      },
+      "loser": {
+        "rosterId": 4,
+        "name": "Idontevenlikeohiost",
+        "points": 72.1,
+        "optimal": 91.32,
+        "benchLeft": 19.22,
+        "topPlayer": {
+          "id": "4892",
+          "name": "Baker Mayfield",
+          "pos": "QB",
+          "nfl": "TB",
+          "points": 19.44
+        },
+        "bestBench": {
+          "id": "12500",
+          "name": "Quinn Ewers",
+          "pos": "QB",
+          "nfl": "JAX",
+          "points": 15.78
+        }
+      },
+      "margin": 42.26,
+      "tie": false,
+      "label": "Last place game",
+      "blurb": "Owen Seven put up 114.36 behind Wan'Dale Robinson's 22.30 and escaped the toilet bowl with eleventh. Idontevenlikeohiost scored 72.10, the low mark of the week, with Quinn Ewers's 15.78 unused on the bench, and takes last place for 2025."
     }
   ],
   "awards": {
@@ -343,7 +347,7 @@
       "pointsFor": 1793.86,
       "pointsAgainst": 1719.04,
       "place": 6,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 12,
@@ -354,7 +358,7 @@
       "pointsFor": 1674.02,
       "pointsAgainst": 1840.1,
       "place": 6,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 4,
@@ -365,7 +369,7 @@
       "pointsFor": 1591.52,
       "pointsAgainst": 1805.4,
       "place": 7,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 9,
@@ -376,7 +380,7 @@
       "pointsFor": 1484.22,
       "pointsAgainst": 1762.42,
       "place": 8,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 3,
@@ -389,5 +393,6 @@
       "place": 8,
       "movement": 0
     }
-  ]
+  ],
+  "editedAt": "2026-09-12T21:23:11.966Z"
 }

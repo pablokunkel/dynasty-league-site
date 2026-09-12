@@ -107,18 +107,33 @@ const avatarUrl = (user) =>
   user?.metadata?.avatar || (user?.avatar ? `https://sleepercdn.com/avatars/${user.avatar}` : null)
 
 /**
- * Sleeper bracket rows carry `p` = the placement being contested. Winner takes
- * `p`, loser takes `p + 1`. Losers-bracket placements are offset by the number
- * of playoff teams, so a losers-bracket `p:1` is really 7th in a 6-team
- * playoff. Verified against the 2025 bracket, where losers `p:5` loser is the
- * genuine last-place team.
+ * Sleeper bracket rows carry `p` = the placement being contested. In the
+ * winners bracket the winner takes `p`, the loser `p + 1`.
+ *
+ * The consolation bracket is a TOILET BOWL, and Sleeper's `w` there is the
+ * team that *advances* — which is the team that lost on points. Verified
+ * across every completed season, 2021–2025: in the winners bracket `w`
+ * outscored `l` in 35 of 35 games; in the losers bracket `w` was outscored in
+ * 35 of 35. So the consolation `p:1` game is the last-place game, its `w`
+ * (the lower scorer, who kept losing) is 12th, and its `l` escapes with 11th.
+ * Generally: `w` -> N + 1 - p, `l` -> N - p, for N rosters. The bylaws hang a
+ * real punishment on last place, so this mapping has to be right.
+ *
+ * An earlier version offset consolation places by the playoff-team count
+ * (`p:1` -> 7th), which handed last place to the team that had just *won* the
+ * final consolation game on points.
  */
-function placementsFromBracket(bracket, offset = 0) {
+function placementsFromBracket(bracket, { toiletBowl = false, teamCount = 0 } = {}) {
   const places = new Map()
   for (const m of bracket ?? []) {
     if (m.p == null || m.w == null || m.l == null) continue
-    places.set(m.w, m.p + offset)
-    places.set(m.l, m.p + 1 + offset)
+    if (toiletBowl) {
+      places.set(m.w, teamCount + 1 - m.p)
+      places.set(m.l, teamCount - m.p)
+    } else {
+      places.set(m.w, m.p)
+      places.set(m.l, m.p + 1)
+    }
   }
   return places
 }
@@ -173,10 +188,10 @@ async function fetchSeason(leagueId) {
 
 function shapeTeams(raw) {
   const usersById = new Map(raw.users.map((u) => [u.user_id, u]))
-  const playoffTeams = raw.league.settings?.playoff_teams ?? 6
+  const teamCount = raw.league.total_rosters ?? raw.rosters.length
 
-  const winnerPlaces = placementsFromBracket(raw.winners, 0)
-  const loserPlaces = placementsFromBracket(raw.losers, playoffTeams)
+  const winnerPlaces = placementsFromBracket(raw.winners)
+  const loserPlaces = placementsFromBracket(raw.losers, { toiletBowl: true, teamCount })
   const finalPlace = new Map([...winnerPlaces, ...loserPlaces])
 
   return raw.rosters.map((r) => {

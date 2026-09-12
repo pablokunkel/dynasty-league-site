@@ -87,18 +87,34 @@ result to `content/recaps/{season}/week-NN.json`. Those files are permanent:
 edit one by hand and it stays edited, because the writer never overwrites an
 existing week.
 
-The words come from Claude when the repository has an `ANTHROPIC_API_KEY`
-secret (Settings → Secrets and variables → Actions). The personality is the
-`recaps.voice` string in `league.config.json`. Without the secret, a template
-writer produces plain sentences from the same numbers, so nothing breaks — it
-just reads drier. To rewrite template weeks after adding the key, run the
-workflow by hand with **force** ticked.
+The automatic Tuesday run writes template prose: plain sentences built from the
+numbers, so it never breaks and never lies, but it reads dry. To have Claude
+write a week instead, no API key needed:
+
+```bash
+npm run recaps -- --prompt --week 3
+```
+
+prints the prompt (in the `recaps.voice` personality from `league.config.json`)
+and the JSON shape to answer with. Paste it into a Claude Code or claude.ai
+session, save the answer as a file, then
+
+```bash
+npm run recaps -- --apply answer.json
+```
+
+merges that prose into the week's file, leaving the numbers untouched. Commit
+and push, and the page says "Written by Claude". In a Claude Code session the
+whole loop is one request: "write this week's recap".
+
+If the repository ever has an `ANTHROPIC_API_KEY` Actions secret the Tuesday
+run calls the API directly with the same prompt; without it, nothing changes.
 
 ```bash
 npm run recaps -- --season 2025 --dry-run
 ```
 
-previews what the writer would say without writing anything.
+previews what the template writer would say without writing anything.
 
 ## Data refresh
 

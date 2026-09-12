@@ -68,6 +68,8 @@ export interface RecapGame {
   loser: RecapSide
   margin: number
   tie: boolean
+  /** Playoff weeks only: "Championship", "3rd place game", "Semifinal"… */
+  label: string | null
   blurb: string
 }
 

@@ -1,7 +1,7 @@
 {
   "season": "2025",
   "week": 12,
-  "generatedAt": "2026-09-11T03:54:31.755Z",
+  "generatedAt": "2026-09-12T21:20:02.178Z",
   "author": "template",
   "model": null,
   "isPlayoffs": false,
@@ -53,6 +53,7 @@
       },
       "margin": 38.52,
       "tie": false,
+      "label": null,
       "blurb": "Rensar Razzlin River Rats handled Mocha Joe’s, 149.70 to 111.18. Jahmyr Gibbs led the way with 55.40. Mocha Joe’s left 29.22 on the bench, Jameis Winston's 33.24 the biggest miss."
     },
     {
@@ -100,6 +101,7 @@
       },
       "margin": 1.62,
       "tie": false,
+      "label": null,
       "blurb": "Owen Seven squeaked past ssimonis, 119.80 to 118.18. Wan'Dale Robinson led the way with 30.60. ssimonis left 11.50 on the bench, Brenton Strange's 14.30 the biggest miss — enough to have flipped it."
     },
     {
@@ -147,6 +149,7 @@
       },
       "margin": 26.54,
       "tie": false,
+      "label": null,
       "blurb": "Velvet Milkmen took down Idontevenlikeohiost, 100.68 to 74.14. Cam Ward led the way with 23.94. Idontevenlikeohiost left 21.00 on the bench, Devin Neal's 11.10 the biggest miss."
     },
     {
@@ -194,6 +197,7 @@
       },
       "margin": 7,
       "tie": false,
+      "label": null,
       "blurb": "Good Berger beat Notre Dame de Paris, 154.10 to 147.10. Amon-Ra St. Brown led the way with 29.90. Notre Dame de Paris left 21.50 on the bench, Greg Dortch's 16.80 the biggest miss — enough to have flipped it."
     },
     {
@@ -241,6 +245,7 @@
       },
       "margin": 17.26,
       "tie": false,
+      "label": null,
       "blurb": "Maximus Decimus Meridius took care of Vandelay Industries, 145.08 to 127.82. Jalen Hurts led the way with 30.86. Vandelay Industries left 25.02 on the bench, Kenny Gainwell's 18.20 the biggest miss — enough to have flipped it."
     },
     {
@@ -288,6 +293,7 @@
       },
       "margin": 33.98,
       "tie": false,
+      "label": null,
       "blurb": "Norwood Peckers took down pablokunkeljure, 101.60 to 67.62. Trevor Lawrence led the way with 20.14. pablokunkeljure left 14.40 on the bench, Pat Freiermuth's 10.90 the biggest miss."
     }
   ],

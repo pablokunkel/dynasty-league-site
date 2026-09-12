@@ -8,25 +8,31 @@
  * editable — a re-run never overwrites one unless --force is given. The
  * pipeline bundles them into public/data/recaps/{season}.json for the site.
  *
- * Prose comes from one of two writers:
+ * Prose comes from one of three places:
  *
- *   claude    when ANTHROPIC_API_KEY is set: the numbers go to Claude with the
- *             league's voice from league.config.json, and it returns a
- *             headline, a summary and a blurb per game. A few cents a week.
- *   template  otherwise, or with --template: deterministic sentences built
- *             from the same numbers. Dry but never wrong, never breaks.
- *
- * A Claude failure of any kind (no key, network, refusal, malformed output)
- * falls back to the template writer, so the Tuesday run always produces a
- * recap.
+ *   template  the default, and what CI runs: deterministic sentences built
+ *             from the numbers. Dry but never wrong, never breaks.
+ *   chat      no API key needed. `--prompt` prints the exact prompt for a
+ *             week; paste it into a Claude Code or claude.ai session, save
+ *             the JSON it answers with, and `--apply` merges that prose into
+ *             the week's file. This is the intended path for this league —
+ *             the owner has Claude through a subscription, not the API.
+ *   claude    only when ANTHROPIC_API_KEY happens to be set: the same prompt
+ *             goes straight to the API. Kept in case a key ever exists; any
+ *             failure (no key, network, refusal, malformed output) falls back
+ *             to the template so the Tuesday run always produces a recap.
  *
  * Usage:
  *   node scripts/write-recaps.mjs                 current season, all missing weeks
  *   node scripts/write-recaps.mjs --season 2025   backfill a past season
  *   node scripts/write-recaps.mjs --week 3        one week only
  *   node scripts/write-recaps.mjs --force         rewrite even if the file exists
- *   node scripts/write-recaps.mjs --template      skip Claude even if a key is set
+ *   node scripts/write-recaps.mjs --template      skip the API even if a key is set
  *   node scripts/write-recaps.mjs --dry-run       print, write nothing
+ *
+ *   node scripts/write-recaps.mjs --prompt --week 3          print the prompt for week 3
+ *   node scripts/write-recaps.mjs --apply answer.json         merge a chat answer into
+ *                                                             the week it names
  *
  * Runs in CI from .github/workflows/recaps.yml on Tuesday and Wednesday
  * mornings, after Monday night's scores are final.
@@ -59,6 +65,8 @@ const opt = (name) => {
 const FORCE = flag('force')
 const DRY = flag('dry-run')
 const TEMPLATE_ONLY = flag('template')
+const PROMPT = flag('prompt')
+const APPLY = opt('apply')
 
 /* ---------------------------------------------------------------- template */
 
@@ -77,7 +85,11 @@ function verbFor(margin, seed) {
 function templateGame(g, seed) {
   const { winner: w, loser: l } = g
   if (g.tie) return `${w.name} and ${l.name} played to a ${fmt(w.points)} tie.`
-  const parts = [`${w.name} ${verbFor(g.margin, seed)} ${l.name}, ${fmt(w.points)} to ${fmt(l.points)}.`]
+  const stake = g.label ? ` in the ${g.label.toLowerCase()}` : ''
+  const parts = [`${w.name} ${verbFor(g.margin, seed)} ${l.name}${stake}, ${fmt(w.points)} to ${fmt(l.points)}.`]
+  if (g.label === 'Last place game') {
+    parts.push(`That leaves ${l.name} in last place for the season.`)
+  }
   if (w.topPlayer) parts.push(`${w.topPlayer.name} led the way with ${fmt(w.topPlayer.points)}.`)
   if (l.benchLeft >= 10 && l.bestBench) {
     const swing = l.benchLeft >= g.margin ? ' — enough to have flipped it' : ''
@@ -95,7 +107,10 @@ function templateText(stats) {
   const seed = Number(stats.season) * 100 + week
 
   let headline
-  if (a.closest && a.closest.margin < 3) {
+  const title = games.find((g) => g.label === 'Championship')
+  if (title && !title.tie) {
+    headline = `${title.winner.name} wins the ${stats.season} title`
+  } else if (a.closest && a.closest.margin < 3) {
     headline = `${a.closest.winner.name} survives ${a.closest.loser.name} by ${fmt(a.closest.margin)}`
   } else if (a.blowout && a.blowout.margin >= 60) {
     headline = `${a.blowout.winner.name} runs ${a.blowout.loser.name} off the field`
@@ -185,6 +200,7 @@ function claudePayload(stats, config) {
     isPlayoffWeek: stats.isPlayoffs,
     games: stats.games.map((g, index) => ({
       index,
+      whatWasAtStake: g.label ?? (stats.isPlayoffs ? 'playoff week' : 'regular season'),
       winner: side(g.winner),
       loser: side(g.loser),
       margin: g.margin,
@@ -201,29 +217,49 @@ function claudePayload(stats, config) {
   }
 }
 
+/** The prompt, identical whether it goes to the API or gets pasted into a chat. */
+function buildPrompt(stats, config) {
+  return {
+    system: config.recaps?.voice ?? DEFAULT_VOICE,
+    user:
+      `Write the week ${stats.week} recap from this data. Return one blurb per game, keyed by index.\n\n` +
+      JSON.stringify(claudePayload(stats, config)),
+  }
+}
+
+/**
+ * Take the prose out of a model answer — the structured-output object from the
+ * API, or the same JSON pasted back from a chat — and line it up with the games.
+ */
+function proseFromAnswer(parsed, stats) {
+  if (!parsed || typeof parsed.headline !== 'string' || typeof parsed.summary !== 'string') {
+    throw new Error('answer needs string "headline" and "summary"')
+  }
+  const games = Array.isArray(parsed.games) ? parsed.games : []
+  const blurbs = stats.games.map((_, i) => games.find((g) => g.index === i)?.blurb ?? null)
+  if (blurbs.some((b) => typeof b !== 'string' || !b)) {
+    throw new Error(`need a blurb for every game index 0-${stats.games.length - 1}`)
+  }
+  return { headline: parsed.headline, summary: parsed.summary, blurbs }
+}
+
 async function claudeText(stats, config) {
   // Lazy import: the SDK is a dev dependency and the template path must run
   // without it installed (the refresh workflow does not npm ci).
   const { default: Anthropic } = await import('@anthropic-ai/sdk')
   const client = new Anthropic()
   const model = config.recaps?.model ?? 'claude-opus-5'
+  const prompt = buildPrompt(stats, config)
 
   const response = await client.messages.create({
     model,
     max_tokens: 4000,
-    system: config.recaps?.voice ?? DEFAULT_VOICE,
+    system: prompt.system,
     output_config: {
       effort: 'medium',
       format: { type: 'json_schema', schema: OUTPUT_SCHEMA },
     },
-    messages: [
-      {
-        role: 'user',
-        content:
-          `Write the week ${stats.week} recap from this data. Return one blurb per game, keyed by index.\n\n` +
-          JSON.stringify(claudePayload(stats, config)),
-      },
-    ],
+    messages: [{ role: 'user', content: prompt.user }],
   })
 
   if (response.stop_reason === 'refusal') {
@@ -231,18 +267,95 @@ async function claudeText(stats, config) {
   }
   const text = response.content.find((b) => b.type === 'text')?.text
   if (!text) throw new Error(`no text block (stop_reason ${response.stop_reason})`)
-  const parsed = JSON.parse(text)
-
-  const blurbs = stats.games.map((_, i) => parsed.games.find((g) => g.index === i)?.blurb ?? null)
-  if (blurbs.some((b) => !b)) throw new Error('missing a game blurb')
 
   return {
-    headline: parsed.headline,
-    summary: parsed.summary,
-    blurbs,
+    ...proseFromAnswer(JSON.parse(text), stats),
     model: response.model,
     usage: response.usage,
   }
+}
+
+/* -------------------------------------------------------------- chat path */
+
+/**
+ * Print the prompt for each target week so a chat session can write it. The
+ * answer must be the JSON object described by OUTPUT_SCHEMA plus `season` and
+ * `week`, saved to a file and fed back with --apply.
+ */
+function printPrompt(stats, config) {
+  const { system, user } = buildPrompt(stats, config)
+  console.log(`\n===== ${stats.season} week ${stats.week} — prompt =====`)
+  console.log('\n--- system ---\n')
+  console.log(system)
+  console.log('\n--- user ---\n')
+  console.log(user)
+  console.log('\n--- answer format ---\n')
+  console.log(
+    'Reply with ONLY this JSON (no prose around it), then save it and run\n' +
+      `  node scripts/write-recaps.mjs --apply <file>\n\n` +
+      JSON.stringify(
+        {
+          season: stats.season,
+          week: stats.week,
+          headline: '...',
+          summary: '...',
+          games: stats.games.map((_, index) => ({ index, blurb: '...' })),
+        },
+        null,
+        2
+      )
+  )
+}
+
+/**
+ * Merge a chat-written answer into an existing week file. The numbers stay as
+ * they were; only the words change. Author becomes "claude" with model "chat"
+ * so the page says "Written by Claude" and the provenance is honest.
+ */
+async function applyAnswer(path, { season, manifest, seasonDoc, matchups, players }) {
+  const answer = JSON.parse(await readFile(path, 'utf8'))
+  const targetSeason = String(answer.season ?? season)
+  const week = Number(answer.week ?? opt('week'))
+  if (!week) throw new Error('--apply needs "week" in the answer or --week')
+  if (targetSeason !== season) {
+    throw new Error(`answer is for ${targetSeason}; re-run with --season ${targetSeason}`)
+  }
+
+  const file = recapFile(ROOT, season, week)
+  let recap
+  if (existsSync(file)) {
+    recap = JSON.parse(await readFile(file, 'utf8'))
+  } else {
+    // No template run yet for this week — build the numbers now.
+    const stats = computeWeekRecap({ season: seasonDoc, matchups, players, week })
+    const t = templateText(stats)
+    recap = {
+      season: stats.season,
+      week,
+      generatedAt: new Date().toISOString(),
+      author: 'template',
+      model: null,
+      isPlayoffs: stats.isPlayoffs,
+      headline: t.headline,
+      summary: t.summary,
+      games: stats.games.map((g, i) => ({ ...g, blurb: t.blurbs[i] })),
+      awards: stats.awards,
+      standings: stats.standings,
+    }
+  }
+
+  const prose = proseFromAnswer(answer, recap)
+  recap.headline = prose.headline
+  recap.summary = prose.summary
+  recap.games = recap.games.map((g, i) => ({ ...g, blurb: prose.blurbs[i] }))
+  recap.author = 'claude'
+  recap.model = 'chat'
+  recap.editedAt = new Date().toISOString()
+
+  await mkdir(recapsDir(ROOT, season), { recursive: true })
+  await writeFile(file, JSON.stringify(recap, null, 2) + '\n')
+  console.log(`  week ${week}: applied chat prose — "${recap.headline}"`)
+  void manifest
 }
 
 /* -------------------------------------------------------------------- main */
@@ -275,6 +388,24 @@ async function main() {
 
   const only = opt('week') ? Number(opt('week')) : null
   const done = completedWeeks(seasonDoc, matchups, manifest.nflState)
+
+  if (APPLY) {
+    await applyAnswer(APPLY, { season, manifest, seasonDoc, matchups, players })
+    await rebundle(season)
+    return
+  }
+
+  if (PROMPT) {
+    // Prompts are for rewriting as much as for writing, so existing files
+    // don't exclude a week here.
+    const weeks = only ? done.filter((w) => w === only) : done
+    if (weeks.length === 0) console.warn(`  ! no completed week to prompt for (${only ?? 'any'})`)
+    for (const week of weeks) {
+      printPrompt(computeWeekRecap({ season: seasonDoc, matchups, players, week }), config)
+    }
+    return
+  }
+
   const targets = (only ? done.filter((w) => w === only) : done).filter(
     (w) => FORCE || !existsSync(recapFile(ROOT, season, w))
   )
@@ -338,15 +469,19 @@ async function main() {
     console.log(`  week ${week}: wrote ${author} recap — "${recap.headline}"`)
   }
 
-  if (!DRY) {
-    // Rebundle so public/data reflects the content directory immediately; the
-    // pipeline does the same on its next run.
-    const bundle = await bundleRecaps(ROOT, season)
-    await mkdir(join(DATA, 'recaps'), { recursive: true })
-    await writeFile(join(DATA, 'recaps', `${season}.json`), JSON.stringify(bundle))
-    console.log(`  bundled ${bundle.length} recap${bundle.length === 1 ? '' : 's'} -> public/data/recaps/${season}.json`)
-  }
+  if (!DRY) await rebundle(season)
   console.log(`  ${wrote} written`)
+}
+
+/**
+ * Rebundle so public/data reflects the content directory immediately; the
+ * pipeline does the same on its next run.
+ */
+async function rebundle(season) {
+  const bundle = await bundleRecaps(ROOT, season)
+  await mkdir(join(DATA, 'recaps'), { recursive: true })
+  await writeFile(join(DATA, 'recaps', `${season}.json`), JSON.stringify(bundle))
+  console.log(`  bundled ${bundle.length} recap${bundle.length === 1 ? '' : 's'} -> public/data/recaps/${season}.json`)
 }
 
 main().catch((err) => {

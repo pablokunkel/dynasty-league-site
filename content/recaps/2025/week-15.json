@@ -1,7 +1,7 @@
 {
   "season": "2025",
   "week": 15,
-  "generatedAt": "2026-09-11T03:54:31.770Z",
+  "generatedAt": "2026-09-12T21:20:02.200Z",
   "author": "template",
   "model": null,
   "isPlayoffs": true,
@@ -53,7 +53,8 @@
       },
       "margin": 55.48,
       "tie": false,
-      "blurb": "Mocha Joe’s ran away from Rensar Razzlin River Rats, 192.26 to 136.78. Trey McBride led the way with 37.40. Rensar Razzlin River Rats left 21.14 on the bench, J.J. McCarthy's 24.50 the biggest miss."
+      "label": "Quarterfinal",
+      "blurb": "Mocha Joe’s ran away from Rensar Razzlin River Rats in the quarterfinal, 192.26 to 136.78. Trey McBride led the way with 37.40. Rensar Razzlin River Rats left 21.14 on the bench, J.J. McCarthy's 24.50 the biggest miss."
     },
     {
       "winner": {
@@ -100,7 +101,8 @@
       },
       "margin": 39.32,
       "tie": false,
-      "blurb": "ssimonis took care of Vandelay Industries, 179.74 to 140.42. James Cook led the way with 31.10. Vandelay Industries left 27.40 on the bench, Troy Franklin's 20.80 the biggest miss."
+      "label": "Quarterfinal",
+      "blurb": "ssimonis took care of Vandelay Industries in the quarterfinal, 179.74 to 140.42. James Cook led the way with 31.10. Vandelay Industries left 27.40 on the bench, Troy Franklin's 20.80 the biggest miss."
     },
     {
       "winner": {
@@ -147,7 +149,8 @@
       },
       "margin": 62.46,
       "tie": false,
-      "blurb": "Norwood Peckers rolled over Idontevenlikeohiost, 171.54 to 109.08. Kyle Pitts led the way with 45.60. Idontevenlikeohiost left 15.90 on the bench, Rashid Shaheed's 12.10 the biggest miss."
+      "label": "Consolation round 1",
+      "blurb": "Norwood Peckers rolled over Idontevenlikeohiost in the consolation round 1, 171.54 to 109.08. Kyle Pitts led the way with 45.60. Idontevenlikeohiost left 15.90 on the bench, Rashid Shaheed's 12.10 the biggest miss."
     },
     {
       "winner": {
@@ -194,7 +197,8 @@
       },
       "margin": 4.88,
       "tie": false,
-      "blurb": "Notre Dame de Paris beat Owen Seven, 112.02 to 107.14. Bo Nix led the way with 29.08. Owen Seven left 13.12 on the bench, Gunnar Helm's 14.90 the biggest miss — enough to have flipped it."
+      "label": "Consolation round 1",
+      "blurb": "Notre Dame de Paris beat Owen Seven in the consolation round 1, 112.02 to 107.14. Bo Nix led the way with 29.08. Owen Seven left 13.12 on the bench, Gunnar Helm's 14.90 the biggest miss — enough to have flipped it."
     }
   ],
   "awards": {
@@ -343,7 +347,7 @@
       "pointsFor": 1793.86,
       "pointsAgainst": 1719.04,
       "place": 6,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 12,
@@ -354,7 +358,7 @@
       "pointsFor": 1674.02,
       "pointsAgainst": 1840.1,
       "place": 6,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 4,
@@ -365,7 +369,7 @@
       "pointsFor": 1591.52,
       "pointsAgainst": 1805.4,
       "place": 7,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 9,
@@ -376,7 +380,7 @@
       "pointsFor": 1484.22,
       "pointsAgainst": 1762.42,
       "place": 8,
-      "movement": -1
+      "movement": 0
     },
     {
       "rosterId": 3,

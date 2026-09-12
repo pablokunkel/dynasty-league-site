@@ -1,7 +1,7 @@
 {
   "season": "2025",
   "week": 13,
-  "generatedAt": "2026-09-11T03:54:31.759Z",
+  "generatedAt": "2026-09-12T21:20:02.184Z",
   "author": "template",
   "model": null,
   "isPlayoffs": false,
@@ -53,6 +53,7 @@
       },
       "margin": 4.08,
       "tie": false,
+      "label": null,
       "blurb": "Notre Dame de Paris got past Mocha Joe’s, 151.50 to 147.42. Marcus Mariota led the way with 24.26. Mocha Joe’s left 20.20 on the bench, D'Andre Swift's 20.80 the biggest miss — enough to have flipped it."
     },
     {
@@ -100,6 +101,7 @@
       },
       "margin": 45.58,
       "tie": false,
+      "label": null,
       "blurb": "ssimonis rolled over Velvet Milkmen, 122.46 to 76.88. Jared Goff led the way with 20.64. Velvet Milkmen left 38.46 on the bench, Dontayvion Wicks's 28.00 the biggest miss."
     },
     {
@@ -147,6 +149,7 @@
       },
       "margin": 33.22,
       "tie": false,
+      "label": null,
       "blurb": "Owen Seven handled Idontevenlikeohiost, 128.42 to 95.20. Adonai Mitchell led the way with 24.20. Idontevenlikeohiost left 31.70 on the bench, Chuba Hubbard's 20.40 the biggest miss."
     },
     {
@@ -194,6 +197,7 @@
       },
       "margin": 48.92,
       "tie": false,
+      "label": null,
       "blurb": "Good Berger buried Rensar Razzlin River Rats, 164.78 to 115.86. Bijan Robinson led the way with 30.30. Rensar Razzlin River Rats left 42.00 on the bench, Devaughn Vele's 23.30 the biggest miss."
     },
     {
@@ -241,6 +245,7 @@
       },
       "margin": 4.68,
       "tie": false,
+      "label": null,
       "blurb": "Vandelay Industries held off Norwood Peckers, 96.02 to 91.34. Jordan Love led the way with 25.76. Norwood Peckers left 33.80 on the bench, Kyle Pitts's 15.20 the biggest miss — enough to have flipped it."
     },
     {
@@ -288,6 +293,7 @@
       },
       "margin": 42.24,
       "tie": false,
+      "label": null,
       "blurb": "Maximus Decimus Meridius ran away from pablokunkeljure, 139.04 to 96.80. A.J. Brown led the way with 35.20. pablokunkeljure left 21.20 on the bench, Terry McLaurin's 22.60 the biggest miss."
     }
   ],

@@ -65,7 +65,7 @@
   },
 
   "recaps": {
-    "_comment": "Weekly recaps on /recaps, written by scripts/write-recaps.mjs every Tuesday. With an ANTHROPIC_API_KEY secret in GitHub the prose is written by Claude in the voice below; without one a template writer builds plain sentences from the same numbers. Edit `voice` to change the personality. Each recap is saved to content/recaps/{season}/week-NN.json and can be edited by hand — a re-run never overwrites an existing week.",
+    "_comment": "Weekly recaps on /recaps, written by scripts/write-recaps.mjs every Tuesday. CI writes template prose (plain sentences from the numbers). For Claude-written prose without API access: `npm run recaps -- --prompt --week N` prints the prompt in the voice below, paste it into a Claude Code or claude.ai session, save the JSON answer, then `npm run recaps -- --apply answer.json`. Edit `voice` to change the personality. Each recap is saved to content/recaps/{season}/week-NN.json and can be edited by hand — a re-run never overwrites an existing week. `model` only matters if an ANTHROPIC_API_KEY is ever set.",
     "model": "claude-opus-5",
     "voice": "You write the weekly recap for a 12-team superflex dynasty fantasy football league that has run since 2021 and drafts in person at Mohegan Sun. Tone: a sharp, funny league newsletter — playful, never cruel, no profanity. Use only the facts provided; do not invent injuries, trades, reasons or quotes. Refer to teams and players by the exact names given. Numbers must match the data. Blurbs are two sentences; the summary is four or five and should note standings movement when it matters."
   },

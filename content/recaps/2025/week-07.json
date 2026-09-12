@@ -1,7 +1,7 @@
 {
   "season": "2025",
   "week": 7,
-  "generatedAt": "2026-09-11T03:54:31.720Z",
+  "generatedAt": "2026-09-12T21:20:02.155Z",
   "author": "template",
   "model": null,
   "isPlayoffs": false,
@@ -53,6 +53,7 @@
       },
       "margin": 61.36,
       "tie": false,
+      "label": null,
       "blurb": "Mocha Joe’s buried Idontevenlikeohiost, 157.84 to 96.48. Trey McBride led the way with 29.40. Idontevenlikeohiost left 11.20 on the bench, Noah Fant's 14.40 the biggest miss."
     },
     {
@@ -100,6 +101,7 @@
       },
       "margin": 24.48,
       "tie": false,
+      "label": null,
       "blurb": "ssimonis took down Norwood Peckers, 131.70 to 107.22. Keenan Allen led the way with 28.90. Norwood Peckers left 26.08 on the bench, Jaxson Dart's 29.42 the biggest miss — enough to have flipped it."
     },
     {
@@ -147,6 +149,7 @@
       },
       "margin": 3.9,
       "tie": false,
+      "label": null,
       "blurb": "Velvet Milkmen beat Rensar Razzlin River Rats, 117.54 to 113.64. Xavier Legette led the way with 24.20. Rensar Razzlin River Rats left 17.80 on the bench, Tez Johnson's 15.80 the biggest miss — enough to have flipped it."
     },
     {
@@ -194,6 +197,7 @@
       },
       "margin": 25.28,
       "tie": false,
+      "label": null,
       "blurb": "Maximus Decimus Meridius took care of Good Berger, 170.98 to 145.70. Christian McCaffrey led the way with 39.10. Good Berger left 31.04 on the bench, Michael Pittman's 20.80 the biggest miss — enough to have flipped it."
     },
     {
@@ -241,6 +245,7 @@
       },
       "margin": 20.54,
       "tie": false,
+      "label": null,
       "blurb": "Notre Dame de Paris took down Vandelay Industries, 141.88 to 121.34. Bo Nix led the way with 39.96. Vandelay Industries left 33.72 on the bench, Jake Ferguson's 21.90 the biggest miss — enough to have flipped it."
     },
     {
@@ -288,6 +293,7 @@
       },
       "margin": 56.66,
       "tie": false,
+      "label": null,
       "blurb": "Owen Seven ran away from pablokunkeljure, 166.76 to 110.10. Jonathan Taylor led the way with 34.20. pablokunkeljure left 27.10 on the bench, Dalton Schultz's 18.80 the biggest miss."
     }
   ],

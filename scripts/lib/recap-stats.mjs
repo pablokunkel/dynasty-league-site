@@ -175,8 +175,57 @@ export function standingsAfter(season, matchups, week) {
   }
 
   const now = table(lastRegular)
-  const before = new Map(table(lastRegular - 1).map((r) => [r.rosterId, r.place]))
+  // In the playoffs the regular-season table is frozen, so nothing moved.
+  const before = new Map(
+    table(week > lastRegular ? lastRegular : lastRegular - 1).map((r) => [r.rosterId, r.place])
+  )
   return now.map((r) => ({ ...r, movement: (before.get(r.rosterId) ?? r.place) - r.place }))
+}
+
+/**
+ * What a playoff-week game is for: "Championship", "3rd place game",
+ * "Semifinal", "Last place game", "Consolation round 1"… Read off the
+ * brackets, where each match carries its round `r` and, for placement games,
+ * the place `p` being played for.
+ *
+ * The consolation bracket is a toilet bowl (see placementsFromBracket in
+ * fetch-sleeper.mjs): its `p:1` game decides 11th and 12th, and generally `p`
+ * is played for places N−p and N+1−p. Labels name the better place, or "Last
+ * place game" for `p:1`. Null outside the playoffs or when the pairing is not
+ * in either bracket.
+ */
+export function playoffLabel(season, week, a, b) {
+  const start = season.settings?.playoffWeekStart
+  if (start == null || week < start) return null
+  const round = week - start + 1
+  const teamCount = season.totalRosters ?? season.teams.length
+  const pair = new Set([a, b])
+
+  const find = (bracket) =>
+    (bracket ?? []).find((m) => m.r === round && pair.has(m.t1) && pair.has(m.t2))
+
+  const nth = (n) => {
+    const v = n % 100
+    const s = v >= 11 && v <= 13 ? 'th' : ['th', 'st', 'nd', 'rd'][n % 10] ?? 'th'
+    return `${n}${s}`
+  }
+
+  const w = find(season.winnersBracket)
+  if (w) {
+    const finalRound = Math.max(...(season.winnersBracket ?? []).map((m) => m.r))
+    if (w.p === 1) return 'Championship'
+    if (w.p != null) return `${nth(w.p)} place game`
+    if (round === finalRound - 1) return 'Semifinal'
+    if (round === finalRound - 2) return 'Quarterfinal'
+    return `Playoff round ${round}`
+  }
+  const l = find(season.losersBracket)
+  if (l) {
+    if (l.p === 1) return 'Last place game'
+    if (l.p != null) return `${nth(teamCount - l.p)} place game`
+    return `Consolation round ${round}`
+  }
+  return null
 }
 
 /** True when a week has at least one two-sided matchup with points on the board. */
@@ -207,7 +256,31 @@ export function computeWeekRecap({ season, matchups, players, week }) {
     const [a, b] = m.sides.map((s) => describeSide(s, players, slots, teams))
     const tie = a.points === b.points
     const [winner, loser] = a.points >= b.points ? [a, b] : [b, a]
-    games.push({ winner, loser, margin: round2(Math.abs(a.points - b.points)), tie })
+    games.push({
+      winner,
+      loser,
+      margin: round2(Math.abs(a.points - b.points)),
+      tie,
+      label: playoffLabel(season, week, a.rosterId, b.rosterId),
+    })
+  }
+
+  // Title game first, then placement games by place, then the rest of the
+  // bracket, then consolation. Stable, so unlabeled games keep data order.
+  if (isPlayoffs) {
+    const rank = (g) => {
+      const l = g.label ?? ''
+      if (l === 'Championship') return 1
+      if (l === 'Last place game') return 40
+      const place = l.match(/^(\d+)(?:st|nd|rd|th) place game$/)
+      if (place) return Number(place[1])
+      if (l === 'Semifinal') return 2.5
+      if (l === 'Quarterfinal') return 2.6
+      if (l.startsWith('Playoff round')) return 2.7
+      if (l.startsWith('Consolation')) return 50
+      return 99
+    }
+    games.sort((x, y) => rank(x) - rank(y))
   }
 
   const sides = games.flatMap((g) => [g.winner, g.loser])

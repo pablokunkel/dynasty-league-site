@@ -1,7 +1,7 @@
 {
   "season": "2025",
   "week": 3,
-  "generatedAt": "2026-09-11T03:54:31.696Z",
+  "generatedAt": "2026-09-12T21:20:02.124Z",
   "author": "template",
   "model": null,
   "isPlayoffs": false,
@@ -53,6 +53,7 @@
       },
       "margin": 7.08,
       "tie": false,
+      "label": null,
       "blurb": "Good Berger beat Mocha Joe’s, 124.46 to 117.38. Amon-Ra St. Brown led the way with 20.70. Mocha Joe’s left 40.32 on the bench, Mark Andrews's 27.10 the biggest miss — enough to have flipped it."
     },
     {
@@ -100,6 +101,7 @@
       },
       "margin": 48.48,
       "tie": false,
+      "label": null,
       "blurb": "ssimonis buried Idontevenlikeohiost, 148.46 to 99.98. David Montgomery led the way with 29.40. Idontevenlikeohiost left 16.00 on the bench, Khalil Shakir's 14.50 the biggest miss."
     },
     {
@@ -147,6 +149,7 @@
       },
       "margin": 64.34,
       "tie": false,
+      "label": null,
       "blurb": "Owen Seven rolled over Velvet Milkmen, 151.38 to 87.04. Jonathan Taylor led the way with 32.80. Velvet Milkmen left 28.20 on the bench, Luther Burden's 19.80 the biggest miss."
     },
     {
@@ -194,6 +197,7 @@
       },
       "margin": 56.44,
       "tie": false,
+      "label": null,
       "blurb": "Vandelay Industries ran away from pablokunkeljure, 137.54 to 81.10. Caleb Williams led the way with 29.12. pablokunkeljure left 18.80 on the bench, Keenan Allen's 19.50 the biggest miss."
     },
     {
@@ -241,6 +245,7 @@
       },
       "margin": 60.62,
       "tie": false,
+      "label": null,
       "blurb": "Maximus Decimus Meridius buried Norwood Peckers, 155.22 to 94.60. Jalen Hurts led the way with 29.04. Drake Maye's 20.22 was not enough for Norwood Peckers."
     },
     {
@@ -288,6 +293,7 @@
       },
       "margin": 11.8,
       "tie": false,
+      "label": null,
       "blurb": "Rensar Razzlin River Rats held off Notre Dame de Paris, 130.38 to 118.58. Jahmyr Gibbs led the way with 26.90. Notre Dame de Paris left 63.66 on the bench, Tre Tucker's 40.90 the biggest miss — enough to have flipped it."
     }
   ],

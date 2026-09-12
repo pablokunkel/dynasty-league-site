@@ -1,7 +1,7 @@
 {
   "season": "2025",
   "week": 10,
-  "generatedAt": "2026-09-11T03:54:31.740Z",
+  "generatedAt": "2026-09-12T21:20:02.168Z",
   "author": "template",
   "model": null,
   "isPlayoffs": false,
@@ -53,6 +53,7 @@
       },
       "margin": 41.42,
       "tie": false,
+      "label": null,
       "blurb": "Mocha Joe’s buried ssimonis, 160.16 to 118.74. Trey McBride led the way with 27.70. ssimonis left 19.30 on the bench, Kimani Vidal's 17.80 the biggest miss."
     },
     {
@@ -100,6 +101,7 @@
       },
       "margin": 39.34,
       "tie": false,
+      "label": null,
       "blurb": "Maximus Decimus Meridius took down Velvet Milkmen, 111.72 to 72.38. Jared Goff led the way with 24.80. Velvet Milkmen left 25.70 on the bench, Roman Wilson's 11.50 the biggest miss."
     },
     {
@@ -147,6 +149,7 @@
       },
       "margin": 22.02,
       "tie": false,
+      "label": null,
       "blurb": "Vandelay Industries handled Idontevenlikeohiost, 129.84 to 107.82. Caleb Williams led the way with 25.10. Idontevenlikeohiost left 27.90 on the bench, Cade Otton's 17.20 the biggest miss — enough to have flipped it."
     },
     {
@@ -194,6 +197,7 @@
       },
       "margin": 70.42,
       "tie": false,
+      "label": null,
       "blurb": "Good Berger buried Norwood Peckers, 161.80 to 91.38. De'Von Achane led the way with 40.50. Norwood Peckers left 44.50 on the bench, Jerry Jeudy's 19.80 the biggest miss."
     },
     {
@@ -241,6 +245,7 @@
       },
       "margin": 41.8,
       "tie": false,
+      "label": null,
       "blurb": "Rensar Razzlin River Rats rolled over Owen Seven, 190.96 to 149.16. Jahmyr Gibbs led the way with 38.20. Owen Seven left 20.14 on the bench, Emari Demercado's 13.40 the biggest miss."
     },
     {
@@ -288,6 +293,7 @@
       },
       "margin": 1.84,
       "tie": false,
+      "label": null,
       "blurb": "Notre Dame de Paris edged pablokunkeljure, 95.02 to 93.18. Chris Olave led the way with 21.40. pablokunkeljure left 15.08 on the bench, Tyler Shough's 18.98 the biggest miss — enough to have flipped it."
     }
   ],

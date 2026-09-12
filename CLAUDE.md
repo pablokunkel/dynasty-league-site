@@ -72,10 +72,18 @@ time to establish.
 
 - **This is a linear draft, not a snake.** `type: "linear"`, `reversal_round: 0`.
   Round 1 order repeats identically in rounds 2 and 3. `shapeDraft` handles both.
-- **Bracket `p` is scoped to its own bracket.** The losers bracket's `p:1` is the
-  7th-place game in a 6-team playoff, not 1st. The pipeline offsets by
-  `playoff_teams` when computing final standings; `Playoffs.tsx` takes a
-  `placeOffset` prop for the labels. Both must stay in sync.
+- **The consolation bracket is a toilet bowl, and Sleeper's `w` there is the
+  team that LOST on points.** Verified 2026-09-12 across 2021–2025: winners
+  bracket `w` outscored `l` in 35/35 games; losers bracket `w` was outscored in
+  35/35. Losing advances you toward last place, so the consolation `p:1` game
+  is the *last-place* game (11th v 12th), its `w` is 12th and its `l` escapes
+  with 11th. General mapping for N rosters: `w -> N + 1 - p`, `l -> N - p`.
+  `placementsFromBracket` in the pipeline and the `toiletBowl` prop on
+  `Playoffs.tsx`'s `Bracket` both encode this; keep them in sync. An earlier
+  version offset by `playoff_teams` (`p:1` -> 7th), which gave last place to
+  the team that had just *won* the final consolation game on points. The
+  bylaws attach a real punishment to last place (lemonade stand), so this is
+  not cosmetic.
 - **`fpts` splits into integer + hundredths.** Use the `pts()` helper —
   `fpts: 1941, fpts_decimal: 98` is 1941.98.
 - **`ppts` is "Max Points For"** — the optimal-lineup score. The bylaws use it to
@@ -160,12 +168,13 @@ line is done; the open items are what's left.
 
 ## Open
 
-- [ ] **Owner action: add `ANTHROPIC_API_KEY` as a GitHub Actions secret** to
-      switch the weekly recaps from template prose to Claude-written. Without
-      it the Tuesday workflow still runs and writes template recaps. Once the
-      key is in, `workflow_dispatch` the recaps workflow with `force` to
-      rewrite any template weeks (`--season 2025 --force` regenerates the
-      backfilled 2025 set).
+- [ ] **Weekly ritual: write the recap prose in a session.** The owner has
+      Claude through a subscription, not the API, so CI writes template prose
+      and a Claude Code session upgrades it. When asked "write this week's
+      recap": `git pull`, `npm run recaps -- --prompt --week N`, write the
+      answer JSON in the printed format, `npm run recaps -- --apply <file>`,
+      commit `content/recaps` + `public/data/recaps`, push. The page then says
+      "Written by Claude". Never invent facts — the payload is the whole truth.
 - [ ] **Check the Tuesday after week 1** (Sept 15, 2026) that
       `content/recaps/2026/week-01.json` landed and `/recaps` opens on it. The
       writer keys off `nflState.week` advancing; if Sleeper flips it later than
@@ -207,16 +216,25 @@ is configured `veto_votes_needed: 6`.
       runs from `.github/workflows/recaps.yml` Tue/Wed 10:00 UTC, writes one
       `content/recaps/{season}/week-NN.json` per completed week, never
       overwrites an existing one, and the pipeline bundles them into
-      `public/data/recaps/{season}.json`. Prose is Claude-written when the
-      `ANTHROPIC_API_KEY` secret exists (`claude-opus-5`, structured JSON
-      output, voice in `league.config.json` → `recaps.voice`), template
-      otherwise; any Claude failure falls back to template so Tuesday always
-      produces something. The optimal-lineup math reproduces Sleeper's `ppts`
+      `public/data/recaps/{season}.json`. CI writes template prose. Better
+      prose comes from a chat session via `--prompt` / `--apply` (see Open),
+      no API key involved; the direct-API path (`claude-opus-5`, structured
+      output) exists but only runs if an `ANTHROPIC_API_KEY` is ever set, and
+      any failure falls back to template. The optimal-lineup math reproduces Sleeper's `ppts`
       to the cent for 11 of 12 teams over 2025 (the twelfth is 21.4 low —
       a dual-`fantasy_positions` player the slim index cannot see). 2025 is
       backfilled with template recaps so the page has content before week 1.
 - [x] **FAAB moved to Transactions.** The budget grid and the trending
       free-agent list live there now; `/waiver` redirects to `/transactions`.
+- [x] **Consolation bracket placements corrected.** Found while labelling
+      playoff games for the recaps: the pipeline treated the losers bracket as
+      a normal bracket, so every season's last place went to the team that had
+      just outscored its opponent in the final consolation game. Sleeper's
+      data says it is a toilet bowl (see Non-obvious semantics). Changes the
+      2021–2025 `lastPlace` rows on Records and Playoffs and each owner's
+      `lastPlaces` count. **Owner should confirm** against who actually served
+      the last-place punishment — 2025 now reads Idontevenlikeohiost, was
+      Notre Dame de Paris.
 - [x] **Home standings season fix.** It keyed off "has a schedule", and
       Sleeper publishes the schedule weeks before kickoff, so Home was already
       showing twelve 0-0 rows and an all-zero tankathon. It now keys off

@@ -1,7 +1,7 @@
 {
   "season": "2025",
   "week": 8,
-  "generatedAt": "2026-09-11T03:54:31.725Z",
+  "generatedAt": "2026-09-12T21:20:02.159Z",
   "author": "template",
   "model": null,
   "isPlayoffs": false,
@@ -53,6 +53,7 @@
       },
       "margin": 20.84,
       "tie": false,
+      "label": null,
       "blurb": "pablokunkeljure took down Mocha Joe’s, 134.88 to 114.04. Justin Herbert led the way with 26.28. Mocha Joe’s left 29.48 on the bench, Oronde Gadsden's 18.70 the biggest miss — enough to have flipped it."
     },
     {
@@ -100,6 +101,7 @@
       },
       "margin": 56.7,
       "tie": false,
+      "label": null,
       "blurb": "Maximus Decimus Meridius ran away from ssimonis, 166.60 to 109.90. Saquon Barkley led the way with 33.40. ssimonis left 24.80 on the bench, Kimani Vidal's 19.70 the biggest miss."
     },
     {
@@ -147,6 +149,7 @@
       },
       "margin": 18.54,
       "tie": false,
+      "label": null,
       "blurb": "Notre Dame de Paris took care of Velvet Milkmen, 98.80 to 80.26. Bo Nix led the way with 24.78. Velvet Milkmen left 29.12 on the bench, Roman Wilson's 17.40 the biggest miss — enough to have flipped it."
     },
     {
@@ -194,6 +197,7 @@
       },
       "margin": 15.68,
       "tie": false,
+      "label": null,
       "blurb": "Good Berger took down Idontevenlikeohiost, 137.78 to 122.10. Rashee Rice led the way with 25.50. Idontevenlikeohiost left 15.52 on the bench, Mason Taylor's 14.40 the biggest miss."
     },
     {
@@ -241,6 +245,7 @@
       },
       "margin": 0,
       "tie": true,
+      "label": null,
       "blurb": "Vandelay Industries and Owen Seven played to a 143.90 tie."
     },
     {
@@ -288,6 +293,7 @@
       },
       "margin": 12.62,
       "tie": false,
+      "label": null,
       "blurb": "Norwood Peckers got past Rensar Razzlin River Rats, 115.00 to 102.38. Drake Maye led the way with 27.28. Patrick Mahomes's 24.96 was not enough for Rensar Razzlin River Rats."
     }
   ],
