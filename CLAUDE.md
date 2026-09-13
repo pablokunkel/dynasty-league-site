@@ -81,9 +81,9 @@ time to establish.
   `placementsFromBracket` in the pipeline and the `toiletBowl` prop on
   `Playoffs.tsx`'s `Bracket` both encode this; keep them in sync. An earlier
   version offset by `playoff_teams` (`p:1` -> 7th), which gave last place to
-  the team that had just *won* the final consolation game on points. The
-  bylaws attach a real punishment to last place (lemonade stand), so this is
-  not cosmetic.
+  the team that had just *won* the final consolation game on points. Last
+  place carries a real punishment (the bylaws say a lemonade stand; 2025's
+  was watching all of Gossip Girl), so this is not cosmetic.
 - **`fpts` splits into integer + hundredths.** Use the `pts()` helper —
   `fpts: 1941, fpts_decimal: 98` is 1941.98.
 - **`ppts` is "Max Points For"** — the optimal-lineup score. The bylaws use it to
@@ -233,8 +233,8 @@ is configured `veto_votes_needed: 6`.
       data says it is a toilet bowl (see Non-obvious semantics). Changes the
       2021–2025 `lastPlace` rows on Records and Playoffs and each owner's
       `lastPlaces` count. **Owner should confirm** against who actually served
-      the last-place punishment — 2025 now reads Idontevenlikeohiost, was
-      Notre Dame de Paris.
+      the 2025 last-place punishment (watching all of Gossip Girl) — the site
+      now says Idontevenlikeohiost, was Notre Dame de Paris.
 - [x] **Home standings season fix.** It keyed off "has a schedule", and
       Sleeper publishes the schedule weeks before kickoff, so Home was already
       showing twelve 0-0 rows and an all-zero tankathon. It now keys off
