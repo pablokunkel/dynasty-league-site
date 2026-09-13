@@ -19,6 +19,7 @@ import { mkdir, writeFile, readFile, stat } from 'node:fs/promises'
 import { existsSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { bundleRecaps } from './lib/recap-stats.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const OUT = join(ROOT, 'public', 'data')
@@ -106,18 +107,33 @@ const avatarUrl = (user) =>
   user?.metadata?.avatar || (user?.avatar ? `https://sleepercdn.com/avatars/${user.avatar}` : null)
 
 /**
- * Sleeper bracket rows carry `p` = the placement being contested. Winner takes
- * `p`, loser takes `p + 1`. Losers-bracket placements are offset by the number
- * of playoff teams, so a losers-bracket `p:1` is really 7th in a 6-team
- * playoff. Verified against the 2025 bracket, where losers `p:5` loser is the
- * genuine last-place team.
+ * Sleeper bracket rows carry `p` = the placement being contested. In the
+ * winners bracket the winner takes `p`, the loser `p + 1`.
+ *
+ * The consolation bracket is a TOILET BOWL, and Sleeper's `w` there is the
+ * team that *advances* — which is the team that lost on points. Verified
+ * across every completed season, 2021–2025: in the winners bracket `w`
+ * outscored `l` in 35 of 35 games; in the losers bracket `w` was outscored in
+ * 35 of 35. So the consolation `p:1` game is the last-place game, its `w`
+ * (the lower scorer, who kept losing) is 12th, and its `l` escapes with 11th.
+ * Generally: `w` -> N + 1 - p, `l` -> N - p, for N rosters. The bylaws hang a
+ * real punishment on last place, so this mapping has to be right.
+ *
+ * An earlier version offset consolation places by the playoff-team count
+ * (`p:1` -> 7th), which handed last place to the team that had just *won* the
+ * final consolation game on points.
  */
-function placementsFromBracket(bracket, offset = 0) {
+function placementsFromBracket(bracket, { toiletBowl = false, teamCount = 0 } = {}) {
   const places = new Map()
   for (const m of bracket ?? []) {
     if (m.p == null || m.w == null || m.l == null) continue
-    places.set(m.w, m.p + offset)
-    places.set(m.l, m.p + 1 + offset)
+    if (toiletBowl) {
+      places.set(m.w, teamCount + 1 - m.p)
+      places.set(m.l, teamCount - m.p)
+    } else {
+      places.set(m.w, m.p)
+      places.set(m.l, m.p + 1)
+    }
   }
   return places
 }
@@ -172,10 +188,10 @@ async function fetchSeason(leagueId) {
 
 function shapeTeams(raw) {
   const usersById = new Map(raw.users.map((u) => [u.user_id, u]))
-  const playoffTeams = raw.league.settings?.playoff_teams ?? 6
+  const teamCount = raw.league.total_rosters ?? raw.rosters.length
 
-  const winnerPlaces = placementsFromBracket(raw.winners, 0)
-  const loserPlaces = placementsFromBracket(raw.losers, playoffTeams)
+  const winnerPlaces = placementsFromBracket(raw.winners)
+  const loserPlaces = placementsFromBracket(raw.losers, { toiletBowl: true, teamCount })
   const finalPlace = new Map([...winnerPlaces, ...loserPlaces])
 
   return raw.rosters.map((r) => {
@@ -770,6 +786,53 @@ function slimPlayer(p) {
 }
 
 // ---------------------------------------------------------------------------
+// pre-draft rank snapshot
+// ---------------------------------------------------------------------------
+
+const PREDRAFT_DIR = join(ROOT, 'content', 'predraft-ranks')
+
+/**
+ * Freeze the rookie board before the draft so the recap can grade picks.
+ *
+ * Returns the snapshot for `season` — freshly written while the draft is
+ * `pre_draft`, read back from disk afterwards, or null if there is none (a
+ * season whose draft was already over when this code first ran).
+ */
+async function snapshotPreDraftRanks(season, current, rookies) {
+  const file = join(PREDRAFT_DIR, `${season}.json`)
+  const draftStatus = current.drafts?.[0]?.status ?? null
+
+  if (draftStatus === 'pre_draft') {
+    const ranks = {}
+    for (const r of rookies) if (r.rank != null) ranks[r.id] = r.rank
+    const snapshot = {
+      _comment:
+        'Sleeper search_rank for every rookie, frozen just before the draft. Rewritten by scripts/fetch-sleeper.mjs on every run while the draft is pre_draft and left alone once it starts, so /draft can compare where a player was ranked against where he went.',
+      season,
+      capturedAt: new Date().toISOString(),
+      source: 'sleeper search_rank',
+      ranks,
+    }
+    await mkdir(PREDRAFT_DIR, { recursive: true })
+    await writeFile(file, JSON.stringify(snapshot, null, 2) + '\n')
+    console.log(`  pre-draft ranks: snapshot refreshed (${Object.keys(ranks).length} ranked)`)
+    return snapshot
+  }
+
+  if (existsSync(file)) {
+    const snapshot = JSON.parse(await readFile(file, 'utf8'))
+    console.log(
+      `  pre-draft ranks: using ${season} snapshot from ${snapshot.capturedAt} ` +
+        `(${Object.keys(snapshot.ranks ?? {}).length} ranked)`
+    )
+    return snapshot
+  }
+
+  console.warn(`  ! no pre-draft rank snapshot for ${season} — the draft recap will not grade picks`)
+  return null
+}
+
+// ---------------------------------------------------------------------------
 // main
 // ---------------------------------------------------------------------------
 
@@ -882,6 +945,12 @@ async function main() {
     written.push(await writeJson(`matchups/${raw.season}.json`, matchups))
     written.push(await writeJson(`transactions/${raw.season}.json`, transactions))
 
+    // Weekly recaps are authored by scripts/write-recaps.mjs into
+    // content/recaps; this just bundles whatever exists so /recaps has one
+    // file per season to load. Always written, empty when there are none.
+    const recaps = await bundleRecaps(ROOT, raw.season)
+    written.push(await writeJson(`recaps/${raw.season}.json`, recaps))
+
     seasons.push({
       season: raw.season,
       status: raw.league.status,
@@ -889,7 +958,27 @@ async function main() {
       matchups,
       transactionCount: transactions.length,
       matchupWeekCount: matchups.length,
+      recapCount: recaps.length,
     })
+  }
+
+  // --- scoreboard ----------------------------------------------------------
+  // The current NFL week's matchups on their own, so Home can show a
+  // scoreboard (and overlay live scores on it) without pulling the whole
+  // season's matchup file. Empty whenever the league is not in season.
+  {
+    const current = seasons[0]
+    const week = nflState?.display_week ?? nflState?.week ?? 1
+    const inSeason = current.status === 'in_season'
+    const found = inSeason ? current.matchups.find((m) => m.week === week) : null
+    written.push(
+      await writeJson('scoreboard.json', {
+        season: current.season,
+        week,
+        status: current.status,
+        matchups: found?.matchups ?? [],
+      })
+    )
   }
 
   // --- players -------------------------------------------------------------
@@ -920,6 +1009,17 @@ async function main() {
   }
 
   written.push(await writeJson('players.json', players))
+
+  /*
+   * Pre-draft rank snapshot. Sleeper's search_rank keeps moving after the
+   * draft, so to say "taken 1.08, was ranked 12th on the board" the ranks have
+   * to be frozen beforehand. While the current season's draft is still
+   * pre_draft this rewrites content/predraft-ranks/{season}.json on every run;
+   * once the draft starts it is never touched again. The recap on /draft reads
+   * it back through prospects.json.
+   */
+  const preDraft = await snapshotPreDraftRanks(rookieYear, chain[0], rookies)
+
   written.push(
     await writeJson('prospects.json', {
       season: rookieYear,
@@ -927,6 +1027,8 @@ async function main() {
       players: rookies.sort(
         (a, b) => (a.rank ?? Number.MAX_SAFE_INTEGER) - (b.rank ?? Number.MAX_SAFE_INTEGER)
       ),
+      preDraftRanks: preDraft?.ranks ?? null,
+      preDraftCapturedAt: preDraft?.capturedAt ?? null,
     })
   )
   written.push(
@@ -1042,6 +1144,12 @@ async function main() {
       // The 2026 schedule is not published by Sleeper until the league leaves
       // pre-draft. The Schedules page uses this to pick a sensible default.
       hasSchedule: s.matchupWeekCount > 0,
+      // A schedule is not a result. Standings and the tankathon must key off
+      // this, not hasSchedule — otherwise the moment Sleeper publishes the
+      // new season's matchups (weeks before kickoff) Home shows twelve 0-0
+      // rows and a tankathon of all-zero Max PF.
+      hasGames: s.teams.some((t) => t.wins + t.losses + t.ties > 0 || t.pointsFor > 0),
+      recapCount: s.recapCount,
     })),
   }
   written.push(await writeJson('index.json', manifest))

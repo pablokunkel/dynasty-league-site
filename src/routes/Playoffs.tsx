@@ -38,18 +38,21 @@ function BracketSide({
   won,
   seedOf,
   season,
+  toiletBowl,
 }: {
   rosterId: number | undefined
   teams: Map<number, Team>
+  /** Sleeper's `w`: the team that advances. In a toilet bowl that is the loser on points. */
   won: boolean
   seedOf: Map<number, number>
   season: string
+  toiletBowl: boolean
 }) {
   const team = rosterId != null ? teams.get(rosterId) : undefined
   return (
     <div
       className={`flex items-center gap-2 px-2.5 py-1.5 ${
-        won ? 'bg-teal/[0.08]' : ''
+        won ? (toiletBowl ? 'bg-rose/[0.08]' : 'bg-teal/[0.08]') : ''
       }`}
     >
       <span className="w-4 shrink-0 text-[10px] font-bold text-ink-5 tnum">
@@ -69,7 +72,17 @@ function BracketSide({
       ) : (
         <span className="flex-1 text-[11px] text-ink-5">TBD</span>
       )}
-      {won && <span className="shrink-0 text-[10px] font-bold text-teal">W</span>}
+      {won &&
+        (toiletBowl ? (
+          <span
+            className="shrink-0 text-[10px] font-bold text-rose"
+            title="Lost on points. In the toilet bowl, losing moves you on toward last place."
+          >
+            L
+          </span>
+        ) : (
+          <span className="shrink-0 text-[10px] font-bold text-teal">W</span>
+        ))}
     </div>
   )
 }
@@ -82,11 +95,14 @@ function Bracket({
   title,
   emptyLabel,
   /**
-   * Sleeper numbers placement games within their own bracket, so the
-   * consolation bracket's `p:1` is really the 7th-place game in a 6-team
-   * playoff. Shift the label by the size of the playoff field.
+   * The consolation bracket is a toilet bowl: Sleeper's `w` is the team that
+   * lost on points and moves on toward last place, and its `p:1` game decides
+   * 11th and 12th, not 7th. `teamCount` turns `p` into the real places — the
+   * game for `p` is between places N−p and N+1−p. See placementsFromBracket
+   * in the pipeline, which uses the same mapping for the final standings.
    */
-  placeOffset = 0,
+  toiletBowl = false,
+  teamCount = 12,
 }: {
   matches: BracketMatch[]
   teams: Map<number, Team>
@@ -94,8 +110,13 @@ function Bracket({
   season: string
   title: string
   emptyLabel: string
-  placeOffset?: number
+  toiletBowl?: boolean
+  teamCount?: number
 }) {
+  const placeLabel = (p: number) => {
+    if (!toiletBowl) return p === 1 ? 'Championship' : `${ordinal(p)} place game`
+    return p === 1 ? 'Last place game' : `${ordinal(teamCount - p)} place game`
+  }
   const rounds = useMemo(() => {
     const byRound = new Map<number, BracketMatch[]>()
     for (const m of matches) {
@@ -125,7 +146,7 @@ function Bracket({
                   >
                     {m.p != null && (
                       <div className="border-b border-line bg-card/60 px-2.5 py-1 text-[9px] font-bold uppercase tracking-wide text-ink-5">
-                        {ordinal(m.p + placeOffset)} place game
+                        {placeLabel(m.p)}
                       </div>
                     )}
                     <BracketSide
@@ -134,6 +155,7 @@ function Bracket({
                       won={m.w === m.t1}
                       seedOf={seedOf}
                       season={season}
+                      toiletBowl={toiletBowl}
                     />
                     <div className="border-t border-line/60" />
                     <BracketSide
@@ -142,6 +164,7 @@ function Bracket({
                       won={m.w === m.t2}
                       seedOf={seedOf}
                       season={season}
+                      toiletBowl={toiletBowl}
                     />
                   </div>
                 ))}
@@ -262,9 +285,10 @@ export default function Playoffs() {
           teams={teams}
           seedOf={seedOf}
           season={seasonParam}
-          title="Consolation bracket"
+          title="Consolation bracket · toilet bowl"
           emptyLabel="No consolation bracket for this season"
-          placeOffset={season.settings.playoffTeams ?? 6}
+          toiletBowl
+          teamCount={season.totalRosters}
         />
       </div>
 
@@ -316,7 +340,9 @@ export default function Playoffs() {
           </div>
           <p className="mt-2 text-[11px] text-ink-5">
             Places come from Sleeper's bracket placement games — winners bracket for 1–
-            {season.settings.playoffTeams ?? 6}, consolation bracket for the rest.
+            {season.settings.playoffTeams ?? 6}, consolation bracket for the rest. The
+            consolation bracket is a toilet bowl: lose and you move on toward last place, so
+            the team marked L in its final is last.
           </p>
         </section>
       )}

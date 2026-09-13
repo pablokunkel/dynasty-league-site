@@ -35,6 +35,88 @@ export interface SeasonSummary {
   transactionCount: number
   matchupWeekCount: number
   hasSchedule: boolean
+  /** Any team has a decided game or points on the board. */
+  hasGames: boolean
+  /** Weekly recaps written for this season (content/recaps). */
+  recapCount: number
+}
+
+/* ------------------------------------------------------------------ recaps */
+
+export interface RecapPlayer {
+  id: string
+  name: string
+  pos: string | null
+  nfl: string | null
+  points: number
+}
+
+export interface RecapSide {
+  rosterId: number
+  name: string
+  points: number
+  /** Best possible lineup from that week's roster. */
+  optimal: number
+  /** optimal − points, floored at zero. */
+  benchLeft: number
+  topPlayer: RecapPlayer | null
+  bestBench: RecapPlayer | null
+}
+
+export interface RecapGame {
+  winner: RecapSide
+  loser: RecapSide
+  margin: number
+  tie: boolean
+  /** Playoff weeks only: "Championship", "3rd place game", "Semifinal"… */
+  label: string | null
+  blurb: string
+}
+
+export interface RecapTeamRef {
+  rosterId: number
+  name: string
+  points: number
+}
+
+export interface RecapStandingRow {
+  rosterId: number
+  name: string
+  wins: number
+  losses: number
+  ties: number
+  pointsFor: number
+  pointsAgainst: number
+  place: number
+  /** Places gained since last week; negative is a drop. */
+  movement: number
+}
+
+/** One week's recap, as written to content/recaps/{season}/week-NN.json. */
+export interface Recap {
+  season: string
+  week: number
+  generatedAt: string
+  author: 'template' | 'claude'
+  model: string | null
+  isPlayoffs: boolean
+  headline: string
+  summary: string
+  games: RecapGame[]
+  awards: {
+    highScore: RecapTeamRef | null
+    lowScore: RecapTeamRef | null
+    closest: { winner: RecapTeamRef; loser: RecapTeamRef; margin: number } | null
+    blowout: { winner: RecapTeamRef; loser: RecapTeamRef; margin: number } | null
+    benchBlunder: {
+      rosterId: number
+      name: string
+      left: number
+      player: RecapPlayer | null
+    } | null
+    topPlayer: (RecapPlayer & { rosterId: number; team: string }) | null
+  }
+  standings: RecapStandingRow[]
 }
 
 export interface Manifest {
@@ -228,6 +310,17 @@ export interface MatchupWeek {
   matchups: { sides: MatchupSide[] }[]
 }
 
+/**
+ * The current NFL week's matchups only, so Home can show a scoreboard without
+ * loading the whole season's matchup file. Empty outside the season.
+ */
+export interface ScoreboardDoc {
+  season: string
+  week: number
+  status: string
+  matchups: { sides: MatchupSide[] }[]
+}
+
 export interface TeamSummary {
   rosterId: number
   ownerId: string | null
@@ -290,6 +383,12 @@ export interface ProspectsDoc {
   season: string
   note: string
   players: Player[]
+  /**
+   * Sleeper search_rank per player, frozen just before the draft (see
+   * content/predraft-ranks). Null when no snapshot exists for the season.
+   */
+  preDraftRanks: Record<string, number> | null
+  preDraftCapturedAt: string | null
 }
 
 export interface TrendingDoc {

@@ -1,5 +1,5 @@
 import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Nav from './components/Nav'
 import PlayerProfile from './components/PlayerProfile'
 import { useManifest } from './lib/data'
@@ -14,7 +14,7 @@ const Draft = lazy(() => import('./routes/Draft'))
 const Teams = lazy(() => import('./routes/Teams'))
 const Schedule = lazy(() => import('./routes/Schedule'))
 const Transactions = lazy(() => import('./routes/Transactions'))
-const Waiver = lazy(() => import('./routes/Waiver'))
+const Recaps = lazy(() => import('./routes/Recaps'))
 const Playoffs = lazy(() => import('./routes/Playoffs'))
 const Records = lazy(() => import('./routes/Records'))
 const Bylaws = lazy(() => import('./routes/Bylaws'))
@@ -95,8 +95,11 @@ function Shell() {
                 <Route path="/draft" element={<Draft />} />
                 <Route path="/teams" element={<Teams />} />
                 <Route path="/schedule" element={<Schedule />} />
+                <Route path="/recaps" element={<Recaps />} />
                 <Route path="/transactions" element={<Transactions />} />
-                <Route path="/waiver" element={<Waiver />} />
+                {/* The waiver page folded into Transactions (FAAB budgets +
+                    trending wire). Old links still land somewhere useful. */}
+                <Route path="/waiver" element={<Navigate to="/transactions" replace />} />
                 <Route path="/playoffs" element={<Playoffs />} />
                 <Route path="/records" element={<Records />} />
                 <Route path="/bylaws" element={<Bylaws />} />

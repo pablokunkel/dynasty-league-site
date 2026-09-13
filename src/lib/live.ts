@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import type { Manifest, MatchupSide } from './types'
 
 /**
  * Polling against the Worker proxy (see worker/index.js).
@@ -85,3 +86,56 @@ export interface LivePick {
   picked_by: string
   roster_id: number
 }
+
+/** One roster's row from /v1/league/{id}/matchups/{week}, as Sleeper sends it. */
+export interface LiveMatchupRow {
+  roster_id: number
+  matchup_id: number | null
+  points: number | null
+  starters: (string | null)[] | null
+  starters_points: number[] | null
+  players_points: Record<string, number> | null
+}
+
+/**
+ * Overlay live rows on a committed matchup week. Pairings come from the static
+ * data — Sleeper fixes them when the schedule is published — so only the
+ * scoring fields move. A roster the live payload doesn't mention keeps its
+ * committed side untouched.
+ */
+export function mergeLiveMatchups(
+  matchups: { sides: MatchupSide[] }[],
+  rows: LiveMatchupRow[] | null
+): { sides: MatchupSide[] }[] {
+  if (!rows || rows.length === 0) return matchups
+  const byRoster = new Map(rows.map((r) => [r.roster_id, r]))
+  return matchups.map((m) => ({
+    sides: m.sides.map((s) => {
+      const r = byRoster.get(s.rosterId)
+      if (!r) return s
+      return {
+        ...s,
+        points: r.points ?? 0,
+        starters: (r.starters ?? []).filter((p): p is string => Boolean(p) && p !== '0'),
+        startersPoints: r.starters_points ?? [],
+        playersPoints: r.players_points ?? {},
+      }
+    }),
+  }))
+}
+
+/**
+ * True only while `season`/`week` is the NFL week in progress — the one
+ * window in which polling can change anything. Everywhere else the committed
+ * JSON is final and the Worker is left alone.
+ */
+export function isLiveWeek(manifest: Manifest, season: string, week: number) {
+  return (
+    manifest.currentStatus === 'in_season' &&
+    season === manifest.nflState.season &&
+    week === manifest.nflState.display_week
+  )
+}
+
+/** Sunday scoreboard cadence — matches the Worker's edge TTL for matchups. */
+export const MATCHUP_POLL_MS = 45_000

@@ -5,8 +5,17 @@ import {
   useNews,
   usePlayers,
   usePoints,
+  useScoreboard,
   useSeason,
 } from '../lib/data'
+import {
+  isLiveWeek,
+  liveMatchups,
+  MATCHUP_POLL_MS,
+  mergeLiveMatchups,
+  useLive,
+  type LiveMatchupRow,
+} from '../lib/live'
 import type { Player, Team } from '../lib/types'
 import { pts1, record, relativeTime } from '../lib/format'
 import {
@@ -24,6 +33,7 @@ import {
 } from '../components/ui'
 import { ClockIcon } from '../components/icons'
 import { Standings, Tankathon } from '../components/LeagueTables'
+import Scoreboard from '../components/Scoreboard'
 
 /** Sum of a roster's projected starter points — the pre-season power number. */
 function projectedStrength(
@@ -82,18 +92,39 @@ export default function Home() {
   const players = usePlayers()
   const points = usePoints()
   const news = useNews()
+  const scoreboard = useScoreboard()
 
+  const inSeason = manifest.currentStatus === 'in_season'
   const hasGames = season.teams.some((t) => t.wins + t.losses + t.ties > 0)
 
   /*
+   * Game-day scores. The committed scoreboard lags the refresh cron by up to
+   * 30 minutes, so while this is the NFL week in progress the Worker is polled
+   * and its rows overlaid. Off the live week the URL is null and nothing is
+   * fetched; with the Worker down the committed scores render unchanged.
+   */
+  const liveWeek =
+    scoreboard.matchups.length > 0 && isLiveWeek(manifest, scoreboard.season, scoreboard.week)
+  const live = useLive<LiveMatchupRow[]>(
+    liveWeek ? liveMatchups(manifest.leagueId, scoreboard.week) : null,
+    MATCHUP_POLL_MS
+  )
+  const scoreboardMatchups = useMemo(
+    () => mergeLiveMatchups(scoreboard.matchups, live.data),
+    [scoreboard.matchups, live.data]
+  )
+
+  /*
    * Standings and the tankathon need a season that has actually been played.
-   * `manifest.seasons` is newest-first, so this is the live season once it
-   * starts and the most recently completed one during the offseason. When they
+   * `manifest.seasons` is newest-first, so this is the live season once its
+   * first points land and the most recently completed one until then. It keys
+   * off `hasGames`, not `hasSchedule`: Sleeper publishes the schedule weeks
+   * before kickoff, and on that alone this showed a 0-0 table. When the two
    * coincide, `useSeason` hits the same cached promise and no extra fetch
    * happens.
    */
   const statsSeasonYear =
-    manifest.seasons.find((s) => s.matchupWeekCount > 0)?.season ?? manifest.currentSeason
+    manifest.seasons.find((s) => s.hasGames)?.season ?? manifest.currentSeason
   const statsSeason = useSeason(statsSeasonYear)
   const starterCount = season.rosterPositions.filter((p) => p !== 'BN').length
 
@@ -179,7 +210,7 @@ export default function Home() {
       <PageHeader
         title={manifest.siteName}
         subtitle={
-          hasGames
+          inSeason
             ? `${manifest.currentSeason} season · week ${manifest.nflState.display_week}`
             : `${manifest.currentSeason} pre-season · rankings are projections, not results`
         }
@@ -248,6 +279,23 @@ export default function Home() {
         />
       </div>
 
+      {/* ------------------------------------------------------ scoreboard */}
+      {scoreboard.matchups.length > 0 && (
+        <div className="mb-6">
+          <Scoreboard
+            season={scoreboard.season}
+            week={scoreboard.week}
+            matchups={scoreboardMatchups}
+            teams={season.teams}
+            live={live}
+            isPlayoffs={
+              season.settings.playoffWeekStart != null &&
+              scoreboard.week >= season.settings.playoffWeekStart
+            }
+          />
+        </div>
+      )}
+
       {/* ------------------------------------------- standings + tankathon */}
       <div className="mb-6 space-y-6">
         <Standings season={statsSeason} seasonYear={statsSeasonYear} />
@@ -262,7 +310,9 @@ export default function Home() {
         />
 
         {/* ---------------------------------------- pre-season projections */}
-        {!hasGames && (
+        {/* Once the season starts the scoreboard is the "now" section; the
+            projection table only earns its space before kickoff. */}
+        {!inSeason && !hasGames && (
         <section>
           <SectionTitle
             right={

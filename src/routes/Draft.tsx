@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useManifest, usePlayers, useProspects, useSeason } from '../lib/data'
+import { useManifest, usePlayers, usePoints, useProspects, useSeason } from '../lib/data'
+import DraftRecap from '../components/DraftRecap'
 import { liveDraftPicks, useLive, type LivePick } from '../lib/live'
 import type { DraftConfig, DraftPick, Player } from '../lib/types'
 import { height, pts1 } from '../lib/format'
@@ -7,12 +8,14 @@ import {
   Avatar,
   Card,
   EmptyState,
+  LivePill,
   PageHeader,
   PlayerLink,
   PositionBadge,
   SearchInput,
   SectionTitle,
   Segmented,
+  TeamLink,
   Td,
   Th,
   TableWrap,
@@ -361,6 +364,7 @@ export default function Draft() {
   const season = useSeason(manifest.currentSeason)
   const prospects = useProspects()
   const players = usePlayers()
+  const points = usePoints()
 
   const cfg = manifest.draftConfig
   const draft = season.draft
@@ -403,17 +407,31 @@ export default function Draft() {
     [season.teams]
   )
 
-  // Pick counts per team, so you can see who loaded up on capital.
+  /*
+   * Pick counts per team, so you can see who loaded up on capital. Once the
+   * picks are in, the same cards become the haul: the sum of this season's
+   * projections for the players each team walked away with.
+   */
   const capital = useMemo(() => {
     if (!draft) return []
-    const m = new Map<number, number>()
-    for (const round of draft.board)
-      for (const p of round.picks) m.set(p.currentRosterId, (m.get(p.currentRosterId) ?? 0) + 1)
+    const m = new Map<number, { count: number; proj: number }>()
+    for (const round of board) {
+      for (const p of round.picks) {
+        const cur = m.get(p.currentRosterId) ?? { count: 0, proj: 0 }
+        cur.count += 1
+        cur.proj += p.playerId ? (points.projections[p.playerId]?.pts ?? 0) : 0
+        m.set(p.currentRosterId, cur)
+      }
+    }
     return [...m.entries()]
-      .map(([rosterId, count]) => ({ team: teamsByRoster.get(rosterId), count }))
+      .map(([rosterId, v]) => ({ team: teamsByRoster.get(rosterId), ...v }))
       .filter((x) => x.team)
-      .sort((a, b) => b.count - a.count || a.team!.name.localeCompare(b.team!.name))
-  }, [draft, teamsByRoster])
+      .sort((a, b) =>
+        draftDone
+          ? b.proj - a.proj || b.count - a.count
+          : b.count - a.count || a.team!.name.localeCompare(b.team!.name)
+      )
+  }, [draft, board, draftDone, points.projections, teamsByRoster])
 
   return (
     <>
@@ -444,19 +462,31 @@ export default function Draft() {
       {/* ----------------------------------------------------- draft capital */}
       {capital.length > 0 && (
         <div className="mb-6">
-          <SectionTitle right={<span className="text-[11px] text-ink-5">after trades</span>}>
-            Draft capital
+          <SectionTitle
+            right={
+              <span className="text-[11px] text-ink-5">
+                {draftDone ? `by ${manifest.currentSeason} projected points` : 'after trades'}
+              </span>
+            }
+          >
+            {draftDone ? 'Draft hauls' : 'Draft capital'}
           </SectionTitle>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-            {capital.map(({ team, count }) => (
+            {capital.map(({ team, count, proj }) => (
               <div key={team!.rosterId} className="card flex items-center gap-2.5 p-2.5">
                 <Avatar src={team!.avatar} name={team!.name} size={28} />
                 <div className="min-w-0 flex-1">
                   <div className="truncate text-[11px] font-semibold text-ink-2">
-                    {team!.name}
+                    <TeamLink
+                      rosterId={team!.rosterId}
+                      name={team!.name}
+                      showAvatar={false}
+                      className="max-w-full"
+                    />
                   </div>
                   <div className="text-[10px] text-ink-5 tnum">
                     {count} pick{count === 1 ? '' : 's'}
+                    {draftDone && <> · {pts1(proj)} proj</>}
                   </div>
                 </div>
               </div>
@@ -471,20 +501,7 @@ export default function Draft() {
           <SectionTitle
             right={
               <span className="flex items-center gap-3 text-[11px] text-ink-5">
-                {live.updatedAt !== null && (
-                  <span
-                    className="flex items-center gap-1.5 font-semibold text-teal"
-                    title={`Live from Sleeper, refreshed every 15s. Last update ${new Date(
-                      live.updatedAt
-                    ).toLocaleTimeString()}`}
-                  >
-                    <span className="relative flex size-2">
-                      <span className="absolute inline-flex size-full animate-ping rounded-full bg-teal opacity-70" />
-                      <span className="relative inline-flex size-2 rounded-full bg-teal" />
-                    </span>
-                    LIVE
-                  </span>
-                )}
+                <LivePill updatedAt={live.updatedAt} every="15s" />
                 <span className="flex items-center gap-1.5">
                   <span className="inline-block size-2 rounded-sm border border-amber/50 bg-amber/20" />
                   traded pick
@@ -558,9 +575,30 @@ export default function Draft() {
         <EmptyState title="No draft found for this season" />
       )}
 
-      {/* --------------------------------------------------------- prospects */}
-      <ProspectBoard prospects={prospects.players} activePositions={manifest.activePositions} />
-      <p className="mt-2 max-w-3xl text-[11px] leading-relaxed text-ink-5">{prospects.note}</p>
+      {/* ------------------------------------------- prospects / class recap */}
+      {/*
+       * Before the draft the prospect board is the point of the page. Once the
+       * picks are in, every rookie worth a look has been taken, so it becomes a
+       * recap of the class — who went where, who reached, who fell, who is
+       * still on the wire. Next season's league instance starts pre_draft and
+       * the board comes back on its own.
+       */}
+      {draftDone && draft ? (
+        <DraftRecap
+          draft={draft}
+          board={board}
+          players={players}
+          prospects={prospects}
+          projections={points.projections}
+          teams={season.teams}
+          activePositions={manifest.activePositions}
+        />
+      ) : (
+        <>
+          <ProspectBoard prospects={prospects.players} activePositions={manifest.activePositions} />
+          <p className="mt-2 max-w-3xl text-[11px] leading-relaxed text-ink-5">{prospects.note}</p>
+        </>
+      )}
     </>
   )
 }

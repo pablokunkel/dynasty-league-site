@@ -16,25 +16,31 @@ Sleeper being slow, and there is no CORS or rate-limit surface to manage.
 ## Commands
 
 ```bash
-npm run data        # re-fetch Sleeper -> public/data (~280 requests, ~5s)
+npm run data        # re-fetch Sleeper -> public/data (~320 requests, ~5s)
 npm run data:full   # same, but force re-download the 14.6MB player dump
-npm run dev         # vite dev server on :5173
+npm run recaps      # write missing weekly recaps -> content/recaps (see below)
+npm run dev         # vite dev server on :5173, with /api proxied to Sleeper
 npm run build       # tsc --noEmit && vite build  (CI runs this)
 ```
 
 `npm run data` caches the player dump in `.cache/` for 12 hours. Always re-run it
-after editing `league.config.json` or `content/bylaws.md` — both feed the pipeline.
+after editing `league.config.json`, `content/bylaws.md` or anything under
+`content/` — they all feed the pipeline.
 
 ## Layout
 
 ```
 scripts/fetch-sleeper.mjs   the pipeline. Everything data-shaped lives here.
 scripts/should-refresh.mjs  cadence gate for the refresh workflow
+scripts/write-recaps.mjs    weekly recap writer (template or Claude), Tuesdays
+scripts/lib/recap-stats.mjs recap arithmetic: optimal lineups, awards, standings
 wrangler.jsonc              Cloudflare Workers config — SPA fallback + worker
 worker/index.js             live-data proxy for draft night / game days
-src/lib/live.ts             non-Suspense polling hook for the above
-league.config.json          facts the Sleeper API does not expose
+src/lib/live.ts             non-Suspense polling hook + live matchup merge
+league.config.json          facts the Sleeper API does not expose, recap voice
 content/bylaws.md           bylaws export, normalized by the pipeline
+content/recaps/             one JSON per written week — permanent, hand-editable
+content/predraft-ranks/     rookie board frozen before each draft, for /draft
 src/lib/data.ts             promise-cached, per-season lazy loading
 src/lib/types.ts            mirrors the pipeline's output — keep in sync
 src/lib/format.ts           points/record/height formatters
@@ -66,10 +72,18 @@ time to establish.
 
 - **This is a linear draft, not a snake.** `type: "linear"`, `reversal_round: 0`.
   Round 1 order repeats identically in rounds 2 and 3. `shapeDraft` handles both.
-- **Bracket `p` is scoped to its own bracket.** The losers bracket's `p:1` is the
-  7th-place game in a 6-team playoff, not 1st. The pipeline offsets by
-  `playoff_teams` when computing final standings; `Playoffs.tsx` takes a
-  `placeOffset` prop for the labels. Both must stay in sync.
+- **The consolation bracket is a toilet bowl, and Sleeper's `w` there is the
+  team that LOST on points.** Verified 2026-09-12 across 2021–2025: winners
+  bracket `w` outscored `l` in 35/35 games; losers bracket `w` was outscored in
+  35/35. Losing advances you toward last place, so the consolation `p:1` game
+  is the *last-place* game (11th v 12th), its `w` is 12th and its `l` escapes
+  with 11th. General mapping for N rosters: `w -> N + 1 - p`, `l -> N - p`.
+  `placementsFromBracket` in the pipeline and the `toiletBowl` prop on
+  `Playoffs.tsx`'s `Bracket` both encode this; keep them in sync. An earlier
+  version offset by `playoff_teams` (`p:1` -> 7th), which gave last place to
+  the team that had just *won* the final consolation game on points. Last
+  place carries a real punishment (the bylaws say a lemonade stand; 2025's
+  was watching all of Gossip Girl), so this is not cosmetic.
 - **`fpts` splits into integer + hundredths.** Use the `pts()` helper —
   `fpts: 1941, fpts_decimal: 98` is 1941.98.
 - **`ppts` is "Max Points For"** — the optimal-lineup score. The bylaws use it to
@@ -154,10 +168,23 @@ line is done; the open items are what's left.
 
 ## Open
 
+- [ ] **Weekly ritual: write the recap prose in a session.** The owner has
+      Claude through a subscription, not the API, so CI writes template prose
+      and a Claude Code session upgrades it. When asked "write this week's
+      recap": `git pull`, `npm run recaps -- --prompt --week N`, write the
+      answer JSON in the printed format, `npm run recaps -- --apply <file>`,
+      commit `content/recaps` + `public/data/recaps`, push. The page then says
+      "Written by Claude". Never invent facts — the payload is the whole truth.
+- [ ] **Check the Tuesday after week 1** (Sept 15, 2026) that
+      `content/recaps/2026/week-01.json` landed and `/recaps` opens on it. The
+      writer keys off `nflState.week` advancing; if Sleeper flips it later than
+      10:00 UTC Tuesday, the Wednesday run catches it.
 - [ ] **Per-player news feed on Teams.** Backlogged at the owner's request. No
       free per-player RSS source exists; the realistic approach is filtering a
       league-wide feed by player name, which is lossy and misses spelling
       variants. Confirm that's acceptable before building it.
+- [ ] `www.dasdynasty.com` has no DNS record; only the bare domain resolves.
+      Optional CNAME, owner's call.
 
 ## Known discrepancy — needs a league decision, not code
 
@@ -167,6 +194,53 @@ is configured `veto_votes_needed: 6`.
 ---
 
 ## Shipped
+
+**2026-09-11 session**
+- [x] **Draft class recap** replaces the prospect board on `/draft` once the
+      draft is `complete` (`components/DraftRecap.tsx`). Grades each pick
+      against the rookie board frozen just before the first pick: the pipeline
+      writes `content/predraft-ranks/{season}.json` on every run while the
+      draft is `pre_draft` and never touches it afterwards. 2026's snapshot was
+      recovered from git (`f4353f3`). "Board" is the player's position within
+      the class, not raw `search_rank`. Sleeper's ranking is one-QB, so QB
+      "reaches" in this superflex room are mostly format — the page says so.
+      Draft capital becomes "draft hauls" (summed projections) after the draft.
+- [x] **Live game-day scores** on Schedule and a new Home scoreboard. Both poll
+      `/api/league/{id}/matchups/{week}` every 45s while the week on screen is
+      the NFL week in progress (`isLiveWeek` in `lib/live.ts`) and overlay the
+      rows on the committed matchups. Home reads a 5KB `scoreboard.json` (the
+      current week only) rather than the season's matchup file. `LivePill` is
+      the shared marker. Vite dev proxies `/api` to Sleeper so this can be
+      exercised without `wrangler dev`.
+- [x] **Weekly recaps tab** (`/recaps`) replaces Waiver. `write-recaps.mjs`
+      runs from `.github/workflows/recaps.yml` Tue/Wed 10:00 UTC, writes one
+      `content/recaps/{season}/week-NN.json` per completed week, never
+      overwrites an existing one, and the pipeline bundles them into
+      `public/data/recaps/{season}.json`. CI writes template prose. Better
+      prose comes from a chat session via `--prompt` / `--apply` (see Open),
+      no API key involved; the direct-API path (`claude-opus-5`, structured
+      output) exists but only runs if an `ANTHROPIC_API_KEY` is ever set, and
+      any failure falls back to template. The optimal-lineup math reproduces Sleeper's `ppts`
+      to the cent for 11 of 12 teams over 2025 (the twelfth is 21.4 low —
+      a dual-`fantasy_positions` player the slim index cannot see). 2025 is
+      backfilled with template recaps so the page has content before week 1.
+- [x] **FAAB moved to Transactions.** The budget grid and the trending
+      free-agent list live there now; `/waiver` redirects to `/transactions`.
+- [x] **Consolation bracket placements corrected.** Found while labelling
+      playoff games for the recaps: the pipeline treated the losers bracket as
+      a normal bracket, so every season's last place went to the team that had
+      just outscored its opponent in the final consolation game. Sleeper's
+      data says it is a toilet bowl (see Non-obvious semantics). Changes the
+      2021–2025 `lastPlace` rows on Records and Playoffs and each owner's
+      `lastPlaces` count. **Owner should confirm** against who actually served
+      the 2025 last-place punishment (watching all of Gossip Girl) — the site
+      now says Idontevenlikeohiost, was Notre Dame de Paris.
+- [x] **Home standings season fix.** It keyed off "has a schedule", and
+      Sleeper publishes the schedule weeks before kickoff, so Home was already
+      showing twelve 0-0 rows and an all-zero tankathon. It now keys off
+      `manifest.seasons[].hasGames` (any W/L/T or PF > 0) and stays on 2025
+      until 2026 has points. Note: roster `fpts` does **not** update live —
+      matchup points do — so this flips when Sleeper finalizes week 1.
 
 **Global**
 - [x] Collapsible left nav, persisted to `localStorage`.
@@ -306,7 +380,7 @@ match `\d{6,25}` and weeks `\d{1,2}`; anything else 404s, non-GET 405s.
 | --- | --- | --- |
 | `/api/draft/{id}/picks` | 15s | Draft board, draft night |
 | `/api/draft/{id}` | 30s | draft status |
-| `/api/league/{id}/matchups/{week}` | 45s | live scores |
+| `/api/league/{id}/matchups/{week}` | 45s | Schedule + Home scoreboard, game days |
 | `/api/league/{id}/transactions/{week}` | 60s | — |
 | `/api/league/{id}/rosters` | 60s | — |
 
@@ -325,6 +399,12 @@ good value on error, and pauses polling while the tab is hidden.
 `Draft.tsx` polls picks every 15s whenever the draft is not `complete`, merges
 them over the static board by `round:slot`, and shows a LIVE pill. With the
 Worker down, the board silently renders the committed data.
+
+`Schedule.tsx` and the Home `Scoreboard` do the same for matchups, gated by
+`isLiveWeek` — only the NFL week in progress, only in season, only the live
+season. `mergeLiveMatchups` swaps scoring fields onto the committed sides and
+leaves pairings alone. `npm run dev` proxies `/api/*` to Sleeper's `/v1/*` so
+all of this can be watched locally without `wrangler dev`.
 
 ## Load
 

@@ -7,7 +7,9 @@ import type {
   PlayerIndex,
   PointsDoc,
   ProspectsDoc,
+  Recap,
   RecordsDoc,
+  ScoreboardDoc,
   SeasonDoc,
   Transaction,
   TrendingDoc,
@@ -45,6 +47,8 @@ export const useTrending = () => use(load<TrendingDoc>('trending.json'))
 export const useBylaws = () => use(load<BylawsDoc>('bylaws.json'))
 export const usePoints = () => use(load<PointsDoc>('points.json'))
 export const useNews = () => use(load<NewsDoc>('news.json'))
+/** Current week's matchups only (~6KB) — the Home scoreboard's static base. */
+export const useScoreboard = () => use(load<ScoreboardDoc>('scoreboard.json'))
 
 /** 123KB game log. Only loaded when a player profile is first opened. */
 export const useWeekly = () => use(load<WeeklyDoc>('weekly.json'))
@@ -53,6 +57,7 @@ export const useSeason = (season: string) => use(load<SeasonDoc>(`season/${seaso
 export const useMatchups = (season: string) => use(load<MatchupWeek[]>(`matchups/${season}.json`))
 export const useTransactions = (season: string) =>
   use(load<Transaction[]>(`transactions/${season}.json`))
+export const useRecaps = (season: string) => use(load<Recap[]>(`recaps/${season}.json`))
 
 /** Warm the cache without suspending — used to prefetch on nav hover. */
 export function prefetch(path: string) {

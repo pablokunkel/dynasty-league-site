@@ -12,8 +12,10 @@ broken by Sleeper being slow or down.
 ```
 scripts/fetch-sleeper.mjs   pipeline: Sleeper -> public/data/*.json
 scripts/should-refresh.mjs  cadence gate for the refresh workflow
+scripts/write-recaps.mjs    weekly recap writer, runs Tuesdays from Actions
 league.config.json          facts the Sleeper API does not expose (see below)
 content/bylaws.md           bylaws export, rendered on /bylaws
+content/recaps/             one JSON per recapped week, editable by hand
 src/routes/                 one file per page
 src/lib/data.ts             per-season lazy loading + promise cache
 src/theme.css               palette lifted from Sleeper's own stylesheet
@@ -74,6 +76,45 @@ Three things on this site cannot come from the API. They live in
 `2026-08-15T21:00:00-04:00` — note that August is daylight saving time, so Eastern
 is `-04:00`, not the `-05:00` that "EST" literally means. Getting this wrong makes
 the countdown an hour off.
+
+## Weekly recaps
+
+`/recaps` shows a written recap of every completed week: headline, summary, a
+blurb per game, awards (high score, closest game, bench of the week…) and the
+standings afterwards. `.github/workflows/recaps.yml` writes them Tuesday and
+Wednesday mornings, after Monday night's scores are final, and commits the
+result to `content/recaps/{season}/week-NN.json`. Those files are permanent:
+edit one by hand and it stays edited, because the writer never overwrites an
+existing week.
+
+The automatic Tuesday run writes template prose: plain sentences built from the
+numbers, so it never breaks and never lies, but it reads dry. To have Claude
+write a week instead, no API key needed:
+
+```bash
+npm run recaps -- --prompt --week 3
+```
+
+prints the prompt (in the `recaps.voice` personality from `league.config.json`)
+and the JSON shape to answer with. Paste it into a Claude Code or claude.ai
+session, save the answer as a file, then
+
+```bash
+npm run recaps -- --apply answer.json
+```
+
+merges that prose into the week's file, leaving the numbers untouched. Commit
+and push, and the page says "Written by Claude". In a Claude Code session the
+whole loop is one request: "write this week's recap".
+
+If the repository ever has an `ANTHROPIC_API_KEY` Actions secret the Tuesday
+run calls the API directly with the same prompt; without it, nothing changes.
+
+```bash
+npm run recaps -- --season 2025 --dry-run
+```
+
+previews what the template writer would say without writing anything.
 
 ## Data refresh
 

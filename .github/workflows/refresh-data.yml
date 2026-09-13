@@ -43,13 +43,15 @@ jobs:
       - name: Commit if the data actually changed
         if: steps.gate.outputs.run == 'true' || inputs.force
         run: |
-          if [ -z "$(git status --porcelain public/data)" ]; then
+          # content/predraft-ranks is the frozen rookie board the pipeline
+          # writes while the draft is still pre_draft — see fetch-sleeper.mjs.
+          if [ -z "$(git status --porcelain public/data content/predraft-ranks)" ]; then
             echo "No data changes — skipping commit, so Cloudflare does not rebuild."
             exit 0
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add public/data
+          git add public/data content/predraft-ranks
           git commit -m "chore(data): refresh Sleeper data $(date -u +'%Y-%m-%dT%H:%MZ')"
           # Another tick may have landed while we were fetching.
           git pull --rebase --autostash origin "${GITHUB_REF_NAME}"

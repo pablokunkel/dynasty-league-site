@@ -1,0 +1,82 @@
+name: Weekly recaps
+
+# Writes a recap for every completed week that does not have one yet, and
+# commits it. Runs Tuesday and Wednesday mornings (ET) — after Monday night's
+# scores are final — and is idempotent, so the Wednesday run is a safety net
+# that normally does nothing.
+#
+# Prose is written by Claude when the ANTHROPIC_API_KEY repository secret is
+# set (a few cents a week), otherwise by the template writer. Either way the
+# numbers come from scripts/lib/recap-stats.mjs and the result is a permanent,
+# hand-editable JSON file under content/recaps/.
+
+on:
+  schedule:
+    - cron: '0 10 * * 2,3'
+  workflow_dispatch:
+    inputs:
+      season:
+        description: 'Season to write (defaults to the current one)'
+        type: string
+        default: ''
+      week:
+        description: 'Only this week (defaults to every completed week)'
+        type: string
+        default: ''
+      force:
+        description: 'Rewrite weeks that already have a recap'
+        type: boolean
+        default: false
+      template:
+        description: 'Use the template writer even if an API key is set'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+# Shares the refresh workflow's group so the two never race each other to push.
+concurrency:
+  group: refresh-data
+  cancel-in-progress: false
+
+jobs:
+  recaps:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # Make sure the matchup data is current before reading it.
+      - name: Fetch Sleeper data
+        run: npm run data
+
+      - name: Write recaps
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          ARGS=""
+          [ -n "${{ inputs.season }}" ] && ARGS="$ARGS --season ${{ inputs.season }}"
+          [ -n "${{ inputs.week }}" ]   && ARGS="$ARGS --week ${{ inputs.week }}"
+          [ "${{ inputs.force }}" = "true" ]    && ARGS="$ARGS --force"
+          [ "${{ inputs.template }}" = "true" ] && ARGS="$ARGS --template"
+          node scripts/write-recaps.mjs $ARGS
+
+      - name: Commit if anything changed
+        run: |
+          if [ -z "$(git status --porcelain content/recaps public/data content/predraft-ranks)" ]; then
+            echo "Nothing new — no commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/recaps public/data content/predraft-ranks
+          git commit -m "chore(recaps): write weekly recaps $(date -u +'%Y-%m-%dT%H:%MZ')"
+          git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
