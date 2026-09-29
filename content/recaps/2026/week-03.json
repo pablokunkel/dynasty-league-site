@@ -1,0 +1,493 @@
+{
+  "season": "2026",
+  "week": 3,
+  "generatedAt": "2026-09-29T16:16:26.131Z",
+  "author": "template",
+  "model": null,
+  "isPlayoffs": false,
+  "headline": "Mocha Joe’s drops 167.82 in week 3",
+  "summary": "Mocha Joe’s posted the week's high score at 167.82; pablokunkeljure brought up the rear with 91.74. The closest game was ssimonis over Sticky Bandits by 13.58, while Mocha Joe’s won the blowout by 45.74. Player of the week: Jahmyr Gibbs, 41.40 for Rensar Razzlin River Rats. Bench of the week goes to Good Berger, who left 54.18 sitting — Jacoby Brissett scored 25.60 from the pine.",
+  "games": [
+    {
+      "winner": {
+        "rosterId": 1,
+        "name": "Mocha Joe’s",
+        "points": 167.82,
+        "optimal": 188.52,
+        "benchLeft": 20.7,
+        "topPlayer": {
+          "id": "8183",
+          "name": "Brock Purdy",
+          "pos": "QB",
+          "nfl": "SF",
+          "points": 31.28
+        },
+        "bestBench": {
+          "id": "12506",
+          "name": "Harold Fannin",
+          "pos": "TE",
+          "nfl": "CLE",
+          "points": 24.1
+        }
+      },
+      "loser": {
+        "rosterId": 11,
+        "name": "Owen Seven",
+        "points": 122.08,
+        "optimal": 153.18,
+        "benchLeft": 31.1,
+        "topPlayer": {
+          "id": "8146",
+          "name": "Garrett Wilson",
+          "pos": "WR",
+          "nfl": "NYJ",
+          "points": 26.7
+        },
+        "bestBench": {
+          "id": "13330",
+          "name": "Kenyon Sadiq",
+          "pos": "TE",
+          "nfl": "NYJ",
+          "points": 23.5
+        }
+      },
+      "margin": 45.74,
+      "tie": false,
+      "label": null,
+      "blurb": "Mocha Joe’s buried Owen Seven, 167.82 to 122.08. Brock Purdy led the way with 31.28. Owen Seven left 31.10 on the bench, Kenyon Sadiq's 23.50 the biggest miss."
+    },
+    {
+      "winner": {
+        "rosterId": 2,
+        "name": "ssimonis",
+        "points": 142.06,
+        "optimal": 169.58,
+        "benchLeft": 27.52,
+        "topPlayer": {
+          "id": "421",
+          "name": "Matthew Stafford",
+          "pos": "QB",
+          "nfl": "LAR",
+          "points": 22.9
+        },
+        "bestBench": {
+          "id": "1737",
+          "name": "Case Keenum",
+          "pos": "QB",
+          "nfl": "CHI",
+          "points": 24.48
+        }
+      },
+      "loser": {
+        "rosterId": 12,
+        "name": "Sticky Bandits",
+        "points": 128.48,
+        "optimal": 160.48,
+        "benchLeft": 32,
+        "topPlayer": {
+          "id": "1373",
+          "name": "Geno Smith",
+          "pos": "QB",
+          "nfl": "NYJ",
+          "points": 26.04
+        },
+        "bestBench": {
+          "id": "1166",
+          "name": "Kirk Cousins",
+          "pos": "QB",
+          "nfl": "LV",
+          "points": 22.22
+        }
+      },
+      "margin": 13.58,
+      "tie": false,
+      "label": null,
+      "blurb": "ssimonis held off Sticky Bandits, 142.06 to 128.48. Matthew Stafford led the way with 22.90. Sticky Bandits left 32.00 on the bench, Kirk Cousins's 22.22 the biggest miss — enough to have flipped it."
+    },
+    {
+      "winner": {
+        "rosterId": 8,
+        "name": "Rensar Razzlin River Rats",
+        "points": 143.06,
+        "optimal": 146.16,
+        "benchLeft": 3.1,
+        "topPlayer": {
+          "id": "9221",
+          "name": "Jahmyr Gibbs",
+          "pos": "RB",
+          "nfl": "DET",
+          "points": 41.4
+        },
+        "bestBench": {
+          "id": "7828",
+          "name": "Noah Gray",
+          "pos": "TE",
+          "nfl": "KC",
+          "points": 6.9
+        }
+      },
+      "loser": {
+        "rosterId": 3,
+        "name": "Velvet Milkmen",
+        "points": 102.48,
+        "optimal": 142.14,
+        "benchLeft": 39.66,
+        "topPlayer": {
+          "id": "13287",
+          "name": "Jeremiyah Love",
+          "pos": "RB",
+          "nfl": "ARI",
+          "points": 21.9
+        },
+        "bestBench": {
+          "id": "10232",
+          "name": "Michael Wilson",
+          "pos": "WR",
+          "nfl": "ARI",
+          "points": 25.9
+        }
+      },
+      "margin": 40.58,
+      "tie": false,
+      "label": null,
+      "blurb": "Rensar Razzlin River Rats ran away from Velvet Milkmen, 143.06 to 102.48. Jahmyr Gibbs led the way with 41.40. Velvet Milkmen left 39.66 on the bench, Michael Wilson's 25.90 the biggest miss."
+    },
+    {
+      "winner": {
+        "rosterId": 6,
+        "name": "Vandelay Industries",
+        "points": 133.56,
+        "optimal": 142.86,
+        "benchLeft": 9.3,
+        "topPlayer": {
+          "id": "8112",
+          "name": "Drake London",
+          "pos": "WR",
+          "nfl": "ATL",
+          "points": 28.4
+        },
+        "bestBench": {
+          "id": "13324",
+          "name": "Matt Hibner",
+          "pos": "TE",
+          "nfl": "BAL",
+          "points": 10.3
+        }
+      },
+      "loser": {
+        "rosterId": 4,
+        "name": "Back rubs",
+        "points": 98.36,
+        "optimal": 119.84,
+        "benchLeft": 21.48,
+        "topPlayer": {
+          "id": "11604",
+          "name": "Brock Bowers",
+          "pos": "TE",
+          "nfl": "LV",
+          "points": 27.6
+        },
+        "bestBench": {
+          "id": "4017",
+          "name": "Deshaun Watson",
+          "pos": "QB",
+          "nfl": "CLE",
+          "points": 20.26
+        }
+      },
+      "margin": 35.2,
+      "tie": false,
+      "label": null,
+      "blurb": "Vandelay Industries took care of Back rubs, 133.56 to 98.36. Drake London led the way with 28.40. Back rubs left 21.48 on the bench, Deshaun Watson's 20.26 the biggest miss."
+    },
+    {
+      "winner": {
+        "rosterId": 5,
+        "name": "Good Berger",
+        "points": 127.7,
+        "optimal": 181.88,
+        "benchLeft": 54.18,
+        "topPlayer": {
+          "id": "9509",
+          "name": "Bijan Robinson",
+          "pos": "RB",
+          "nfl": "ATL",
+          "points": 35.3
+        },
+        "bestBench": {
+          "id": "3257",
+          "name": "Jacoby Brissett",
+          "pos": "QB",
+          "nfl": "ARI",
+          "points": 25.6
+        }
+      },
+      "loser": {
+        "rosterId": 9,
+        "name": "pablokunkeljure",
+        "points": 91.74,
+        "optimal": 137.34,
+        "benchLeft": 45.6,
+        "topPlayer": {
+          "id": "12545",
+          "name": "Tyler Shough",
+          "pos": "QB",
+          "nfl": "NO",
+          "points": 24.8
+        },
+        "bestBench": {
+          "id": "3634",
+          "name": "Kalif Raymond",
+          "pos": "WR",
+          "nfl": "CHI",
+          "points": 21
+        }
+      },
+      "margin": 35.96,
+      "tie": false,
+      "label": null,
+      "blurb": "Good Berger took down pablokunkeljure, 127.70 to 91.74. Bijan Robinson led the way with 35.30. pablokunkeljure left 45.60 on the bench, Kalif Raymond's 21.00 the biggest miss — enough to have flipped it."
+    },
+    {
+      "winner": {
+        "rosterId": 10,
+        "name": "Maximus Decimus Meridius",
+        "points": 127.96,
+        "optimal": 149,
+        "benchLeft": 21.04,
+        "topPlayer": {
+          "id": "3198",
+          "name": "Derrick Henry",
+          "pos": "RB",
+          "nfl": "BAL",
+          "points": 21.9
+        },
+        "bestBench": {
+          "id": "4943",
+          "name": "Sam Darnold",
+          "pos": "QB",
+          "nfl": "SEA",
+          "points": 29.66
+        }
+      },
+      "loser": {
+        "rosterId": 7,
+        "name": "Norwood Peckers",
+        "points": 98.16,
+        "optimal": 112.46,
+        "benchLeft": 14.3,
+        "topPlayer": {
+          "id": "6801",
+          "name": "Tee Higgins",
+          "pos": "WR",
+          "nfl": "CIN",
+          "points": 21
+        },
+        "bestBench": {
+          "id": "12495",
+          "name": "Ollie Gordon",
+          "pos": "RB",
+          "nfl": "MIA",
+          "points": 14.5
+        }
+      },
+      "margin": 29.8,
+      "tie": false,
+      "label": null,
+      "blurb": "Maximus Decimus Meridius handled Norwood Peckers, 127.96 to 98.16. Derrick Henry led the way with 21.90. Norwood Peckers left 14.30 on the bench, Ollie Gordon's 14.50 the biggest miss."
+    }
+  ],
+  "awards": {
+    "highScore": {
+      "rosterId": 1,
+      "name": "Mocha Joe’s",
+      "points": 167.82
+    },
+    "lowScore": {
+      "rosterId": 9,
+      "name": "pablokunkeljure",
+      "points": 91.74
+    },
+    "closest": {
+      "winner": {
+        "rosterId": 2,
+        "name": "ssimonis",
+        "points": 142.06
+      },
+      "loser": {
+        "rosterId": 12,
+        "name": "Sticky Bandits",
+        "points": 128.48
+      },
+      "margin": 13.58
+    },
+    "blowout": {
+      "winner": {
+        "rosterId": 1,
+        "name": "Mocha Joe’s",
+        "points": 167.82
+      },
+      "loser": {
+        "rosterId": 11,
+        "name": "Owen Seven",
+        "points": 122.08
+      },
+      "margin": 45.74
+    },
+    "benchBlunder": {
+      "rosterId": 5,
+      "name": "Good Berger",
+      "left": 54.18,
+      "player": {
+        "id": "3257",
+        "name": "Jacoby Brissett",
+        "pos": "QB",
+        "nfl": "ARI",
+        "points": 25.6
+      }
+    },
+    "topPlayer": {
+      "id": "9221",
+      "name": "Jahmyr Gibbs",
+      "pos": "RB",
+      "nfl": "DET",
+      "points": 41.4,
+      "rosterId": 8,
+      "team": "Rensar Razzlin River Rats"
+    }
+  },
+  "standings": [
+    {
+      "rosterId": 1,
+      "name": "Mocha Joe’s",
+      "wins": 3,
+      "losses": 0,
+      "ties": 0,
+      "pointsFor": 514.16,
+      "pointsAgainst": 405.48,
+      "place": 1,
+      "movement": 0
+    },
+    {
+      "rosterId": 8,
+      "name": "Rensar Razzlin River Rats",
+      "wins": 3,
+      "losses": 0,
+      "ties": 0,
+      "pointsFor": 509.18,
+      "pointsAgainst": 327.5,
+      "place": 1,
+      "movement": 0
+    },
+    {
+      "rosterId": 5,
+      "name": "Good Berger",
+      "wins": 3,
+      "losses": 0,
+      "ties": 0,
+      "pointsFor": 442.96,
+      "pointsAgainst": 290.14,
+      "place": 1,
+      "movement": 0
+    },
+    {
+      "rosterId": 2,
+      "name": "ssimonis",
+      "wins": 2,
+      "losses": 1,
+      "ties": 0,
+      "pointsFor": 431.46,
+      "pointsAgainst": 374.46,
+      "place": 2,
+      "movement": 0
+    },
+    {
+      "rosterId": 10,
+      "name": "Maximus Decimus Meridius",
+      "wins": 2,
+      "losses": 1,
+      "ties": 0,
+      "pointsFor": 391.6,
+      "pointsAgainst": 378.34,
+      "place": 2,
+      "movement": 0
+    },
+    {
+      "rosterId": 6,
+      "name": "Vandelay Industries",
+      "wins": 2,
+      "losses": 1,
+      "ties": 0,
+      "pointsFor": 345.02,
+      "pointsAgainst": 324.08,
+      "place": 2,
+      "movement": 0
+    },
+    {
+      "rosterId": 9,
+      "name": "pablokunkeljure",
+      "wins": 2,
+      "losses": 1,
+      "ties": 0,
+      "pointsFor": 321.46,
+      "pointsAgainst": 327.56,
+      "place": 2,
+      "movement": -1
+    },
+    {
+      "rosterId": 11,
+      "name": "Owen Seven",
+      "wins": 1,
+      "losses": 2,
+      "ties": 0,
+      "pointsFor": 368.82,
+      "pointsAgainst": 347.34,
+      "place": 3,
+      "movement": -1
+    },
+    {
+      "rosterId": 12,
+      "name": "Sticky Bandits",
+      "wins": 0,
+      "losses": 3,
+      "ties": 0,
+      "pointsFor": 332.52,
+      "pointsAgainst": 482.42,
+      "place": 4,
+      "movement": -1
+    },
+    {
+      "rosterId": 7,
+      "name": "Norwood Peckers",
+      "wins": 0,
+      "losses": 3,
+      "ties": 0,
+      "pointsFor": 300.56,
+      "pointsAgainst": 429.84,
+      "place": 4,
+      "movement": -1
+    },
+    {
+      "rosterId": 3,
+      "name": "Velvet Milkmen",
+      "wins": 0,
+      "losses": 3,
+      "ties": 0,
+      "pointsFor": 297,
+      "pointsAgainst": 384,
+      "place": 4,
+      "movement": -1
+    },
+    {
+      "rosterId": 4,
+      "name": "Back rubs",
+      "wins": 0,
+      "losses": 3,
+      "ties": 0,
+      "pointsFor": 268.56,
+      "pointsAgainst": 452.14,
+      "place": 4,
+      "movement": -1
+    }
+  ]
+}
